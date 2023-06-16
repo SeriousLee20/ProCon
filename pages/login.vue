@@ -1,0 +1,46 @@
+<template>
+  <div
+    class="h-screen w-screen flex align-items-center justify-content-center bg-teal-100"
+  >
+    <Pcard
+      class="flex flex-column align-items-center justify-item-center border-teal-800"
+    >
+      <template #header>
+        <h3>Welcome to ProCon</h3>
+      </template>
+      <template #content>
+        <Pcard class="surface-100">
+          <template #content>
+            <Pbutton
+              type="button"
+              label="Login with Github"
+              icon="pi pi-github"
+              @click="auth.signInWithOAuth({ provider: 'github' })"
+            />
+          </template>
+        </Pcard>
+      </template>
+    </Pcard>
+  </div>
+</template>
+
+<script setup lang="ts">
+const user = useSupabaseUser();
+const { auth } = useSupabaseAuthClient();
+
+watchEffect(() => {
+  if (user.value) {
+    navigateTo("/");
+
+    const userData = async () => {
+      const { data, error } = await useLazyFetch("/api/getUser");
+      return data;
+    };
+    console.log(userData);
+  }
+});
+
+// const login = auth.signInWithOAuth({ provider: "github" });
+</script>
+
+<style lang="scss" scoped></style>
