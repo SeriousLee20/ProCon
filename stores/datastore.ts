@@ -4,17 +4,17 @@ export const useDataStore = defineStore("data", {
   state: () => ({
     user: null as User | null,
     isLoggedIn: false,
-    events: null as Event[] | null,
+    projects: null as Project[] | null,
     announcement: null as Announcement[] | null,
-    selectedEvent: "",
+    selectedProject: null as Project | null,
     previousPage: "",
   }),
   getters: {
     getUserId: (state) => state.user?.id,
     getUserName: (state) => state.user?.name,
     logInStatus: (state) => state.isLoggedIn,
-    getSelectedEvent: (state) => state.selectedEvent,
-    getAllEvents: (state) => state.events,
+    getSelectedProject: (state) => state.selectedProject,
+    getAllProjects: (state) => state.projects,
     getPreviousPage: (state) => state.previousPage,
   },
   actions: {
@@ -28,52 +28,61 @@ export const useDataStore = defineStore("data", {
     logOut() {
       this.isLoggedIn = false;
     },
-    createEvent(event: Event) {
-      console.log(event);
-      if (!this.events) this.events = [];
-      this.events.push(event);
-      //   console.log("e", this.events);
+    createProject(project: Project) {
+      console.log(project);
+      if (!this.projects) this.projects = [];
+      this.projects.push(project);
+      //   console.log("e", this.projects);
     },
     createAnnouncement(announcement: Announcement) {
       console.log(announcement);
       if (!this.announcement) this.announcement = [];
       this.announcement.push(announcement);
-      //   console.log("a", this.events);
+      //   console.log("a", this.projects);
     },
     updateUserInfo(key: string, value: any) {
       this.user ? ([key as keyof typeof this.user] = value) : this.user;
     },
-    updateEvent(eventId: string, key: string, value: any) {
-      let event = this.getEvent(eventId);
-      event ? ([key as keyof typeof event] = value) : event;
+    updateProject(projectId: string, key: string, value: any) {
+      let project = this.getProject(projectId);
+      project ? ([key as keyof typeof project] = value) : project;
     },
-    getEvent(eventId: string) {
-      return this.events?.filter((event) => {
-        return event.id == eventId;
+    getProject(projectId: string) {
+      return this.projects?.filter((project) => {
+        return project.id == projectId;
       })[0];
     },
     getUserInfo(userId: string, key: string) {
       return this.user ? [key] : this.user;
     },
     getUserRole() {
-      return this.events?.filter((event) => {
-        return event.id == this.selectedEvent;
+      return this.projects?.filter((project) => {
+        return project.id == this.selectedProject?.id;
       })[0].role;
     },
     getFullData() {
-      return [this.user, this.events, this.announcement];
+      return [
+        this.user,
+        this.projects,
+        this.announcement,
+        this.selectedProject,
+      ];
     },
     setPreviousPage(page: string) {
       this.previousPage = page;
     },
+    setSelectedProject(id: string) {
+      const project = this.getProject(id);
+      this.selectedProject = project ? project : null;
+    },
     clearData() {
       this.user = null;
-      this.events = null;
+      this.projects = null;
       this.announcement = null;
     },
     logout() {
       this.clearData();
-      this.selectedEvent = "";
+      this.selectedProject = null;
     },
   },
 });
@@ -87,13 +96,13 @@ interface User {
   avatar_url: string;
 }
 
-interface Event {
+interface Project {
   id: string;
   name: string;
   role: string;
   description: string;
   creator_id: string;
-  is_show_event_in_overview: boolean;
+  is_show_project_in_overview: boolean;
   //   tasks: [{
   //     id: string;
   //     name: string;
@@ -119,7 +128,7 @@ interface Overview {
 interface Announcement {
   id: string;
   name: string;
-  event_id: string;
+  project_id: string;
   creator_id: string;
   creation_date_time: string;
   description: string;

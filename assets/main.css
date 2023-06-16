@@ -1,0 +1,113 @@
+/*
+6= 0.375
+9= 0.563
+12= 0.75
+15= 0.938
+18= 1.125
+23= 1.438
+25= 1.563
+29= 1.813
+41= 2.563
+66= 4.125
+76= 4.75
+107= 6.688
+174= 10.875
+281= 17.563
+456= 28.5
+*/
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  /* font-family: "Montserrat", sans-serif; */
+  color: #272343;
+}
+
+body {
+  font-weight: 400;
+  font-size: 0.938rem;
+}
+
+.body2 {
+  font-weight: 500;
+  font-size: 0.938rem;
+}
+
+.body3 {
+  font-weight: 300;
+  font-size: 1.125rem;
+}
+
+.body4 {
+  font-weight: 400;
+  font-size: 1.125rem;
+}
+
+.body5 {
+  font-weight: 400;
+  font-size: 1.438rem;
+}
+
+h1 {
+  font-size: 4.75rem;
+  font-weight: 900;
+}
+
+h2 {
+  font-size: 1.813rem;
+  font-weight: 800;
+}
+
+h3 {
+  font-size: 1.438rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 0.938rem;
+  font-weight: 700;
+}
+
+h6 {
+  font-size: 0.938rem;
+  font-weight: 600;
+}
+
+footer {
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.footer2 {
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.footer3 {
+  font-weight: 300;
+  font-size: 1.125rem;
+}
+
+.button-text {
+  font-weight: 500;
+  font-size: 1.438rem;
+}
+
+.input-text {
+  font-weight: 300;
+  font-size: 0.938rem;
+}
+
+.input-text-2 {
+  font-weight: 300;
+  font-size: 1.438rem;
+}

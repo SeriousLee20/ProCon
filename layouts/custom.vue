@@ -1,10 +1,19 @@
 <template>
   <div>
-    <Navbar />
-    <slot />
+    <ClientOnly>
+      <Navbar />
+    </ClientOnly>
+    <slot></slot>
   </div>
 </template>
 
-<script setup></script>
+<script>
+import Navbar from "~/components/Navbar.vue";
+export default {
+  components: {
+    Navbar,
+  },
+};
+</script>
 
 <style lang="scss" scoped></style>

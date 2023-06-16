@@ -5,7 +5,8 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/supabase", "@vueuse/nuxt", "@pinia/nuxt"],
 
   css: [
-    "primevue/resources/themes/lara-light-teal/theme.css",
+    "@/assets/main.css",
+    "primevue/resources/themes/mira/theme.css",
     "primevue/resources/primevue.css",
     "primeicons/primeicons.css",
     "primeflex/primeflex.css",
@@ -22,4 +23,6 @@ export default defineNuxtConfig({
       callback: "/",
     },
   },
+
+  // components: false,
 });
