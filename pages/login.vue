@@ -31,12 +31,6 @@ const { auth } = useSupabaseAuthClient();
 watchEffect(() => {
   if (user.value) {
     navigateTo("/");
-
-    const userData = async () => {
-      const { data, error } = await useLazyFetch("/api/getUser");
-      return data;
-    };
-    console.log(userData);
   }
 });
 

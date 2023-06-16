@@ -1,5 +1,7 @@
 <template>
-  <div></div>
+  <div>
+    <Pbutton label="click" @click="logout" />
+  </div>
 </template>
 
 <script setup>
@@ -10,9 +12,21 @@ definePageMeta({
   layout: "custom",
 });
 
+const { auth } = useSupabaseAuthClient();
 const dataStore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
 const table = userData.value;
+
+watchEffect(() => {
+  if (!useSupabaseUser().value) {
+    navigateTo("/login");
+  }
+});
+
+const logout = async () => {
+  await auth.signOut();
+  dataStore.logout();
+};
 
 dataStore.clearData();
 dataStore.createUser({
