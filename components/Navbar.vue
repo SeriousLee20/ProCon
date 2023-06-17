@@ -94,16 +94,19 @@ const configEditMenuList = () => {
   console.log("1", dstore.getSelectedProject);
   const editMenu = [];
   if (dstore.getSelectedProject?.role == "admin") {
-    editMenu.push({ label: "Edit Event", command: "" });
+    editMenu.push({
+      label: "Edit Event",
+      command: () => navigateTo("/editEvent"),
+    });
   }
   editMenu.push(
     {
       label: "Create New Event",
-      command: "",
+      command: () => navigateTo("/createEvent"),
     },
     {
       label: "Join Event",
-      command: "",
+      command: () => navigateTo("/joinEvent"),
     }
   );
   return { editMenu };
@@ -119,6 +122,8 @@ const onChangeSelectedProject = (event) => {
   console.log(event);
   dstore.setSelectedProject(event.value);
   console.log("2", dstore.getSelectedProject);
+
+  console.log(selectedProject.value);
   menuItems.value = configEditMenuList().editMenu;
   isShowButton.value = isEventPage;
 

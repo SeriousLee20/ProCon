@@ -7,19 +7,17 @@ export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
   const dstore = useDataStore();
-  const nData = dstore.getUser;
+  const projectList = dstore.getAllProjects;
 
   if (user) {
+    const nData = projectList ? projectList[projectList?.length - 1] : null;
     const id = user?.id.toString();
     console.log(nData);
     if (nData) {
-      const { data, error } = await client.rpc("update_user", {
-        user_id: id,
-        n_name: nData?.name,
-        n_email: nData?.email,
-        n_contact_number: nData?.contact_number,
-        n_start_working_hour: nData?.start_working_hour,
-        n_end_working_hour: nData?.end_working_hour,
+      const { data, error } = await client.rpc("map_user_event", {
+        n_user_id: id,
+        n_event_id: nData.id.toString(),
+        n_role: nData.role,
       });
       if (error) {
         throw createError({ statusMessage: error.message });

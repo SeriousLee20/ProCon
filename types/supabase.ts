@@ -118,30 +118,33 @@ export interface Database {
         Row: {
           event_id: string
           is_show_in_overview: boolean | null
+          user_event_id: number
           user_id: string
           user_role: string
         }
         Insert: {
           event_id: string
           is_show_in_overview?: boolean | null
+          user_event_id?: number
           user_id: string
           user_role: string
         }
         Update: {
           event_id?: string
           is_show_in_overview?: boolean | null
+          user_event_id?: number
           user_id?: string
           user_role?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_map_event_id"
+            foreignKeyName: "map_event_event_id_fkey"
             columns: ["event_id"]
             referencedRelation: "event"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_map_user_id"
+            foreignKeyName: "map_event_user_id_fkey"
             columns: ["user_id"]
             referencedRelation: "user"
             referencedColumns: ["id"]
@@ -188,6 +191,16 @@ export interface Database {
           user_id: string
         }
         Returns: boolean
+      }
+      get_all_event: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          creation_timestamp: string
+          creator_id: string | null
+          description: string | null
+          id: string
+          name: string
+        }[]
       }
       get_full_data: {
         Args: {
@@ -237,6 +250,14 @@ export interface Database {
           end_working_hour: string
         }
         Returns: string
+      }
+      map_user_event: {
+        Args: {
+          n_user_id: string
+          n_event_id: string
+          n_role: string
+        }
+        Returns: Record<string, unknown>
       }
       update_user: {
         Args: {

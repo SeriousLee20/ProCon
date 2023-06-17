@@ -1,5 +1,5 @@
 <template>
-  <PToast />
+  <Ptoast />
   <div class="flex align-items-center justify-content-center mt-8">
     <Avatar />
   </div>

@@ -20,7 +20,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pavatar", Avatar);
   nuxtApp.vueApp.component("Pinputtext", InputText);
   nuxtApp.vueApp.component("Pinputmask", InputMask);
-  nuxtApp.vueApp.component("PToast", Toast);
+  nuxtApp.vueApp.component("Ptoast", Toast);
 
   //other components that you need
 
