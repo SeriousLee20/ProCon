@@ -11,6 +11,10 @@ import InputMask from "primevue/inputmask";
 import Toast from "primevue/toast";
 import ToastService from "primevue/toastservice";
 import Textarea from "primevue/textarea";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import ColumnGroup from "primevue/columngroup"; // optional
+import Row from "primevue/row"; // optional
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -23,6 +27,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pinputmask", InputMask);
   nuxtApp.vueApp.component("Ptoast", Toast);
   nuxtApp.vueApp.component("Ptextarea", Textarea);
+  nuxtApp.vueApp.component("Pdatatable", DataTable);
+  nuxtApp.vueApp.component("Pcolumn", Column);
+  nuxtApp.vueApp.component("Pcolumngroup", ColumnGroup);
+  nuxtApp.vueApp.component("Prow", Row);
 
   //other components that you need
 

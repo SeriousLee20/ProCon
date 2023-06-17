@@ -10,7 +10,6 @@ export const useDataStore = defineStore("data", {
     selectedProject: null as Project | null,
     currentPage: "",
   }),
-  persist: true,
   getters: {
     getUserId: (state) => state.user?.id,
     getUserName: (state) => state.user?.name,
