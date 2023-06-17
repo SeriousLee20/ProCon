@@ -1,5 +1,22 @@
 <template>
   <div>
+    <div
+      style="
+        flex: 1;
+        display: flex;
+        height: 100%;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <iframe
+        style="pointer-events: none; border: none"
+        width="1000"
+        height="700"
+        src="https://embed.lottiefiles.com/animation/145811"
+      ></iframe>
+    </div>
     <Pbutton label="logout" @click="logout" />
   </div>
 </template>

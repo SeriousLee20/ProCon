@@ -1,15 +1,17 @@
 <template>
-  <div class="flex align-items-center justify-content-center mt-5">
+  <PToast />
+  <div class="flex align-items-center justify-content-center mt-8">
     <Avatar />
   </div>
   <form
     @submit="updateProfile"
     class="flex flex-column gap-5 align-items-center justify-content-center mt-3"
+    style="font-family: sans-serif"
   >
     <div>
       <span class="p-float-label">
         <Pinputtext id="name" v-model="name" type="text" required />
-        <label for="name">Name</label>
+        <label for="name" style="text-align: center">Name</label>
       </span>
     </div>
 
@@ -60,13 +62,21 @@
       </span>
     </div>
     <div>
-      <Pbutton type="submit" label="Save" />
+      <Pbutton :loading="loading" type="submit" label="Save" />
     </div>
   </form>
 </template>
 
 <script setup>
 import { useDataStore } from "~/stores/datastore";
+import { createClient } from "@supabase/supabase-js";
+import { useToast } from "primevue/usetoast";
+// Create a single supabase client for interacting with your database
+const supabase = createClient(
+  "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
+);
+const toast = useToast();
 
 definePageMeta({
   layout: "custom",
@@ -76,6 +86,7 @@ definePageMeta({
 const dstore = useDataStore();
 dstore.setSelectedProject(null);
 dstore.setCurrentPage("Profile");
+const loading = ref(false);
 
 const user = dstore.getUser;
 console.log(user);
@@ -89,9 +100,7 @@ var endtime = ref(user.end_working_hour);
 console.log(name, email, phone, starttime, endtime);
 var updated = false;
 const updateProfile = async () => {
-  // alert(JSON.stringify(values, null, 2));
-  alert(name.value + email.value);
-  console.log(name, email, phone, starttime, endtime);
+  loading.value = true;
   var userId = dstore.getUserId;
   var nname = name.value ? name.value : user.name;
   var nphone = phone.value ? phone.value : user.contact_number;
@@ -99,12 +108,6 @@ const updateProfile = async () => {
   var startTime = starttime.value ? starttime.value : user.start_working_hour;
   var endTime = endtime.value ? endtime.value : user.end_working_hour;
 
-  //   var userId = dstore.getUserId;
-  //   var nname = name.value ? name : user.name;
-  //   var nphone = phone ? phone : user.contact_number;
-  //   var nemail = email ? email : user.email;
-  //   var startTime = starttime ? starttime : user.start_working_hour;
-  //   var endTime = endtime ? endtime : user.end_working_hour;
   const newProfile = {
     id: userId,
     name: nname,
@@ -115,28 +118,38 @@ const updateProfile = async () => {
     avatar_url: "",
   };
 
-  //   try {
   dstore.createUser(newProfile);
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  console.log("updated", dstore.getUser);
-  updated = true;
-  const { data } = await useFetch("/api/update_user");
-  console.log(data);
-};
 
+  console.log("updated", dstore.getUser);
+
+  try {
+    const { error } = await supabase
+      .from("user")
+      .update({
+        id: userId,
+        name: nname,
+        email: nemail,
+        contact_number: nphone,
+        start_working_hour: startTime,
+        end_working_hour: endTime,
+      })
+      .eq("id", userId);
+
+    toast.add({
+      severity: "success",
+      summary: "Hurray!",
+      detail: "Profile Updated Successfully",
+      life: 50000,
+    });
+
+    console.log(error);
+    loading = false;
+  } catch (error) {
+    console.log(error);
+  }
+};
 if (updated) {
 }
-
-// (name = updatedInput(name, storeToRefs(dstore.user.name))),
-//   (phone = updatedInput(phone, storeToRefs(dstore.user.contact_number))),
-//   (email = updatedInput(email, storeToRefs(dstore.user.email))),
-//   (starttime = updatedInput(
-//     starttime,
-//     storeToRefs(dstore.user.start_working_hour)
-//   )),
-//   (endtime = updatedInput(endtime, storeToRefs(dstore.user.end_working_hour)));
 </script>
 
 <style lang="scss" scoped></style>
