@@ -9,7 +9,7 @@
       <div class="col flex justify-content-center align-content-center">
         <div>
           <Pdropdown
-            id="event-ddlit"
+            id="event-ddlist"
             v-model="selectedProject"
             :options="project"
             optionLabel="name"
@@ -154,4 +154,8 @@ const logout = async () => {
 };
 </script>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+#event-ddlist {
+  max-width: 80%;
+}
+</style>

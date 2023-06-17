@@ -37,7 +37,7 @@
 
 <script setup>
 definePageMeta({
-  middleware: ["auth", "initiate"],
+  middleware: ["auth"],
   //   layout: "custom",
 });
 
@@ -45,7 +45,7 @@ const isLoading = ref(true);
 setTimeout(() => {
   isLoading.value = false;
   console.log(isLoading.value);
-}, 2000);
+}, 3000);
 
 watchEffect(() => {
   if (useSupabaseUser().value && !isLoading.value) {
