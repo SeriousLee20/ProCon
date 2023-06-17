@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (user) {
     const user_id = user?.id.toString();
     const { data, error } = await client.rpc("get_full_data", {
-      current_user_id: "c402cbde-9d94-4a45-98cc-5e1da5a282ee",
+      current_user_id: user_id,
     });
 
     if (error) {
