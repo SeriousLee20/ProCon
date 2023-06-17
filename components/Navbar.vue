@@ -43,7 +43,11 @@
           <Pbutton type="button" icon="pi pi-comment" />
           <Pbutton type="button" icon="pi pi-inbox" />
         </div>
-        <Pbutton type="button" icon="pi pi-home" />
+        <Pbutton
+          type="button"
+          icon="pi pi-home"
+          @click="navigateTo('/overview')"
+        />
         <Pbutton
           type="button"
           icon="pi pi-user"
@@ -114,14 +118,23 @@ const toggle = (event) => {
 const onChangeSelectedProject = (event) => {
   console.log(event);
   dstore.setSelectedProject(event.value);
-  console.log(dstore.getSelectedProject);
+  console.log("2", dstore.getSelectedProject);
   menuItems.value = configEditMenuList().editMenu;
   isShowButton.value = isEventPage;
 
   if (!event.value) {
     ddplaceholder.value = dstore.getCurrentPage;
+  } else {
+    dstore.setCurrentPage("");
+    ddplaceholder.value = "";
   }
   console.log(ddplaceholder.value);
+
+  if (event.value == "-1") {
+    navigateTo("/overview");
+  } else {
+    navigateTo(`/event/${event.value}`);
+  }
 };
 
 watchEffect(() => {

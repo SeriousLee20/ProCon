@@ -34,6 +34,8 @@ const dstore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
 const table = userData.value;
 
+dstore.setSelectedProject("-1");
+
 watchEffect(() => {
   if (!useSupabaseUser().value) {
     navigateTo("/login");
