@@ -238,6 +238,25 @@ export interface Database {
         }
         Returns: string
       }
+      update_user: {
+        Args: {
+          user_id: string
+          n_name: string
+          n_email: string
+          n_contact_number: string
+          n_start_working_hour: string
+          n_end_working_hour: string
+        }
+        Returns: {
+          contact_number: string | null
+          created_at: string | null
+          email: string
+          end_working_hour: string | null
+          id: string
+          name: string | null
+          start_working_hour: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

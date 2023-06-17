@@ -156,6 +156,9 @@ function updateProfile() {
   //     alert(error);
   //   }
   console.log("updated", dstore.getUser);
+
+  const { data } = async () => await useFetch("/api/update_user");
+  console.log(data);
 }
 
 // (name = updatedInput(name, storeToRefs(dstore.user.name))),
