@@ -108,12 +108,14 @@
                     justify-content: end;
                     align-self: center;
                   ">
-                  <Pbutton @click="addAnnouncement()" icon="pi pi-plus" rounded outlined aria-label="Filter" />
+                  <Pbutton @click="openModalNow()" icon="pi pi-plus" rounded outlined aria-label="Filter" />
                 </div>
               </div>
             </div>
-            <div v-if="filteredAnnouncements.length > 0" v-for="announcement in filteredAnnouncements"
-              :key="announcement.id" style="
+            <ClientOnly>
+              <div v-if="filteredAnnouncements.length > 0">
+
+                <div v-for="announcement in filteredAnnouncements" :key="announcement.id" style="
                 padding-left: 8px;
                 padding-right: 8px;
                 padding-top: 12px;
@@ -121,14 +123,14 @@
                 overflow-y: scroll;
                 height: 200px;
               ">
-              <div style="
+                  <div style="
                   width: 100%;
                   display: flex;
                   align-items: center;
                   justify-content: space-between;
                 ">
-                <div style="display: flex; gap:12px; align-items:center;">
-                  <p style="
+                    <div style="display: flex; gap:12px; align-items:center;">
+                      <p style="
                     font-family: 'Montserrat';
                     font-style: normal;
                     font-weight: 700;
@@ -137,12 +139,29 @@
                     display: flex;
                     align-items: center;
                   ">
-                    {{ announcement.name ?? '' }}
-                  </p>
-                  <i class="pi pi-info-circle" v-tooltip.top="announcement.description ?? ''"
-                    style="font-size: 1rem; color:#4a9292"></i>
-                </div>
+                        {{ announcement.name ?? '' }}
+                      </p>
+                      <i class="pi pi-info-circle" v-tooltip.top="announcement.description"
+                        style="font-size: 1rem; color:#4a9292"></i>
+                    </div>
 
+                    <p style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 15px;
+                    display: flex;
+                    align-items: center;
+                  ">
+                      {{ formatDate(announcement.creation_timestamp) ?? '' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="announcements.length === 0 || !announcements"
+                style="display: flex; justify-content: center; align-items: center; height: 200px;">
                 <p style="
                     font-family: 'Montserrat';
                     font-style: normal;
@@ -152,24 +171,10 @@
                     display: flex;
                     align-items: center;
                   ">
-                  {{ formatDate(announcement.creation_timestamp) ?? '' }}
+                  No Announcements!
                 </p>
               </div>
-            </div>
-            <div v-if="announcements.length === 0 || !announcements"
-              style="display: flex; justify-content: center; align-items: center; height: 200px;">
-              <p style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 400;
-                    font-size: 12px;
-                    line-height: 15px;
-                    display: flex;
-                    align-items: center;
-                  ">
-                No Announcements!
-              </p>
-            </div>
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -237,6 +242,13 @@ for (let i = 0; i < announcements.length; i++) {
   if (announcement.event_id === eventid && announcement.receiver_ids.includes(table[0].user_id)) {
     filteredAnnouncements.push(announcement);
   }
+  console.log(announcement.event_id)
+  console.log(eventid)
+  console.log(announcement.event_id === eventid)
+
+  console.log(announcement.receiver_ids)
+  console.log(table[0].user_id)
+  console.log(announcement.receiver_ids.includes(table[0].user_id))
 }
 
 
@@ -247,26 +259,28 @@ let userOptions = [];
 if (Array.isArray(eventMember)) {
   userOptions = eventMember.map((user) => ({
     label: user.name,
-    id: user.id,
+    value: user.id,
   }));
 }
 else {
   userOptions = {
     label: eventMember.name,
-    id: eventMember.id
+    value: eventMember.id
   }
 }
 
-console.log(userOptions)
+
 
 const selectedUsers = ref();
+
+
 const groupedUsers = ref([
   {
     label: 'All Users',
     items: [userOptions]
   }
 ]);
-
+console.log(selectedUsers)
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -286,22 +300,44 @@ watchEffect(() => {
   }
 });
 
-function addAnnouncement() {
-  openModal.value = true;
+async function addAnnouncement() {
   let payload = {
     name: title.value,
     description: description.value,
     event_id: eventid,
     creator_id: table[0].user_id,
     creation_timestamp: new Date(),
-    receiver_ids: selectedUsers ?? []
+    receiver_ids: [userOptions.value] ?? []
   }
   console.log(payload);
+  try {
 
-}
+    const { data, error } = await supabase
+      .from('announcement')
+      .insert(payload);
+
+
+    toast.add({
+      severity: "success",
+      summary: "Hurray!",
+      detail: "Profile Updated Successfully",
+      life: 50000,
+    });
+
+    console.log(data);
+    loading = false;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
 function closeModal() {
   openModal.value = false;
+}
+
+function openModalNow() {
+  openModal.value = true;
 }
 
 const logout = async () => {
