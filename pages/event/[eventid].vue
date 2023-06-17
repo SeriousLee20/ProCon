@@ -12,6 +12,11 @@
 
 <script setup>
 const { eventid } = useRoute().params;
+
+definePageMeta({
+  layout: "custom",
+  middleware: ["auth", "initiate"],
+});
 </script>
 
 <style lang="scss" scoped></style>
