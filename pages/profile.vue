@@ -80,12 +80,6 @@ dstore.setCurrentPage("Profile");
 const user = dstore.getUser;
 console.log(user);
 
-// var name = user.name;
-// var email = user.email;
-// var phone = user.contact_number;
-// var starttime = user.start_working_hour;
-// var endtime = user.end_working_hour;
-
 var name = ref(user.name);
 var email = ref(user.email);
 var phone = ref(user.contact_number);
@@ -93,37 +87,8 @@ var starttime = ref(user.start_working_hour);
 var endtime = ref(user.end_working_hour);
 
 console.log(name, email, phone, starttime, endtime);
-
-// const validateProfile = {
-//   name(value) {
-//     console.log(value);
-//     if (!value) {
-//       console.log(value);
-//       return "Required";
-//     }
-//     return true;
-//   },
-//   phone(value) {
-//     if (!value) {
-//       return "Required";
-//     }
-//     return true;
-//   },
-// };
-
-// const { useFieldModel, errors, handleSubmit } = useForm({
-//   validationSchema: validateProfile,
-// });
-// console.log(errors);
-
-// [data.name, phone, starttime, endtime] = useFieldModel([
-//   "data.name",
-//   "phone",
-//   "starttime",
-//   "endtime",
-// ]);
-
-function updateProfile() {
+var updated = false;
+const updateProfile = async () => {
   // alert(JSON.stringify(values, null, 2));
   alert(name.value + email.value);
   console.log(name, email, phone, starttime, endtime);
@@ -156,9 +121,12 @@ function updateProfile() {
   //     alert(error);
   //   }
   console.log("updated", dstore.getUser);
-
-  const { data } = async () => await useFetch("/api/update_user");
+  updated = true;
+  const { data } = await useFetch("/api/update_user");
   console.log(data);
+};
+
+if (updated) {
 }
 
 // (name = updatedInput(name, storeToRefs(dstore.user.name))),
