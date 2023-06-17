@@ -31,7 +31,7 @@ export const useDataStore = defineStore("data", {
     logOut() {
       this.isLoggedIn = false;
     },
-    createProject(project: Project) {
+    async createProject(project: Project) {
       console.log(project);
       if (!this.projects) this.projects = [];
       this.projects.push(project);
@@ -70,6 +70,10 @@ export const useDataStore = defineStore("data", {
         this.announcement,
         this.selectedProject,
       ];
+    },
+    getLatestProject() {
+      console.log(this.projects?.pop());
+      return this.projects?.pop();
     },
     setCurrentPage(page: string) {
       this.currentPage = page;

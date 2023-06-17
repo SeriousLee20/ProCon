@@ -31,6 +31,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
 import { useDataStore } from "~/stores/datastore";
+import { storeToRefs } from "pinia";
 
 const eventCode = ref("");
 const toast = useToast();
@@ -85,18 +86,26 @@ const joinEvent = async () => {
           lifetime: 1000,
         });
 
-        dstore.createProject({
+        var newProject = {
           id: eventExist[0].id,
           name: eventExist[0].name,
           role: "member",
           description: eventExist[0].description,
           creator_id: eventExist[0].creator_id,
           is_show_project_in_overview: true,
-        });
+        };
+        dstore.createProject(newProject);
 
         console.log(dstore.getAllProjects);
-        const { data: response } = await useFetch("api/map_user_event");
-        console.log(response);
+        const { data: response, projectList } = await useFetch(
+          "api/map_user_event",
+          {
+            method: "POST",
+            body: newProject,
+            headers: { "cache-control": "no-cache" },
+          }
+        );
+        console.log(response, projectList);
       }
     }
   }
