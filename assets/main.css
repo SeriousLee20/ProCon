@@ -111,3 +111,7 @@ footer {
   font-weight: 300;
   font-size: 1.438rem;
 }
+
+.invalid-input {
+  color: "#C81111";
+}

@@ -28,10 +28,8 @@
 </template>
 
 <script setup>
-import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
 import { useDataStore } from "~/stores/datastore";
-import { storeToRefs } from "pinia";
 
 const eventCode = ref("");
 const toast = useToast();

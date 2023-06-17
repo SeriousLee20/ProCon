@@ -259,6 +259,14 @@ export interface Database {
         }
         Returns: Record<string, unknown>
       }
+      new_project: {
+        Args: {
+          n_name: string
+          n_description: string
+          n_creator_id: string
+        }
+        Returns: Record<string, unknown>
+      }
       update_user: {
         Args: {
           user_id: string
