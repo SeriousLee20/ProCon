@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { createPersistedState } from "pinia-plugin-persistedstate";
 
 export const useDataStore = defineStore("data", {
   state: () => ({
@@ -7,15 +8,17 @@ export const useDataStore = defineStore("data", {
     projects: null as Project[] | null,
     announcement: null as Announcement[] | null,
     selectedProject: null as Project | null,
-    previousPage: "",
+    currentPage: "",
   }),
+  persist: true,
   getters: {
     getUserId: (state) => state.user?.id,
     getUserName: (state) => state.user?.name,
+    getUser: (state) => state.user,
     logInStatus: (state) => state.isLoggedIn,
     getSelectedProject: (state) => state.selectedProject,
     getAllProjects: (state) => state.projects,
-    getPreviousPage: (state) => state.previousPage,
+    getCurrentPage: (state) => state.currentPage,
   },
   actions: {
     createUser(user: User) {
@@ -68,8 +71,8 @@ export const useDataStore = defineStore("data", {
         this.selectedProject,
       ];
     },
-    setPreviousPage(page: string) {
-      this.previousPage = page;
+    setCurrentPage(page: string) {
+      this.currentPage = page;
     },
     setSelectedProject(id: string) {
       const project = this.getProject(id);
@@ -92,7 +95,8 @@ interface User {
   name: string;
   contact_number: string;
   email: string;
-  working_hour: string[];
+  start_working_hour: string;
+  end_working_hour: string;
   avatar_url: string;
 }
 

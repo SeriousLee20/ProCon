@@ -15,21 +15,8 @@
             optionLabel="name"
             optionValue="id"
             @change="onChangeSelectedProject($event)"
-            placeholder=" "
+            :placeholder="ddplaceholder"
           >
-            <!-- <template #value="slotProps">
-              <div v-if="slotProps.value">
-                <div>{{ slotProps.value.name }}</div>
-              </div>
-              <span v-else>{{ slotProps.placeholder }}</span>
-            </template>
-            <template #option="slotProps">
-              <div>
-                <div>
-                  {{ slotProps.option.name }}
-                </div>
-              </div>
-            </template> -->
           </Pdropdown>
           <Pbutton
             type="button"
@@ -48,11 +35,20 @@
         </div>
       </div>
       <div class="col flex justify-content-end align-content-center gap-1">
-        <Pbutton v-if="isShowButton" type="button" icon="pi pi-chart-bar" />
-        <Pbutton v-if="isShowButton" type="button" icon="pi pi-comment" />
-        <Pbutton v-if="isShowButton" type="button" icon="pi pi-inbox" />
+        <div
+          v-if="isShowButton"
+          class="flex justify-content-end align-content-center gap-1"
+        >
+          <Pbutton type="button" icon="pi pi-chart-bar" />
+          <Pbutton type="button" icon="pi pi-comment" />
+          <Pbutton type="button" icon="pi pi-inbox" />
+        </div>
         <Pbutton type="button" icon="pi pi-home" />
-        <Pbutton type="button" icon="pi pi-user" />
+        <Pbutton
+          type="button"
+          icon="pi pi-user"
+          @click="navigateTo('/profile')"
+        />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
       </div>
     </ClientOnly>
@@ -67,23 +63,9 @@ import { ref } from "vue";
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const route = useRoute();
-
 const menu = ref();
 const dateToday = useDateFormat(useNow(), "MMM DD, YYYY");
-
-// onMounted(() => {
-//   var ddlist = document.getElementById("event-ddlist");
-//   if (window.location.href && window.location.href.indexOf("?") > -1) {
-//     var get = window.location.href.substr(
-//       window.location.href.indexOf("?") + 1
-//     );
-//     if (ddlist && get.length > 0) {
-//       var src = ddlist.src;
-//       src = src.indexOf("?") > -1 ? src + "&" + get : src + "?" + get;
-//       ddlist.src = src;
-//     }
-//   }
-// });
+var ddplaceholder = ref(dstore.getCurrentPage);
 
 var project = ref(dstore.getAllProjects);
 var selectedProject = ref(dstore.getSelectedProject?.id);
@@ -93,13 +75,17 @@ console.log("selected project:", selectedProject.value);
 
 console.log(route.name);
 
-const isShowButton = ![
+const isEventPage = ![
   "index",
   "profile",
   "manageEvent",
   "manageAnnouncement",
+  "overview",
 ].includes(route.name);
 
+const isShowButton = ref(isEventPage);
+
+console.log(isShowButton.value);
 const configEditMenuList = () => {
   console.log("1", dstore.getSelectedProject);
   const editMenu = [];
@@ -130,6 +116,12 @@ const onChangeSelectedProject = (event) => {
   dstore.setSelectedProject(event.value);
   console.log(dstore.getSelectedProject);
   menuItems.value = configEditMenuList().editMenu;
+  isShowButton.value = isEventPage;
+
+  if (!event.value) {
+    ddplaceholder.value = dstore.getCurrentPage;
+  }
+  console.log(ddplaceholder.value);
 };
 
 watchEffect(() => {

@@ -4,6 +4,10 @@ import Button from "primevue/button";
 import Card from "primevue/card";
 import Dropdown from "primevue/dropdown";
 import Menu from "primevue/menu";
+import Avatar from "primevue/avatar";
+import AvatarGroup from "primevue/avatargroup"; //Optional for grouping
+import InputText from "primevue/inputtext";
+import InputMask from "primevue/inputmask";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -11,5 +15,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pcard", Card);
   nuxtApp.vueApp.component("Pdropdown", Dropdown);
   nuxtApp.vueApp.component("Pmenu", Menu);
+  nuxtApp.vueApp.component("Pavatar", Avatar);
+  nuxtApp.vueApp.component("Pinputtext", InputText);
+  nuxtApp.vueApp.component("Pinputmask", InputMask);
   //other components that you need
 });

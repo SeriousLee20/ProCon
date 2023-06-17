@@ -38,8 +38,6 @@ const login = async () => {
   console.log(data);
   if (error) createError(error);
 };
-
-// const login = auth.signInWithOAuth({ provider: "github" });
 </script>
 
 <style lang="scss" scoped></style>
