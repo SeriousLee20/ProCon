@@ -29,9 +29,18 @@
         <Ptextarea id="description" v-model="description" type="text" required />
         <label for="description" style="text-align: center">Description</label>
       </span>
-
-      <Pbutton @click="closeModal()">Close</Pbutton>
-      <Pbutton type="submit">Add</Pbutton>
+      <Pmultiselect v-model="selectedUsers" :options="groupedUsers" optionLabel="label" optionGroupLabel="label" filter
+        optionGroupChildren="items" display="chip" placeholder="Select users to notify" class="w-full md:w-20rem">
+        <template #optiongroup="slotProps">
+          <div class="flex align-items-center">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Pmultiselect>
+      <div style="display: flex; gap:10px; align-items: center;">
+        <Pbutton type="submit">Add</Pbutton>
+        <Pbutton @click="closeModal()">Close</Pbutton>
+      </div>
     </div>
   </form>
   <div>
@@ -86,6 +95,7 @@
                   Announcements
                 </h5>
               </div>
+
               <div style="
                   grid-column: span 1 / span 1;
                   height: 100%;
@@ -199,13 +209,23 @@ const supabase = createClient(
 const toast = useToast();
 
 let announcements = [];
+let userList = [];
+console.log(eventid)
 
-const { data, error } = await supabase
+const { data: announcementData, error: announcementError } = await supabase
   .from('announcement')
   .select()
 
+let { data: eventMember, error: getEventError } = await supabase
+  .rpc('get_users_by_event_id', {
+    n_event_id: eventid
+  })
 
-announcements = data;
+if (getEventError) console.error(getEventError)
+else console.log(eventMember)
+
+
+announcements = announcementData;
 
 console.log(announcements)
 
@@ -223,14 +243,16 @@ for (let i = 0; i < announcements.length; i++) {
 
 console.log(filteredAnnouncements)
 
-let { users, errormsg } = await supabase
-  .rpc('get_users_by_event_id', {
-    n_event_id: eventid
-  })
 
 
-console.log(users)
-
+const selectedUsers = ref();
+const groupedUsers = ref([
+  {
+    label: 'All Users',
+    value: eventMember
+  }
+]);
+console.log(eventMember)
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
