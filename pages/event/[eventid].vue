@@ -22,8 +22,8 @@
       <div style="padding-top: 20px; padding-bottom: 20px;">
         Add Announcement
       </div> <span class="p-float-label">
-        <Pinputtext id="name" v-model="name" type="text" required />
-        <label for="name" style="text-align: center;">Title</label>
+        <Pinputtext id="title" v-model="title" type="text" required />
+        <label for="title" style="text-align: center;">Title</label>
       </span>
       <span class="p-float-label">
         <Ptextarea id="description" v-model="description" type="text" required />
@@ -188,15 +188,15 @@ definePageMeta({
   middleware: ["auth", "initiate"],
 });
 
-onMounted(() => {
-
-})
 const { eventid } = useRoute().params;
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
 const table = userData.value;
 const openModal = ref(false);
+const title = ref(null);
+const description = ref(null);
+
 
 console.log(table[0].user_id)
 dstore.setSelectedProject("-1");
@@ -209,7 +209,6 @@ const supabase = createClient(
 const toast = useToast();
 
 let announcements = [];
-let userList = [];
 console.log(eventid)
 
 const { data: announcementData, error: announcementError } = await supabase
@@ -241,18 +240,33 @@ for (let i = 0; i < announcements.length; i++) {
 }
 
 
-console.log(filteredAnnouncements)
+console.log(typeof filteredAnnouncements[0])
+console.log(typeof eventMember)
+let userOptions = [];
 
+if (Array.isArray(eventMember)) {
+  userOptions = eventMember.map((user) => ({
+    label: user.name,
+    id: user.id,
+  }));
+}
+else {
+  userOptions = {
+    label: eventMember.name,
+    id: eventMember.id
+  }
+}
 
+console.log(userOptions)
 
 const selectedUsers = ref();
 const groupedUsers = ref([
   {
     label: 'All Users',
-    value: eventMember
+    items: [userOptions]
   }
 ]);
-console.log(eventMember)
+
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -274,6 +288,16 @@ watchEffect(() => {
 
 function addAnnouncement() {
   openModal.value = true;
+  let payload = {
+    name: title.value,
+    description: description.value,
+    event_id: eventid,
+    creator_id: table[0].user_id,
+    creation_timestamp: new Date(),
+    receiver_ids: selectedUsers ?? []
+  }
+  console.log(payload);
+
 }
 
 function closeModal() {

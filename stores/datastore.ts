@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { createPersistedState } from "pinia-plugin-persistedstate";
 
 export const useDataStore = defineStore("data", {
   state: () => ({
@@ -10,7 +9,6 @@ export const useDataStore = defineStore("data", {
     selectedProject: null as Project | null,
     currentPage: "",
   }),
-  persist: true,
   getters: {
     getUserId: (state) => state.user?.id,
     getUserName: (state) => state.user?.name,
