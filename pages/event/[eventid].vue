@@ -1,22 +1,270 @@
 <template>
-  <div class="grid w-screen h-sreen">
-    <div class="col-2 flex align-items-center justify-content-center">
-      this is task list
+  <form @submit="addAnnouncement()" v-if="openModal" class="fixed top-0 left-0 w-screen h-screen disabled-div" style="
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    ">
+    <div class="bg-white" style="
+      min-width: 500px;
+        font-family: sans-serif;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: 40px;
+        padding-top: 24px;
+        padding-bottom: 24px;
+        padding-left: 32px;
+        padding-right: 32px;
+      ">
+      <div style="padding-top: 20px; padding-bottom: 20px;">
+        Add Announcement
+      </div> <span class="p-float-label">
+        <Pinputtext id="name" v-model="name" type="text" required />
+        <label for="name" style="text-align: center;">Title</label>
+      </span>
+      <span class="p-float-label">
+        <Ptextarea id="description" v-model="description" type="text" required />
+        <label for="description" style="text-align: center">Description</label>
+      </span>
+
+      <Pbutton @click="closeModal()">Close</Pbutton>
+      <Pbutton type="submit">Add</Pbutton>
     </div>
-    <div class="col-1 flex flex-column justify-content-around gep-3">
-      <div id="mytask">this is my task list</div>
-      <div id="announcement">this is announcement</div>
+  </form>
+  <div>
+    <div style="
+        display: grid;
+        height: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem;
+        padding: 20px;
+      ">
+      <div>
+        <iframe style="pointer-events: none; border: none;" width="500" height="400"
+          src="https://embed.lottiefiles.com/animation/145811"></iframe>
+      </div>
+
+      <div style="
+          display: grid;
+          height: 100%;
+          grid-template-rows: repeat(2, minmax(0, 1fr));
+          grid-row: span 1 / span 1;
+          gap: 1.25rem;
+        ">
+        <div>
+          <iframe style="pointer-events: none;" src="https://embed.lottiefiles.com/animation/145811"></iframe>
+        </div>
+        <div style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+          ">
+          <div style="
+              border: 5px solid #bae8e8;
+              filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
+              border-radius: 30px;
+              width: 100%;
+              background-color: white;
+            ">
+            <div style="
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+              ">
+              <div style="grid-column: span 1 / span 1;"></div>
+              <div style="grid-column: span 1 / span 1;">
+                <h5 style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 15px;
+                    text-align: center;
+                  ">
+                  Announcements
+                </h5>
+              </div>
+              <div style="
+                  grid-column: span 1 / span 1;
+                  height: 100%;
+                  padding: 15px;
+                ">
+                <div style="
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    justify-content: end;
+                    align-self: center;
+                  ">
+                  <Pbutton @click="addAnnouncement()" icon="pi pi-plus" rounded outlined aria-label="Filter" />
+                </div>
+              </div>
+            </div>
+            <div v-if="filteredAnnouncements.length > 0" v-for="announcement in filteredAnnouncements"
+              :key="announcement.id" style="
+                padding-left: 8px;
+                padding-right: 8px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+                overflow-y: scroll;
+                height: 200px;
+              ">
+              <div style="
+                  width: 100%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                ">
+                <div style="display: flex; gap:12px; align-items:center;">
+                  <p style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 12px;
+                    line-height: 15px;
+                    display: flex;
+                    align-items: center;
+                  ">
+                    {{ announcement.name ?? '' }}
+                  </p>
+                  <i class="pi pi-info-circle" v-tooltip.top="announcement.description ?? ''"
+                    style="font-size: 1rem; color:#4a9292"></i>
+                </div>
+
+                <p style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 15px;
+                    display: flex;
+                    align-items: center;
+                  ">
+                  {{ formatDate(announcement.creation_timestamp) ?? '' }}
+                </p>
+              </div>
+            </div>
+            <div v-if="announcements.length === 0 || !announcements"
+              style="display: flex; justify-content: center; align-items: center; height: 200px;">
+              <p style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 15px;
+                    display: flex;
+                    align-items: center;
+                  ">
+                No Announcements!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const { eventid } = useRoute().params;
+import { useDataStore } from "~/stores/datastore";
+import { createClient } from "@supabase/supabase-js";
+import { useToast } from "primevue/usetoast";
+import { ref, onMounted } from "vue";
 
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],
 });
+
+onMounted(() => {
+
+})
+const { eventid } = useRoute().params;
+const { auth } = useSupabaseAuthClient();
+const dstore = useDataStore();
+const { data: userData } = await useFetch("/api/get_full_data");
+const table = userData.value;
+const openModal = ref(false);
+
+console.log(table[0].user_id)
+dstore.setSelectedProject("-1");
+
+// Create a single supabase client for interacting with your database
+const supabase = createClient(
+  "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
+);
+const toast = useToast();
+
+let announcements = [];
+
+const { data, error } = await supabase
+  .from('announcement')
+  .select()
+
+
+announcements = data;
+
+console.log(announcements)
+
+
+let filteredAnnouncements = [];
+
+
+for (let i = 0; i < announcements.length; i++) {
+  const announcement = announcements[i];
+  if (announcement.event_id === eventid && announcement.receiver_ids.includes(table[0].user_id)) {
+    filteredAnnouncements.push(announcement);
+  }
+}
+
+
+console.log(filteredAnnouncements)
+
+let { users, errormsg } = await supabase
+  .rpc('get_users_by_event_id', {
+    n_event_id: eventid
+  })
+
+
+console.log(users)
+
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.toLocaleString('default', { day: '2-digit' });
+  const month = date.toLocaleString('default', { month: '2-digit' });
+  const year = date.getFullYear();
+  const hours = date.toLocaleString('default', { hour: '2-digit' });
+  const minutes = date.toLocaleString('default', { minutes: '2-digit' });
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  return `${minutes} ${ampm}`;
+};
+
+
+watchEffect(() => {
+  if (!useSupabaseUser().value) {
+    navigateTo("/login");
+  }
+});
+
+function addAnnouncement() {
+  openModal.value = true;
+}
+
+function closeModal() {
+  openModal.value = false;
+}
+
+const logout = async () => {
+  await auth.signOut();
+  dstore.logout();
+};
+
+console.log(useRoute());
+
 </script>
 
 <style lang="scss" scoped></style>

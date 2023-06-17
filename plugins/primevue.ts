@@ -10,6 +10,8 @@ import InputText from "primevue/inputtext";
 import InputMask from "primevue/inputmask";
 import Toast from "primevue/toast";
 import ToastService from "primevue/toastservice";
+import Textarea from "primevue/textarea";
+import MultiSelect from "primevue/multiselect";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -21,6 +23,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pinputtext", InputText);
   nuxtApp.vueApp.component("Pinputmask", InputMask);
   nuxtApp.vueApp.component("Ptoast", Toast);
+  nuxtApp.vueApp.component("Ptextarea", Textarea);
+  nuxtApp.vueApp.component("Pmultiselect", MultiSelect);
 
   //other components that you need
 

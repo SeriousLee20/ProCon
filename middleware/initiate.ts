@@ -7,8 +7,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const dstore = useDataStore();
 
   dstore.clearData();
+  console.log(dstore);
 
   const userData = data.value;
+  console.log(userData);
   if (userData) {
     dstore.createUser({
       id: userData[0].user_id,
