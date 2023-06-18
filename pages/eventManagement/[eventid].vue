@@ -1,7 +1,27 @@
 <template>
   <div id="member-table">
     <Pcard>
-      <template #title>Management Board</template>
+      <template #title>
+        <div class="flex justify-content-between">
+          <div>Management Board</div>
+          <div>
+            <Pbutton
+              type="button"
+              icon="pi pi-cog"
+              @click="toggle"
+              aria-label="edit_event"
+              aria-haspopup="true"
+              aria-controls="edit-board"
+            />
+            <Pmenu
+              ref="boardMenu"
+              id="edit-board"
+              :model="editBoardMenu"
+              :popup="true"
+            ></Pmenu>
+          </div>
+        </div>
+      </template>
       <template #content>
         <Pdatatable :value="board">
           <Pcolumn field="user_id" header="Id"></Pcolumn>
@@ -98,6 +118,25 @@ const roles = ref([]);
 const member = ref({});
 const boardDialog = ref(false);
 const disableRole = ref(false);
+const boardMenu = ref();
+const editBoardMenu = ref([
+  {
+    label: "Manage Member",
+    command: () => "",
+  },
+  {
+    label: "Manage Roles",
+    command: () => "",
+  },
+  {
+    label: "Manage Departments",
+    command: () => "",
+  },
+]);
+
+const toggle = (event) => {
+  boardMenu.value.toggle(event);
+};
 
 const { data: projectMemberList } = await useFetch(
   "/api/get_management_board",

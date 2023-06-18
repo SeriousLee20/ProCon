@@ -121,6 +121,13 @@ const createProject = async () => {
         refreshDatastore();
         console.log(useDataStore().getFullData());
         navigateTo(`/eventManagement/${createdProject.id}`);
+      } else {
+        toast.add({
+          severity: "danger",
+          summary: "Oops",
+          detail: "Error in creating event. Please try again later.",
+          lifetime: 1000,
+        });
       }
     }
   }

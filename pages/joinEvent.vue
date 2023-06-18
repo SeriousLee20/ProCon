@@ -77,12 +77,6 @@ const joinEvent = async () => {
         });
       } else {
         console.log("4");
-        toast.add({
-          severity: "success",
-          summary: "Yay!",
-          detail: "You are added to the event.",
-          lifetime: 1000,
-        });
 
         var newProject = {
           id: eventExist[0].id,
@@ -95,15 +89,29 @@ const joinEvent = async () => {
         dstore.createProject(newProject);
 
         console.log(dstore.getAllProjects);
-        const { data: response, projectList } = await useFetch(
-          "api/map_user_event",
-          {
-            method: "POST",
-            body: newProject,
-            headers: { "cache-control": "no-cache" },
-          }
-        );
-        console.log(response, projectList);
+        const { data: response } = await useFetch("api/map_user_event", {
+          method: "POST",
+          body: newProject,
+          headers: { "cache-control": "no-cache" },
+        });
+        console.log(response);
+
+        if (response.value.success) {
+          toast.add({
+            severity: "success",
+            summary: "Yay!",
+            detail: "You are added to the event.",
+            lifetime: 1000,
+          });
+          navigateTo(`/eventManagement/${newProject.id}`);
+        } else {
+          toast.add({
+            severity: "danger",
+            summary: "Oops",
+            detail: "Error in joining event. Please try again later.",
+            lifetime: 1000,
+          });
+        }
       }
     }
   }
