@@ -104,7 +104,7 @@ const createProject = async () => {
         body: {
           id: createdProject.id,
           name: createdProject.name,
-          role: "admin",
+          role: "Admin",
         },
         headers: { "cache-control": "no-cache" },
       });

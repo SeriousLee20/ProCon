@@ -87,7 +87,7 @@ const joinEvent = async () => {
         var newProject = {
           id: eventExist[0].id,
           name: eventExist[0].name,
-          role: "member",
+          role: "Member",
           description: eventExist[0].description,
           creator_id: eventExist[0].creator_id,
           is_show_project_in_overview: true,

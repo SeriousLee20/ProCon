@@ -116,22 +116,28 @@ export interface Database {
       }
       map_event: {
         Row: {
+          department: string | null
           event_id: string
           is_show_in_overview: boolean | null
+          position: string | null
           user_event_id: number
           user_id: string
           user_role: string
         }
         Insert: {
+          department?: string | null
           event_id: string
           is_show_in_overview?: boolean | null
+          position?: string | null
           user_event_id?: number
           user_id: string
           user_role: string
         }
         Update: {
+          department?: string | null
           event_id?: string
           is_show_in_overview?: boolean | null
+          position?: string | null
           user_event_id?: number
           user_id?: string
           user_role?: string
@@ -227,6 +233,18 @@ export interface Database {
           announcement_creation_timestamp: string
         }[]
       }
+      get_management_board: {
+        Args: {
+          n_event_id: string
+        }
+        Returns: {
+          user_id: string
+          username: string
+          user_role: string
+          user_position: string
+          user_department: string
+        }[]
+      }
       get_user: {
         Args: {
           user_id: string
@@ -240,6 +258,12 @@ export interface Database {
           name: string | null
           start_working_hour: string
         }[]
+      }
+      get_users_by_event_id: {
+        Args: {
+          n_event_id: string
+        }
+        Returns: Record<string, unknown>
       }
       insert_user: {
         Args: {
@@ -264,6 +288,16 @@ export interface Database {
           n_name: string
           n_description: string
           n_creator_id: string
+        }
+        Returns: Record<string, unknown>
+      }
+      update_event_user_map: {
+        Args: {
+          n_user_id: string
+          n_event_id: string
+          n_role: string
+          n_department: string
+          n_position: string
         }
         Returns: Record<string, unknown>
       }

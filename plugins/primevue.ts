@@ -15,6 +15,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import ColumnGroup from "primevue/columngroup"; // optional
 import Row from "primevue/row"; // optional
+import Dialog from "primevue/dialog";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -31,6 +32,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pcolumn", Column);
   nuxtApp.vueApp.component("Pcolumngroup", ColumnGroup);
   nuxtApp.vueApp.component("Prow", Row);
+  nuxtApp.vueApp.component("Pdialog", Dialog);
 
   //other components that you need
 
