@@ -242,9 +242,12 @@ for (let i = 0; i < announcements.length; i++) {
   if (announcement.event_id === eventid && announcement.receiver_ids.includes(table[0].user_id)) {
     filteredAnnouncements.push(announcement);
   }
+  console.log("announcement fetching")
+  console.log(announcement)
   console.log(announcement.event_id)
   console.log(eventid)
   console.log(announcement.event_id === eventid)
+
 
   console.log(announcement.receiver_ids)
   console.log(table[0].user_id)
@@ -271,7 +274,8 @@ else {
 
 
 
-const selectedUsers = ref();
+const selectedUsers = ref([]);
+const valueArr = ref([]);
 
 
 const groupedUsers = ref([
@@ -298,6 +302,15 @@ watchEffect(() => {
   if (!useSupabaseUser().value) {
     navigateTo("/login");
   }
+  valueArr.value = [];
+  if (selectedUsers.value.length !== 0) {
+    for (const user of selectedUsers.value) {
+      valueArr.value.push(user.value);
+    }
+
+    console.log(typeof valueArr.value);
+
+  }
 });
 
 async function addAnnouncement() {
@@ -307,7 +320,7 @@ async function addAnnouncement() {
     event_id: eventid,
     creator_id: table[0].user_id,
     creation_timestamp: new Date(),
-    receiver_ids: [userOptions.value] ?? []
+    receiver_ids: valueArr.value
   }
   console.log(payload);
   try {
