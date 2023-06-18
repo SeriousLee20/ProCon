@@ -46,12 +46,12 @@
         <Pbutton
           type="button"
           icon="pi pi-home"
-          @click="navigateTo('/overview')"
+          @click="switchPage('/overview', 'Overview')"
         />
         <Pbutton
           type="button"
           icon="pi pi-user"
-          @click="navigateTo('/profile')"
+          @click="switchPage('/profile', 'Profile')"
         />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
       </div>
@@ -96,17 +96,17 @@ const configEditMenuList = () => {
   if (dstore.getSelectedProject?.role == "admin") {
     editMenu.push({
       label: "Edit Event",
-      command: () => navigateTo("/editEvent"),
+      command: () => switchPage("/editEvent", "Edit Event"),
     });
   }
   editMenu.push(
     {
       label: "Create New Event",
-      command: () => navigateTo("/createEvent"),
+      command: () => switchPage("/createEvent", "Create Event"),
     },
     {
       label: "Join Event",
-      command: () => navigateTo("/joinEvent"),
+      command: () => switchPage("/joinEvent", "Join Event"),
     }
   );
   return { editMenu };
@@ -140,6 +140,24 @@ const onChangeSelectedProject = (event) => {
   } else {
     navigateTo(`/event/${event.value}`);
   }
+};
+
+const switchPage = (routeName, pageName) => {
+  console.log(routeName, pageName);
+  if (pageName != "Overview") {
+    dstore.setSelectedProject("");
+    selectedProject.value = null;
+    ddplaceholder.value = pageName;
+    dstore.setCurrentPage(pageName);
+    navigateTo(routeName);
+  } else {
+    dstore.setSelectedProject("-1");
+    ddplaceholder.value = "";
+    selectedProject.value = "-1";
+    dstore.setCurrentPage("");
+    navigateTo(routeName);
+  }
+  console.log(selectedProject.value, ddplaceholder.value);
 };
 
 watchEffect(() => {

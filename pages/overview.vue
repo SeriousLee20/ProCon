@@ -29,10 +29,9 @@ definePageMeta({
   layout: "custom",
 });
 
+// dstore.setCurrentPage("Overview");
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
-const { data: userData } = await useFetch("/api/get_full_data");
-const table = userData.value;
 
 dstore.setSelectedProject("-1");
 
