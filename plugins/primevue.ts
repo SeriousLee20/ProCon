@@ -12,6 +12,7 @@ import Toast from "primevue/toast";
 import ToastService from "primevue/toastservice";
 import Textarea from "primevue/textarea";
 import MultiSelect from "primevue/multiselect";
+import Tooltip from "primevue/tooltip";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -25,6 +26,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Ptoast", Toast);
   nuxtApp.vueApp.component("Ptextarea", Textarea);
   nuxtApp.vueApp.component("Pmultiselect", MultiSelect);
+  nuxtApp.vueApp.directive("tooltip", Tooltip);
 
   //other components that you need
 

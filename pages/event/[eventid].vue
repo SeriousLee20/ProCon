@@ -52,8 +52,10 @@
         padding: 20px;
       ">
       <div>
+        This is task list, but under construction
         <iframe style="pointer-events: none; border: none;" width="500" height="400"
           src="https://embed.lottiefiles.com/animation/145811"></iframe>
+
       </div>
 
       <div style="
@@ -64,7 +66,9 @@
           gap: 1.25rem;
         ">
         <div>
-          <iframe style="pointer-events: none;" src="https://embed.lottiefiles.com/animation/145811"></iframe>
+          <iframe style="pointer-events: none; border: none;"
+            src="https://embed.lottiefiles.com/animation/145811"></iframe>
+          This is my task list, but under construction
         </div>
         <div style="
             display: flex;
@@ -141,7 +145,7 @@
                   ">
                         {{ announcement.name ?? '' }}
                       </p>
-                      <i class="pi pi-info-circle" v-tooltip.top="announcement.description"
+                      <i class="pi pi-info-circle" v-tooltip.top="announcement.description ?? 'No description provided'"
                         style="font-size: 1rem; color:#4a9292"></i>
                     </div>
 
