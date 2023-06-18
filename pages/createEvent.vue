@@ -32,8 +32,8 @@
                         </div>
                     </div>
                     <div class="flex justify-content-end align-content-end">
-                        <Pbutton type="button" icon="pi pi-caret-right" aria-label="go-add-department" label="Create"
-                            @click="createProject" />
+                        <Pbutton :loading="loading" type="button" icon="pi pi-caret-right" aria-label="go-add-department"
+                            label="Create" @click="createProject" />
                     </div>
                 </template>
             </Pcard>
@@ -50,6 +50,7 @@ var projectName = ref();
 var projectDesc = ref();
 var invalidName = ref(false);
 const toast = useToast();
+const loading = ref(false);
 
 const validate = () => {
     console.log("name", projectName.value);
@@ -58,6 +59,7 @@ const validate = () => {
 };
 
 const createProject = async () => {
+    loading.value = true;
     console.log(projectName.value);
     if (!projectName.value) {
         console.log("notok");
@@ -76,6 +78,7 @@ const createProject = async () => {
 
         const createdProject = insertResponse.value.data;
         if (insertResponse.value.success) {
+
             const { data: mapResponse } = await useFetch("api/map_user_event", {
                 method: "POST",
                 body: {
@@ -97,6 +100,7 @@ const createProject = async () => {
 
                 refreshDatastore();
                 console.log(useDataStore().getFullData());
+                loading = false;
                 navigateTo(`/eventManagement/${createdProject.id}`);
             } else {
                 toast.add({
