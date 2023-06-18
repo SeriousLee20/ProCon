@@ -81,7 +81,7 @@ const createProject = async () => {
                 body: {
                     id: createdProject.id,
                     name: createdProject.name,
-                    role: "admin",
+                    role: "Admin",
                 },
                 headers: { "cache-control": "no-cache" },
             });
@@ -98,6 +98,13 @@ const createProject = async () => {
                 refreshDatastore();
                 console.log(useDataStore().getFullData());
                 navigateTo(`/eventManagement/${createdProject.id}`);
+            } else {
+                toast.add({
+                    severity: "danger",
+                    summary: "Oops",
+                    detail: "Error in creating event. Please try again later.",
+                    lifetime: 1000,
+                });
             }
         }
     }
