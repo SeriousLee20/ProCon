@@ -270,32 +270,30 @@ import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
 import { ref, onMounted } from "vue";
 
-definePageMeta({
-  layout: "custom",
-  middleware: ["auth", "initiate"],
-});
-
 const { eventid } = useRoute().params;
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
 const table = userData.value;
+const toast = useToast();
+let announcements = [];
+let filteredAnnouncements = [];
+let userOptions = [];
+
 const openModal = ref(false);
 const title = ref(null);
 const description = ref(null);
+const selectedUsers = ref([]);
+const valueArr = ref([]);
 
-console.log(table[0].user_id);
-dstore.setSelectedProject("-1");
+console.log("data from db-userid", table[0].user_id);
+console.log("current eventid", eventid);
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
-const toast = useToast();
-
-let announcements = [];
-console.log(eventid);
 
 const { data: announcementData, error: announcementError } = await supabase
   .from("announcement")
@@ -312,10 +310,7 @@ if (getEventError) console.error(getEventError);
 else console.log(eventMember);
 
 announcements = announcementData;
-
 console.log(announcements);
-
-let filteredAnnouncements = [];
 
 for (let i = 0; i < announcements.length; i++) {
   const announcement = announcements[i];
@@ -326,19 +321,18 @@ for (let i = 0; i < announcements.length; i++) {
     filteredAnnouncements.push(announcement);
   }
   console.log("announcement fetching");
-  console.log(announcement);
-  console.log(announcement.event_id);
-  console.log(eventid);
-  console.log(announcement.event_id === eventid);
+  // console.log(announcement);
+  // console.log(announcement.event_id);
+  // console.log(eventid);
+  // console.log(announcement.event_id === eventid);
 
-  console.log(announcement.receiver_ids);
-  console.log(table[0].user_id);
-  console.log(announcement.receiver_ids.includes(table[0].user_id));
+  // console.log(announcement.receiver_ids);
+  // console.log(table[0].user_id);
+  // console.log(announcement.receiver_ids.includes(table[0].user_id));
 }
 
-console.log(typeof filteredAnnouncements[0]);
-console.log(typeof eventMember);
-let userOptions = [];
+// console.log(typeof filteredAnnouncements[0]);
+// console.log(typeof eventMember);
 
 if (Array.isArray(eventMember)) {
   userOptions = eventMember.map((user) => ({
@@ -351,9 +345,6 @@ if (Array.isArray(eventMember)) {
     value: eventMember.id,
   };
 }
-
-const selectedUsers = ref([]);
-const valueArr = ref([]);
 
 const groupedUsers = ref([
   {
@@ -428,7 +419,12 @@ const logout = async () => {
   dstore.logout();
 };
 
-console.log(useRoute());
+dstore.setSelectedProject(eventid);
+dstore.setCurrentPage("");
+definePageMeta({
+  layout: "custom",
+  middleware: ["auth", "initiate"],
+});
 </script>
 
 <style lang="scss" scoped></style>

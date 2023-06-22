@@ -24,17 +24,11 @@
 <script setup>
 import { useDataStore } from "~/stores/datastore";
 
-definePageMeta({
-  middleware: ["auth", "initiate"],
-  layout: "custom",
-});
-
-// dstore.setCurrentPage("Overview");
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
-
+dstore.setCurrentPage("Overview");
 dstore.setSelectedProject("-1");
-
+console.log("ov selected project", dstore.getSelectedProject);
 watchEffect(() => {
   if (!useSupabaseUser().value) {
     navigateTo("/login");
@@ -46,7 +40,10 @@ const logout = async () => {
   dstore.logout();
 };
 
-console.log(useRoute());
+definePageMeta({
+  middleware: ["auth", "initiate"],
+  layout: "custom",
+});
 </script>
 
 <style lang="scss" scoped></style>

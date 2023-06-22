@@ -37,6 +37,7 @@
 
 <script setup>
 import { useDataStore } from "~/stores/datastore";
+const dstore = useDataStore();
 
 definePageMeta({
   middleware: ["auth"],
@@ -50,22 +51,26 @@ setTimeout(() => {
 }, 3000);
 
 watchEffect(() => {
-  if (useSupabaseUser().value && !isLoading.value) {
+  if (
+    useSupabaseUser().value &&
+    !isLoading.value &&
+    (dstore.getCurrentPage == "" || dstore.getCurrentPage == "Overview")
+  ) {
     navigateTo("/overview");
   }
 });
 </script>
 
 <script>
-export async function refreshDatastore() {
+export async function refreshDatastore(pageName, selectedProject) {
   const { data } = await useFetch("/api/get_full_data");
-  console.log("middleware", data);
+  console.log("refresh ds", data);
 
   const dstore = useDataStore();
+  const userData = data.value;
 
   dstore.clearData();
 
-  const userData = data.value;
   if (userData) {
     dstore.createUser({
       id: userData[0].user_id,
@@ -94,19 +99,21 @@ export async function refreshDatastore() {
         creator_id: data.event_creator_id,
         is_show_project_in_overview: data.is_show_in_overview,
       });
-      dstore.createAnnouncement({
-        id: data.announcement_id,
-        name: data.announcement_name,
-        project_id: data.event_id,
-        creator_id: data.announcement_creator_id,
-        creation_date_time: data.announcement_creation_timestamp,
-        description: data.announcement_desc,
-        receiver_id: data.announcement_receiver_ids,
-      });
+      // dstore.createAnnouncement({
+      //   id: data.announcement_id,
+      //   name: data.announcement_name,
+      //   project_id: data.event_id,
+      //   creator_id: data.announcement_creator_id,
+      //   creation_date_time: data.announcement_creation_timestamp,
+      //   description: data.announcement_desc,
+      //   receiver_id: data.announcement_receiver_ids,
+      // });
     });
 
-    dstore.setSelectedProject("-1");
+    dstore.setCurrentPage(pageName);
+    dstore.setSelectedProject(selectedProject);
     console.log(dstore.getFullData());
+    return { doneRefreshDs: true };
   }
 }
 </script>

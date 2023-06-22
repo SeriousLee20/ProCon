@@ -67,6 +67,7 @@
 
 <script setup>
 import { useToast } from "primevue/usetoast";
+import { switchPage } from "~/components/Navbar.vue";
 import { useDataStore } from "~/stores/datastore";
 import { refreshDatastore } from "./index.vue";
 
@@ -75,18 +76,20 @@ var projectDesc = ref();
 var invalidName = ref(false);
 const toast = useToast();
 var loading = ref(false);
+const dstore = useDataStore();
+const router = useRouter();
 
 const validate = () => {
-  console.log("name", projectName.value);
+  console.log("entered project name", projectName.value);
   invalidName.value = projectName.value ? false : true;
-  console.log(invalidName.value);
+  console.log("is invalid name", invalidName.value);
 };
 
 const createProject = async () => {
   loading.value = true;
-  console.log(projectName.value);
+  console.log("create new project", projectName.value);
   if (!projectName.value) {
-    console.log("notok");
+    console.log("invalid project name");
     invalidName.value = true;
   } else {
     const createNewProject = {
@@ -98,7 +101,7 @@ const createProject = async () => {
       body: createNewProject,
       headers: { "cache-control": "no-cache" },
     });
-    console.log(insertResponse);
+    console.log("insert project response", insertResponse);
 
     const createdProject = insertResponse.value.data;
     if (insertResponse.value.success) {
@@ -113,6 +116,7 @@ const createProject = async () => {
       });
 
       console.log("map new event creator", mapResponse);
+
       if (mapResponse.value.success) {
         toast.add({
           severity: "success",
@@ -121,10 +125,15 @@ const createProject = async () => {
           lifetime: 1000,
         });
 
-        refreshDatastore();
-        console.log(useDataStore().getFullData());
-        loading = false;
-        navigateTo(`/eventManagement/${createdProject.id}`);
+        const doneRefresh = await refreshDatastore("", createdProject.id);
+        console.log("donrefresh ds", doneRefresh);
+        if (doneRefresh.doneRefreshDs) {
+          console.log("ds after refresh", dstore.getFullData());
+          loading = false;
+          //   navigateTo(`/eventManagement/${createdProject.id}`);
+          // dstore.setSelectedProject(createdProject.id);
+          switchPage(`/eventManagement/${createdProject.id}`, "Edit Event");
+        }
       } else {
         toast.add({
           severity: "danger",
@@ -137,6 +146,8 @@ const createProject = async () => {
   }
 };
 
+dstore.setSelectedProject(null);
+dstore.setCurrentPage("Create Event");
 definePageMeta({
   middleware: ["auth", "initiate"],
   layout: "custom",

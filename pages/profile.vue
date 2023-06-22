@@ -76,29 +76,19 @@ const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
+
 const toast = useToast();
-
-definePageMeta({
-  layout: "custom",
-  middleware: ["auth", "initiate"],
-});
-
 const dstore = useDataStore();
-dstore.setSelectedProject(null);
-dstore.setCurrentPage("Profile");
 const loading = ref(false);
-
 const user = dstore.getUser;
-console.log(user);
-
 var name = ref(user.name);
 var email = ref(user.email);
 var phone = ref(user.contact_number);
 var starttime = ref(user.start_working_hour);
 var endtime = ref(user.end_working_hour);
 
-console.log(name, email, phone, starttime, endtime);
-var updated = false;
+console.log("profile ori user", user);
+
 const updateProfile = async () => {
   loading.value = true;
   var userId = dstore.getUserId;
@@ -119,8 +109,6 @@ const updateProfile = async () => {
   };
 
   dstore.createUser(newProfile);
-
-  console.log("updated", dstore.getUser);
 
   try {
     const { error } = await supabase
@@ -148,8 +136,13 @@ const updateProfile = async () => {
     console.log(error);
   }
 };
-if (updated) {
-}
+
+dstore.setSelectedProject(null);
+dstore.setCurrentPage("Profile");
+definePageMeta({
+  layout: "custom",
+  middleware: ["auth", "initiate"],
+});
 </script>
 
 <style lang="scss" scoped></style>

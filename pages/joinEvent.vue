@@ -33,15 +33,15 @@ import { useDataStore } from "~/stores/datastore";
 
 const eventCode = ref("");
 const toast = useToast();
-const { data: all_event } = await useFetch("/api/get_all_event");
 const dstore = useDataStore();
 const joinedEvent = dstore.getAllProjects;
+const { data: all_event } = await useFetch("/api/get_all_event");
+
 console.log(all_event);
 
 const joinEvent = async () => {
   console.log(eventCode.value);
   if (!eventCode.value) {
-    console.log("yex");
     toast.add({
       severity: "error",
       summary: "Empty Code",
@@ -59,7 +59,6 @@ const joinEvent = async () => {
     console.log(eventExist, membership);
 
     if (eventExist.length == 0) {
-      console.log("2");
       toast.add({
         severity: "warn",
         summary: "Invalid Code",
@@ -68,7 +67,6 @@ const joinEvent = async () => {
       });
     } else {
       if (membership.length > 0) {
-        console.log("3");
         toast.add({
           severity: "info",
           summary: "You joined this event.",
@@ -76,8 +74,6 @@ const joinEvent = async () => {
           lifetime: 1000,
         });
       } else {
-        console.log("4");
-
         var newProject = {
           id: eventExist[0].id,
           name: eventExist[0].name,
@@ -88,13 +84,11 @@ const joinEvent = async () => {
         };
         dstore.createProject(newProject);
 
-        console.log(dstore.getAllProjects);
         const { data: response } = await useFetch("api/map_user_event", {
           method: "POST",
           body: newProject,
           headers: { "cache-control": "no-cache" },
         });
-        console.log(response);
 
         if (response.value.success) {
           toast.add({
@@ -117,6 +111,8 @@ const joinEvent = async () => {
   }
 };
 
+dstore.setSelectedProject(null);
+dstore.setCurrentPage("Join Event");
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],

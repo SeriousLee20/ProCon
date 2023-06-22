@@ -108,9 +108,10 @@
 
 <script setup>
 import { useDataStore } from "~/stores/datastore";
+
 const dstore = useDataStore();
 const { eventid } = useRoute().params;
-console.log("edit", eventid);
+
 const board = ref();
 const positions = ref([]);
 const departments = ref([]);
@@ -134,6 +135,8 @@ const editBoardMenu = ref([
   },
 ]);
 
+console.log("manage event-eventid", eventid);
+
 const toggle = (event) => {
   boardMenu.value.toggle(event);
 };
@@ -148,8 +151,8 @@ const { data: projectMemberList } = await useFetch(
 );
 
 board.value = projectMemberList.value.data;
-console.log(projectMemberList.value.data);
-console.log(board.value);
+console.log("projectmemberlist", projectMemberList.value.data);
+console.log("board value", board.value);
 
 projectMemberList.value.data.forEach((member) => {
   if (!(member.user_position in positions.value))
@@ -176,7 +179,7 @@ const hideDialog = () => {
 
 const saveMemberDetails = async () => {
   boardDialog.value = false;
-  console.log("save", member.value);
+  console.log("save member details", member.value);
 
   const udpatedMember = member.value;
   const { data: mapResponse } = await useFetch("/api/update_event_user_map", {
@@ -192,6 +195,9 @@ const saveMemberDetails = async () => {
     headers: { "cache-control": "no-cache" },
   });
 };
+
+dstore.setSelectedProject(eventid);
+dstore.setCurrentPage("");
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],

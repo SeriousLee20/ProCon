@@ -21,7 +21,7 @@ export const useDataStore = defineStore("data", {
   actions: {
     createUser(user: User) {
       this.user = user;
-      console.log(user);
+      // console.log(user);
     },
     logIn() {
       this.isLoggedIn = true;
@@ -79,6 +79,7 @@ export const useDataStore = defineStore("data", {
     setSelectedProject(id: string) {
       const project = this.getProject(id);
       this.selectedProject = project ? project : null;
+      console.log("ds set selected project", id);
     },
     clearData() {
       this.user = null;
