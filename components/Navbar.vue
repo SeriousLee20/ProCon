@@ -182,52 +182,53 @@ const logout = async () => {
 </script>
 
 <script>
-// const dstore = useDataStore();
-// const menu = ref();
-// const isShowButton = ref(false);
-// const menuItems = ref([]);
-// var ddplaceholder = ref(dstore.getCurrentPage);
-// var project = ref(dstore.getAllProjects);
-// var selectedProject = ref(dstore.getSelectedProject?.id);
+//TODO: avoid pinia error when refresh create event page
+const dstore = useDataStore();
+const menu = ref();
+const isShowButton = ref(false);
+const menuItems = ref([]);
+var ddplaceholder = ref(dstore.getCurrentPage);
+var project = ref(dstore.getAllProjects);
+var selectedProject = ref(dstore.getSelectedProject?.id);
 
-// export const switchPage = (routeName, pageName) => {
-//   console.log(routeName, pageName);
-//   if (pageName == "Edit Event") {
-//     console.log("split route name", routeName.split("/"));
-//     const projectId = routeName.split("/")[2];
-//     console.log(projectId);
-//     if (projectId) {
-//       selectedProject.value = projectId;
-//       ddplaceholder.value = "";
-//       project.value = dstore.getAllProjects;
-//       console.log(
-//         "redirect to event management",
-//         projectId,
-//         selectedProject.value,
-//         ddplaceholder.value,
-//         project.value
-//       );
-//       navigateTo(routeName);
-//     } else {
-//       var finalRouteName = routeName + "/" + selectedProject?.value;
-//       navigateTo(finalRouteName);
-//     }
-//   } else if (pageName != "Overview" && pageName != "Edit Event") {
-//     ddplaceholder.value = pageName;
-//     dstore.setCurrentPage(pageName);
-//     selectedProject.value = null;
-//     dstore.setSelectedProject("");
-//     navigateTo(routeName);
-//   } else {
-//     selectedProject.value = "-1";
-//     dstore.setSelectedProject("-1");
-//     ddplaceholder.value = "";
-//     dstore.setCurrentPage("");
-//     navigateTo(routeName);
-//   }
-//   isShowButton.value = false;
-//   console.log(selectedProject.value, ddplaceholder.value);
-// };
+export const switchPage = (routeName, pageName) => {
+  console.log(routeName, pageName);
+  if (pageName == "Edit Event") {
+    console.log("split route name", routeName.split("/"));
+    const projectId = routeName.split("/")[2];
+    console.log(projectId);
+    if (projectId) {
+      selectedProject.value = projectId;
+      ddplaceholder.value = "";
+      project.value = dstore.getAllProjects;
+      console.log(
+        "redirect to event management",
+        projectId,
+        selectedProject.value,
+        ddplaceholder.value,
+        project.value
+      );
+      navigateTo(routeName);
+    } else {
+      var finalRouteName = routeName + "/" + selectedProject?.value;
+      navigateTo(finalRouteName);
+    }
+  } else if (pageName != "Overview" && pageName != "Edit Event") {
+    ddplaceholder.value = pageName;
+    dstore.setCurrentPage(pageName);
+    selectedProject.value = null;
+    dstore.setSelectedProject("");
+    navigateTo(routeName);
+  } else {
+    selectedProject.value = "-1";
+    dstore.setSelectedProject("-1");
+    ddplaceholder.value = "";
+    dstore.setCurrentPage("");
+    navigateTo(routeName);
+  }
+  isShowButton.value = false;
+  console.log(selectedProject.value, ddplaceholder.value);
+};
 
 // export const onChangeSelectedProject = (event) => {
 //   if (event.value == "-1") {

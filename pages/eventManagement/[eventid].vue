@@ -232,7 +232,7 @@
                 label="Save"
                 icon="pi pi-check"
                 text
-                @click="addPosition"
+                @click="addPosition()"
               />
             </div>
             <Pdatatable :value="positions">
@@ -291,6 +291,7 @@ const disableRole = ref(false);
 const boardMenu = ref();
 const newDepartment = ref();
 const newPosition = ref();
+console.log("New Pos:", newPosition);
 const newMember = ref();
 const editBoardMenu = ref([
   {
@@ -519,7 +520,7 @@ const addDepartment = async () => {
   let hasNewDeprtment = false;
   let existedDepartment = [];
   let addedDepartment = [];
-  if (newDepartment.length > 0) {
+  if (newDepartment.value.length > 0) {
     newDepartment.value.forEach((newDept) => {
       console.log("dept exist", newDept);
       if (
@@ -606,11 +607,13 @@ const hidePositionDialog = () => {
 };
 
 const addPosition = async () => {
+  console.log("add position open");
   let hasNewPosition = false;
   let existedPosition = [];
   let addedPosition = [];
 
-  if (newPosition.length > 0) {
+  if (newPosition.value.length > 0) {
+    console.log(newPosition.value);
     newPosition.value.forEach((newPos) => {
       if (!positions.value.find((oldPos) => oldPos.user_position == newPos)) {
         hasNewPosition = true;
