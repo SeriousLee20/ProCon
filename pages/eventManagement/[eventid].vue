@@ -45,7 +45,7 @@
                 @click="editMember(slotProps.data)"
               />
               <Pbutton
-                v-if="enableDeleteMember(slotProps.data)"
+                v-if="disableDeleteMember(slotProps.data)"
                 icon="pi pi-trash"
                 outlined
                 rounded
@@ -184,12 +184,12 @@
               </Pcolumn>
               <Pcolumn>
                 <template #body="slotProps" class="flex justify-content-end">
-                  <Pbutton
+                  <!-- <Pbutton
                     icon="pi pi-pencil"
                     outlined
                     rounded
                     @click="editDepartment($event, slotProps.data)"
-                  />
+                  /> -->
                   <Pbutton
                     icon="pi pi-trash"
                     outlined
@@ -245,12 +245,12 @@
               </Pcolumn>
               <Pcolumn>
                 <template #body="slotProps" class="flex justify-content-end">
-                  <Pbutton
+                  <!-- <Pbutton
                     icon="pi pi-pencil"
                     outlined
                     rounded
                     @click="editPosition($event, slotProps.data)"
-                  />
+                  /> -->
                   <Pbutton
                     icon="pi pi-trash"
                     outlined
@@ -353,8 +353,8 @@ const editMember = (clickedMember) => {
   console.log(dstore.getSelectedProject, clickedMember.user_id);
 };
 
-const enableDeleteMember = (memberData) => {
-  return dstore.getSelectedProject.creator_id == memberData.user_id;
+const disableDeleteMember = (memberData) => {
+  return dstore.getSelectedProject.creator_id !== memberData.user_id;
 };
 
 const hideDialog = () => {
@@ -374,7 +374,7 @@ const saveMemberDetails = async () => {
   udpatedMember.user_department = udpatedMember.user_department.user_department;
 
   const updatedData = {
-    id: eventid,
+    project_id: eventid,
     user_id: udpatedMember.user_id,
     role: udpatedMember.user_role ? udpatedMember.user_role : "",
     department: udpatedMember.user_department
@@ -382,18 +382,20 @@ const saveMemberDetails = async () => {
       : "",
     position: udpatedMember.user_position ? udpatedMember.user_position : "",
   };
-  const { data: mapResponse } = await useFetch("/api/update_event_user_map", {
+  const { data: mapMemberRes } = await useFetch("/api/update_event_user_map", {
     method: "POST",
     body: updatedData,
     headers: { "cache-control": "no-cache" },
   });
 
-  let editedMember = board.value.findIndex((member) => {
-    return member.user_id == udpatedMember.user_id;
-  });
-  console.log("edited member", editedMember, udpatedMember);
-  board.value[editedMember] = udpatedMember;
-  console.log("updated board", board.value);
+  if (mapMemberRes.value.success) {
+    let editedMember = board.value.findIndex((member) => {
+      return member.user_id == udpatedMember.user_id;
+    });
+    console.log("edited member", editedMember, udpatedMember);
+    board.value[editedMember] = udpatedMember;
+    console.log("updated board", board.value);
+  }
 };
 
 const deleteMember = (event, clickedMember) => {
@@ -512,6 +514,16 @@ const addMember = () => {
   //   }
 };
 
+const updateDbMapMember = async (updatedData) => {
+  const { data: mapResponse } = await useFetch("/api/update_event_user_map", {
+    method: "POST",
+    body: updatedData,
+    headers: { "cache-control": "no-cache" },
+  });
+
+  return { mapMemberRes: mapResponse };
+};
+
 const hideDepartmentDialog = () => {
   departmentDialog.value = false;
 };
@@ -571,35 +583,77 @@ const deleteDepartment = (event, department) => {
     message: "Do you want to delete this department?",
     icon: "pi pi-info-circle",
     acceptClass: "p-button-danger",
-    accept: () => {
+    accept: async () => {
       console.log(
         "dept index",
         departments.value.findIndex(
-          (dept) => dept.user_department == departments.user_department
+          (dept) => dept.user_department == department.user_department
         )
       );
       departments.value.splice(
         departments.value.findIndex(
-          (dept) => dept.user_department == departments.user_department
+          (dept) => dept.user_department == department.user_department
         ),
         1
       );
-      updateDbDepartment();
-      console.log("dlt dept", departments.value);
+      const { data: updateDepartmentRes } = await useFetch(
+        "/api/insert_department",
+        {
+          method: "POST",
+          body: { project_id: eventid, departments: departments.value },
+          headers: { "cache-control": "no-cache" },
+        }
+      );
+      console.log("updatedepartment", updateDepartmentRes);
+      console.log("dlt dept", departments.value, updateDepartmentRes);
+
+      if (updateDepartmentRes.value.success) {
+        const affectedMember = findComponentIndex(
+          board.value,
+          "user_department",
+          department.user_department
+        );
+
+        affectedMember.forEach(async (index) => {
+          let memberDetails = board.value[index];
+          board.value[index].user_department = null;
+          console.log("memberdetails", memberDetails);
+          let updatedData = {
+            project_id: eventid,
+            department: null,
+            user_id: memberDetails.user_id,
+            position: memberDetails.user_position,
+            role: memberDetails.user_role,
+          };
+          const { data: mapResponse } = await useFetch(
+            "/api/update_event_user_map",
+            {
+              method: "POST",
+              body: updatedData,
+              headers: { "cache-control": "no-cache" },
+            }
+          );
+          console.log(
+            "affectedmember department",
+            affectedMember,
+            mapResponse.value
+          );
+        });
+      }
     },
     reject: () => {},
   });
 };
 
 const updateDbDepartment = async () => {
-  const { data: insertDepartment } = await useFetch("/api/insert_department", {
+  const { data: updateDepartment } = await useFetch("/api/insert_department", {
     method: "POST",
     body: { project_id: eventid, departments: departments.value },
     headers: { "cache-control": "no-cache" },
   });
-  console.log("insertdepartment", insertDepartment);
+  console.log("updatedepartment", updateDepartment);
 
-  return { insertDepartmentRes: insertDepartment };
+  return { updateDepartmentRes: updateDepartment };
 };
 
 const hidePositionDialog = () => {
@@ -633,8 +687,16 @@ const addPosition = async () => {
       });
     }
     if (hasNewPosition) {
-      const insertPositionRes = updateDbPosition();
+      const { data: insertPositionRes } = await useFetch(
+        "/api/insert_positions",
+        {
+          method: "POST",
+          body: { project_id: eventid, positions: positions.value },
+          headers: { "cache-control": "no-cache" },
+        }
+      );
 
+      console.log("insertpositionres", insertPositionRes.value);
       if (insertPositionRes.value.success) {
         toast.add({
           severity: "success",
@@ -661,7 +723,7 @@ const deletePosition = (event, position) => {
     message: "Do you want to delete this position?",
     icon: "pi pi-info-circle",
     acceptClass: "p-button-danger",
-    accept: () => {
+    accept: async () => {
       console.log(
         "pos index",
         positions.value.findIndex(
@@ -674,7 +736,47 @@ const deletePosition = (event, position) => {
         ),
         1
       );
-      updateDbPosition();
+      const { data: updatePosition } = await useFetch("/api/insert_positions", {
+        method: "POST",
+        body: { project_id: eventid, positions: positions.value },
+        headers: { "cache-control": "no-cache" },
+      });
+      console.log("updatePosition", updatePosition);
+
+      if (updatePosition.value.success) {
+        const affectedMember = findComponentIndex(
+          board.value,
+          "user_position",
+          position.user_position
+        );
+
+        affectedMember.forEach(async (index) => {
+          let memberDetails = board.value[index];
+          board.value[index].user_position = null;
+          console.log("memberdetails", memberDetails);
+          let updatedData = {
+            project_id: eventid,
+            department: memberDetails.user_department,
+            user_id: memberDetails.user_id,
+            position: memberDetails.user_position,
+            role: memberDetails.user_role,
+          };
+          const { data: mapResponse } = await useFetch(
+            "/api/update_event_user_map",
+            {
+              method: "POST",
+              body: updatedData,
+              headers: { "cache-control": "no-cache" },
+            }
+          );
+          console.log(
+            "affectedmember position",
+            affectedMember,
+            mapResponse.value
+          );
+        });
+      }
+
       console.log("dlt pos", positions.value);
     },
     reject: () => {},
@@ -690,6 +792,17 @@ const updateDbPosition = async () => {
   console.log("insertPosition", insertPosition);
 
   return { insertPositionRes: insertPosition };
+};
+
+const findComponentIndex = (arr, key, value) => {
+  let indices = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i][key] == value) {
+      indices.push(i);
+    }
+  }
+  console.log("findindex", indices);
+  return indices;
 };
 
 dstore.setSelectedProject(eventid);

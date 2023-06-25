@@ -20,7 +20,12 @@
       <template #footer>
         <div class="flex flex-column align-items-center gap-3">
           <div>Paste your event code here.</div>
-          <Pbutton type="submit" label="Join" @click="joinEvent"></Pbutton>
+          <Pbutton
+            type="submit"
+            label="Join"
+            @click="joinEvent"
+            :loading="loading"
+          ></Pbutton>
         </div>
       </template>
     </Pcard>
@@ -30,7 +35,10 @@
 <script setup>
 import { useToast } from "primevue/usetoast";
 import { useDataStore } from "~/stores/datastore";
+import { refreshDatastore } from "./index.vue";
+import { switchPage } from "~/components/Navbar.vue";
 
+const loading = ref(false);
 const eventCode = ref("");
 const toast = useToast();
 const dstore = useDataStore();
@@ -49,16 +57,14 @@ const joinEvent = async () => {
       lifetime: 100,
     });
   } else {
-    const eventExist = all_event.value.filter(
+    const eventExist = all_event.value.find(
       (event) => event.id == eventCode.value
     );
-    const membership = joinedEvent.filter(
-      (event) => event.id == eventCode.value
-    );
+    const membership = joinedEvent.find((event) => event.id == eventCode.value);
 
-    console.log(eventExist, membership);
+    console.log("joinevent", eventExist, membership);
 
-    if (eventExist.length == 0) {
+    if (!eventExist) {
       toast.add({
         severity: "warn",
         summary: "Invalid Code",
@@ -66,7 +72,7 @@ const joinEvent = async () => {
         lifetime: 1000,
       });
     } else {
-      if (membership.length > 0) {
+      if (membership) {
         toast.add({
           severity: "info",
           summary: "You joined this event.",
@@ -74,18 +80,21 @@ const joinEvent = async () => {
           lifetime: 1000,
         });
       } else {
+        loading.value = true;
         var newProject = {
           user_id: dstore.getUserId,
-          id: eventExist[0].id,
-          name: eventExist[0].name,
+          id: eventExist.id,
+          name: eventExist.name,
           role: "Member",
-          description: eventExist[0].description,
-          creator_id: eventExist[0].creator_id,
+          description: eventExist.description,
+          creator_id: eventExist.creator_id,
           is_show_project_in_overview: true,
         };
         dstore.createProject(newProject);
 
-        newProject["project_id"] = eventExist[0].id;
+        newProject["project_id"] = eventExist.id;
+
+        newProject["project_id"] = eventExist.id;
         const { data: response } = await useFetch("api/map_user_event", {
           method: "POST",
           body: newProject,
@@ -99,7 +108,16 @@ const joinEvent = async () => {
             detail: "You are added to the event.",
             lifetime: 1000,
           });
-          navigateTo(`/eventManagement/${newProject.id}`);
+
+          const doneRefresh = await refreshDatastore("", eventExist.id);
+          console.log("donrefresh ds", doneRefresh);
+          if (doneRefresh.doneRefreshDs) {
+            console.log("ds after refresh", dstore.getFullData());
+            loading.value = false;
+            // navigateTo(`/event/${newProject.id}`);
+            // dstore.setSelectedProject(createdProject.id);
+            switchPage(`/event/${newProject.id}`, "Event");
+          }
         } else {
           toast.add({
             severity: "danger",

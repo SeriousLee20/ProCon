@@ -36,6 +36,7 @@
 </template>
 
 <script setup>
+import useCurrentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 const dstore = useDataStore();
 
@@ -110,6 +111,7 @@ export async function refreshDatastore(pageName, selectedProject) {
       // });
     });
 
+    useCurrentProject().setCurrentProject(selectedProject);
     dstore.setCurrentPage(pageName);
     dstore.setSelectedProject(selectedProject);
     console.log(dstore.getFullData());
