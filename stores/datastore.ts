@@ -7,20 +7,21 @@ export const useDataStore = defineStore("data", {
     projects: null as Project[] | null,
     announcement: null as Announcement[] | null,
     selectedProject: null as Project | null,
-    previousPage: "",
+    currentPage: "",
   }),
   getters: {
     getUserId: (state) => state.user?.id,
     getUserName: (state) => state.user?.name,
+    getUser: (state) => state.user,
     logInStatus: (state) => state.isLoggedIn,
     getSelectedProject: (state) => state.selectedProject,
     getAllProjects: (state) => state.projects,
-    getPreviousPage: (state) => state.previousPage,
+    getCurrentPage: (state) => state.currentPage,
   },
   actions: {
     createUser(user: User) {
       this.user = user;
-      console.log(user);
+      // console.log(user);
     },
     logIn() {
       this.isLoggedIn = true;
@@ -28,7 +29,7 @@ export const useDataStore = defineStore("data", {
     logOut() {
       this.isLoggedIn = false;
     },
-    createProject(project: Project) {
+    async createProject(project: Project) {
       console.log(project);
       if (!this.projects) this.projects = [];
       this.projects.push(project);
@@ -68,12 +69,17 @@ export const useDataStore = defineStore("data", {
         this.selectedProject,
       ];
     },
-    setPreviousPage(page: string) {
-      this.previousPage = page;
+    getLatestProject() {
+      console.log(this.projects?.pop());
+      return this.projects?.pop();
+    },
+    setCurrentPage(page: string) {
+      this.currentPage = page;
     },
     setSelectedProject(id: string) {
       const project = this.getProject(id);
       this.selectedProject = project ? project : null;
+      console.log("ds set selected project", id);
     },
     clearData() {
       this.user = null;
@@ -92,7 +98,8 @@ interface User {
   name: string;
   contact_number: string;
   email: string;
-  working_hour: string[];
+  start_working_hour: string;
+  end_working_hour: string;
   avatar_url: string;
 }
 

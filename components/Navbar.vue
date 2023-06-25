@@ -9,27 +9,14 @@
       <div class="col flex justify-content-center align-content-center">
         <div>
           <Pdropdown
-            id="event-ddlit"
+            id="event-ddlist"
             v-model="selectedProject"
             :options="project"
             optionLabel="name"
             optionValue="id"
             @change="onChangeSelectedProject($event)"
-            placeholder=" "
+            :placeholder="ddplaceholder"
           >
-            <!-- <template #value="slotProps">
-              <div v-if="slotProps.value">
-                <div>{{ slotProps.value.name }}</div>
-              </div>
-              <span v-else>{{ slotProps.placeholder }}</span>
-            </template>
-            <template #option="slotProps">
-              <div>
-                <div>
-                  {{ slotProps.option.name }}
-                </div>
-              </div>
-            </template> -->
           </Pdropdown>
           <Pbutton
             type="button"
@@ -48,89 +35,139 @@
         </div>
       </div>
       <div class="col flex justify-content-end align-content-center gap-1">
-        <Pbutton v-if="isShowButton" type="button" icon="pi pi-chart-bar" />
-        <Pbutton v-if="isShowButton" type="button" icon="pi pi-comment" />
-        <Pbutton v-if="isShowButton" type="button" icon="pi pi-inbox" />
-        <Pbutton type="button" icon="pi pi-home" />
-        <Pbutton type="button" icon="pi pi-user" />
+        <div
+          v-if="isShowButton"
+          class="flex justify-content-end align-content-center gap-1"
+        >
+          <Pbutton type="button" icon="pi pi-chart-bar" />
+          <Pbutton type="button" icon="pi pi-comment" />
+          <Pbutton type="button" icon="pi pi-inbox" />
+        </div>
+        <Pbutton
+          type="button"
+          icon="pi pi-home"
+          @click="switchPage('/overview', 'Overview')"
+        />
+        <Pbutton
+          type="button"
+          icon="pi pi-user"
+          @click="switchPage('/profile', 'Profile')"
+        />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
       </div>
     </ClientOnly>
   </div>
 </template>
 
-<script setup>
+<script setup type="module">
 import { useDataStore } from "~/stores/datastore";
 import { useNow, useDateFormat } from "@vueuse/core";
 import { ref } from "vue";
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
-const route = useRoute();
-
-const menu = ref();
 const dateToday = useDateFormat(useNow(), "MMM DD, YYYY");
-
-// onMounted(() => {
-//   var ddlist = document.getElementById("event-ddlist");
-//   if (window.location.href && window.location.href.indexOf("?") > -1) {
-//     var get = window.location.href.substr(
-//       window.location.href.indexOf("?") + 1
-//     );
-//     if (ddlist && get.length > 0) {
-//       var src = ddlist.src;
-//       src = src.indexOf("?") > -1 ? src + "&" + get : src + "?" + get;
-//       ddlist.src = src;
-//     }
-//   }
-// });
-
+const menu = ref();
+const isShowButton = ref(false);
+const menuItems = ref([]);
+var ddplaceholder = ref(dstore.getCurrentPage);
 var project = ref(dstore.getAllProjects);
 var selectedProject = ref(dstore.getSelectedProject?.id);
-console.log(project);
-console.log(dstore.getAllProjects);
+
+console.log("all project", project);
+console.log("all project", dstore.getAllProjects);
 console.log("selected project:", selectedProject.value);
 
-console.log(route.name);
-
-const isShowButton = ![
-  "index",
-  "profile",
-  "manageEvent",
-  "manageAnnouncement",
-].includes(route.name);
-
-const configEditMenuList = () => {
+function configEditMenuList() {
   console.log("1", dstore.getSelectedProject);
   const editMenu = [];
-  if (dstore.getSelectedProject?.role == "admin") {
-    editMenu.push({ label: "Edit Event", command: "" });
+  if (dstore.getSelectedProject?.role == "Admin") {
+    editMenu.push({
+      label: "Edit Event",
+      command: () => switchPage("/eventManagement", "Edit Event"),
+    });
   }
   editMenu.push(
     {
       label: "Create New Event",
-      command: "",
+      command: () => switchPage("/createEvent", "Create Event"),
     },
     {
       label: "Join Event",
-      command: "",
+      command: () => switchPage("/joinEvent", "Join Event"),
     }
   );
   return { editMenu };
-};
-const menuItems = ref(configEditMenuList().editMenu);
+}
+menuItems.value = configEditMenuList().editMenu;
 console.log(menuItems.value);
 
 const toggle = (event) => {
   menu.value.toggle(event);
 };
 
-const onChangeSelectedProject = (event) => {
-  console.log(event);
+function onChangeSelectedProject(event) {
+  if (event.value == "-1") {
+    isShowButton.value = false;
+    navigateTo("/overview");
+  } else {
+    isShowButton.value = true;
+    navigateTo(`/event/${event.value}`);
+  }
+
   dstore.setSelectedProject(event.value);
-  console.log(dstore.getSelectedProject);
   menuItems.value = configEditMenuList().editMenu;
-};
+  dstore.setCurrentPage(event.value);
+
+  console.log("changed event", event);
+  console.log("updated selected project", dstore.getSelectedProject);
+  console.log(
+    "selectedproject value",
+    selectedProject.value,
+    "showbutton",
+    isShowButton.value
+  );
+  console.log("placeholder", ddplaceholder.value);
+}
+
+function switchPage(routeName, pageName) {
+  console.log(routeName, pageName);
+  if (pageName == "Edit Event") {
+    console.log("split route name", routeName.split("/"));
+    const projectId = routeName.split("/")[2];
+    console.log(projectId);
+    if (projectId) {
+      selectedProject.value = projectId;
+      ddplaceholder.value = "";
+      project.value = dstore.getAllProjects;
+      console.log(
+        "redirect to event management",
+        projectId,
+        selectedProject.value,
+        ddplaceholder.value,
+        project.value
+      );
+      navigateTo(routeName);
+    } else {
+      var finalRouteName = routeName + "/" + selectedProject?.value;
+      navigateTo(finalRouteName);
+    }
+  } else if (pageName != "Overview" && pageName != "Edit Event") {
+    ddplaceholder.value = pageName;
+    dstore.setCurrentPage(pageName);
+    selectedProject.value = null;
+    dstore.setSelectedProject("");
+    navigateTo(routeName);
+  } else {
+    selectedProject.value = "-1";
+    dstore.setSelectedProject("-1");
+    ddplaceholder.value = "";
+    dstore.setCurrentPage("");
+    navigateTo(routeName);
+  }
+  isShowButton.value = false;
+  console.log(selectedProject.value, ddplaceholder.value);
+}
 
 watchEffect(() => {
   if (!useSupabaseUser().value) {
@@ -144,4 +181,105 @@ const logout = async () => {
 };
 </script>
 
-<style lang="css" scoped></style>
+<script>
+// const dstore = useDataStore();
+// const menu = ref();
+// const isShowButton = ref(false);
+// const menuItems = ref([]);
+// var ddplaceholder = ref(dstore.getCurrentPage);
+// var project = ref(dstore.getAllProjects);
+// var selectedProject = ref(dstore.getSelectedProject?.id);
+
+// export const switchPage = (routeName, pageName) => {
+//   console.log(routeName, pageName);
+//   if (pageName == "Edit Event") {
+//     console.log("split route name", routeName.split("/"));
+//     const projectId = routeName.split("/")[2];
+//     console.log(projectId);
+//     if (projectId) {
+//       selectedProject.value = projectId;
+//       ddplaceholder.value = "";
+//       project.value = dstore.getAllProjects;
+//       console.log(
+//         "redirect to event management",
+//         projectId,
+//         selectedProject.value,
+//         ddplaceholder.value,
+//         project.value
+//       );
+//       navigateTo(routeName);
+//     } else {
+//       var finalRouteName = routeName + "/" + selectedProject?.value;
+//       navigateTo(finalRouteName);
+//     }
+//   } else if (pageName != "Overview" && pageName != "Edit Event") {
+//     ddplaceholder.value = pageName;
+//     dstore.setCurrentPage(pageName);
+//     selectedProject.value = null;
+//     dstore.setSelectedProject("");
+//     navigateTo(routeName);
+//   } else {
+//     selectedProject.value = "-1";
+//     dstore.setSelectedProject("-1");
+//     ddplaceholder.value = "";
+//     dstore.setCurrentPage("");
+//     navigateTo(routeName);
+//   }
+//   isShowButton.value = false;
+//   console.log(selectedProject.value, ddplaceholder.value);
+// };
+
+// export const onChangeSelectedProject = (event) => {
+//   if (event.value == "-1") {
+//     isShowButton.value = false;
+//     navigateTo("/overview");
+//   } else {
+//     isShowButton.value = true;
+//     navigateTo(`/event/${event.value}`);
+//   }
+
+//   dstore.setSelectedProject(event.value);
+//   menuItems.value = configEditMenuList().editMenu;
+//   dstore.setCurrentPage(event.value);
+
+//   console.log("changed event", event);
+//   console.log("updated selected project", dstore.getSelectedProject);
+//   console.log(
+//     "selectedproject value",
+//     selectedProject.value,
+//     "showbutton",
+//     isShowButton.value
+//   );
+//   console.log("placeholder", ddplaceholder.value);
+// };
+
+// const configEditMenuList = () => {
+//   console.log("1", dstore.getSelectedProject);
+//   const editMenu = [];
+//   if (dstore.getSelectedProject?.role == "Admin") {
+//     editMenu.push({
+//       label: "Edit Event",
+//       command: () => switchPage("/eventManagement", "Edit Event"),
+//     });
+//   }
+//   editMenu.push(
+//     {
+//       label: "Create New Event",
+//       command: () => switchPage("/createEvent", "Create Event"),
+//     },
+//     {
+//       label: "Join Event",
+//       command: () => switchPage("/joinEvent", "Join Event"),
+//     }
+//   );
+//   return { editMenu };
+// };
+// menuItems.value = configEditMenuList().editMenu;
+// console.log(menuItems.value);
+</script>
+
+<style lang="css" scoped>
+#event-ddlist {
+  max-width: 80%;
+}
+</style>

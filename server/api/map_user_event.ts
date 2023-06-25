@@ -5,29 +5,28 @@ import { serverSupabaseClient } from "../../src/runtime/server/services/serverSu
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
-  const data = await readBody(event);
+  const project = await readBody(event);
 
+  console.log(project);
   var success = false;
-  console.log(data);
   if (user) {
-    const nData = data ? data : null;
+    const nData = project ? project : null;
     const id = user?.id.toString();
     console.log(nData);
     if (nData) {
-      const { data: insertProject, error: insertError } = await client.rpc(
-        "get_user",
-        {
-          user_id: nData.user_id,
-        }
-      );
-
-      if (insertError) {
-        throw createError({ statusMessage: insertError.message });
+      const { data, error } = await client.rpc("map_user_event", {
+        n_user_id: nData.user_id,
+        n_event_id: nData.project_id,
+        n_role: nData.role,
+      });
+      if (error) {
+        throw createError({ statusMessage: error.message });
       } else {
         success = true;
       }
-      return { input: data, data: insertProject, success: success };
+      console.log(data);
+      return { input: project, data: data, success: success };
     }
   }
-  return { input: data, success: success };
+  return { input: project, success: success };
 });

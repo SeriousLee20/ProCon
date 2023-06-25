@@ -1,23 +1,27 @@
 import { Database } from "../../types/supabase";
 import { serverSupabaseUser } from "../../src/runtime/server/services/serverSupabaseUser";
 import { serverSupabaseClient } from "../../src/runtime/server/services/serverSupabaseClient";
+import { useDataStore } from "../../stores/datastore";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
-  const data = await readBody(event);
+  const dstore = useDataStore();
+  const project = await readBody(event);
 
   var success = false;
-  console.log(data);
+  console.log(project);
   if (user) {
-    const nData = data ? data : null;
+    const nData = project ? project : null;
     const id = user?.id.toString();
     console.log(nData);
     if (nData) {
       const { data: insertProject, error: insertError } = await client.rpc(
-        "get_user",
+        "new_project",
         {
-          user_id: nData.user_id,
+          n_name: nData.name,
+          n_description: nData.description,
+          n_creator_id: id.toString(),
         }
       );
 
@@ -26,8 +30,8 @@ export default defineEventHandler(async (event) => {
       } else {
         success = true;
       }
-      return { input: data, data: insertProject, success: success };
+      return { input: project, data: insertProject, success: success };
     }
   }
-  return { input: data, success: success };
+  return { input: project, success: success };
 });

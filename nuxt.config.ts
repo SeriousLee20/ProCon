@@ -2,7 +2,13 @@
 export default defineNuxtConfig({
   // devtools: { enabled: true }
 
-  modules: ["@nuxtjs/supabase", "@vueuse/nuxt", "@pinia/nuxt"],
+  modules: [
+    "@nuxtjs/supabase",
+    "@vueuse/nuxt",
+    "@pinia/nuxt",
+    "@pinia-plugin-persistedstate/nuxt",
+    "@vee-validate/nuxt",
+  ],
 
   css: [
     "@/assets/main.css",
