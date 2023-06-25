@@ -108,7 +108,8 @@ const createProject = async () => {
       const { data: mapResponse } = await useFetch("api/map_user_event", {
         method: "POST",
         body: {
-          id: createdProject.id,
+          user_id: dstore.getUserId,
+          project_id: createdProject.id,
           name: createdProject.name,
           role: "Admin",
         },

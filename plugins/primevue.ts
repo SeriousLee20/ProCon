@@ -18,6 +18,9 @@ import Column from "primevue/column";
 import ColumnGroup from "primevue/columngroup"; // optional
 import Row from "primevue/row"; // optional
 import Dialog from "primevue/dialog";
+import Chips from "primevue/chips";
+import ConfirmPopup from "primevue/confirmpopup";
+import ConfirmationService from "primevue/confirmationservice";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -37,8 +40,11 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pcolumngroup", ColumnGroup);
   nuxtApp.vueApp.component("Prow", Row);
   nuxtApp.vueApp.component("Pdialog", Dialog);
+  nuxtApp.vueApp.component("Pchips", Chips);
+  nuxtApp.vueApp.component("Pconfirmpopup", ConfirmPopup);
 
   //other components that you need
 
   nuxtApp.vueApp.use(ToastService);
+  nuxtApp.vueApp.use(ConfirmationService);
 });

@@ -75,6 +75,7 @@ const joinEvent = async () => {
         });
       } else {
         var newProject = {
+          user_id: dstore.getUserId,
           id: eventExist[0].id,
           name: eventExist[0].name,
           role: "Member",
@@ -84,6 +85,7 @@ const joinEvent = async () => {
         };
         dstore.createProject(newProject);
 
+        newProject["project_id"] = eventExist[0].id;
         const { data: response } = await useFetch("api/map_user_event", {
           method: "POST",
           body: newProject,

@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
     console.log(nData);
     if (nData) {
       const { data, error } = await client.rpc("map_user_event", {
-        n_user_id: id,
-        n_event_id: nData.id.toString(),
+        n_user_id: nData.user_id,
+        n_event_id: nData.project_id,
         n_role: nData.role,
       });
       if (error) {

@@ -15,9 +15,10 @@ export default defineEventHandler(async (event) => {
     console.log(nData);
     if (nData) {
       const { data: insertProject, error: insertError } = await client.rpc(
-        "get_user",
+        "delete_member",
         {
-          user_id: nData.user_id,
+          n_event_id: nData.project_id,
+          n_user_id: nData.user_id,
         }
       );
 
