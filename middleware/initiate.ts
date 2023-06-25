@@ -3,6 +3,7 @@ import { useDataStore } from "~/stores/datastore";
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const { data } = await useFetch("/api/get_full_data");
 
+  //TODO: add api to get project list separately, error when no project joined
   const dstore = useDataStore();
   const userData = data.value;
 
