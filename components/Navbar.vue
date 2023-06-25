@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-bluegray-200 grid">
+  <div class="bg-bluegray-200 grid px-2 pt-1">
     <div class="col flex align-content-center">
       <div class="flex align-items-center">
         {{ dateToday }}
@@ -62,17 +62,20 @@
 <script setup type="module">
 import { useDataStore } from "~/stores/datastore";
 import { useNow, useDateFormat } from "@vueuse/core";
+import useCurrentProject from "~/composables/useProject";
 import { ref } from "vue";
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
+// const { currentProject, setCurrentProject } = useCurrentProject();
 const dateToday = useDateFormat(useNow(), "MMM DD, YYYY");
-const menu = ref();
-const isShowButton = ref(false);
-const menuItems = ref([]);
-var ddplaceholder = ref(dstore.getCurrentPage);
-var project = ref(dstore.getAllProjects);
-var selectedProject = ref(dstore.getSelectedProject?.id);
+// const menu = ref();
+// const isShowButton = ref(false);
+// const menuItems = ref([]);
+// var ddplaceholder = ref(dstore.getCurrentPage);
+// var project = ref(dstore.getAllProjects);
+// var selectedProject = ref(dstore.getSelectedProject?.id);
+// const selectedProject = ref(currentProject);
 
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
@@ -114,6 +117,9 @@ function onChangeSelectedProject(event) {
     isShowButton.value = true;
     navigateTo(`/event/${event.value}`);
   }
+
+  // setCurrentProject(event.value);
+  // console.log("state currentproject", currentProject);
 
   dstore.setSelectedProject(event.value);
   menuItems.value = configEditMenuList().editMenu;
@@ -182,52 +188,53 @@ const logout = async () => {
 </script>
 
 <script>
-// const dstore = useDataStore();
-// const menu = ref();
-// const isShowButton = ref(false);
-// const menuItems = ref([]);
-// var ddplaceholder = ref(dstore.getCurrentPage);
-// var project = ref(dstore.getAllProjects);
-// var selectedProject = ref(dstore.getSelectedProject?.id);
+//TODO: avoid pinia error when refresh create
+const dstore = useDataStore();
+const menu = ref();
+const isShowButton = ref(false);
+const menuItems = ref([]);
+var ddplaceholder = ref(dstore.getCurrentPage);
+var project = ref(dstore.getAllProjects);
+var selectedProject = ref(dstore.getSelectedProject?.id);
 
-// export const switchPage = (routeName, pageName) => {
-//   console.log(routeName, pageName);
-//   if (pageName == "Edit Event") {
-//     console.log("split route name", routeName.split("/"));
-//     const projectId = routeName.split("/")[2];
-//     console.log(projectId);
-//     if (projectId) {
-//       selectedProject.value = projectId;
-//       ddplaceholder.value = "";
-//       project.value = dstore.getAllProjects;
-//       console.log(
-//         "redirect to event management",
-//         projectId,
-//         selectedProject.value,
-//         ddplaceholder.value,
-//         project.value
-//       );
-//       navigateTo(routeName);
-//     } else {
-//       var finalRouteName = routeName + "/" + selectedProject?.value;
-//       navigateTo(finalRouteName);
-//     }
-//   } else if (pageName != "Overview" && pageName != "Edit Event") {
-//     ddplaceholder.value = pageName;
-//     dstore.setCurrentPage(pageName);
-//     selectedProject.value = null;
-//     dstore.setSelectedProject("");
-//     navigateTo(routeName);
-//   } else {
-//     selectedProject.value = "-1";
-//     dstore.setSelectedProject("-1");
-//     ddplaceholder.value = "";
-//     dstore.setCurrentPage("");
-//     navigateTo(routeName);
-//   }
-//   isShowButton.value = false;
-//   console.log(selectedProject.value, ddplaceholder.value);
-// };
+export const switchPage = (routeName, pageName) => {
+  console.log(routeName, pageName);
+  if (pageName == "Edit Event" || pageName == "Event") {
+    console.log("split route name", routeName.split("/"));
+    const projectId = routeName.split("/")[2];
+    console.log(projectId);
+    if (projectId) {
+      selectedProject.value = projectId;
+      ddplaceholder.value = "";
+      project.value = dstore.getAllProjects;
+      console.log(
+        "redirect to event management",
+        projectId,
+        selectedProject.value,
+        ddplaceholder.value,
+        project.value
+      );
+      navigateTo(routeName);
+    } else {
+      var finalRouteName = routeName + "/" + selectedProject?.value;
+      navigateTo(finalRouteName);
+    }
+  } else if (pageName != "Overview" && pageName != "Edit Event") {
+    ddplaceholder.value = pageName;
+    dstore.setCurrentPage(pageName);
+    selectedProject.value = null;
+    dstore.setSelectedProject("");
+    navigateTo(routeName);
+  } else {
+    selectedProject.value = "-1";
+    dstore.setSelectedProject("-1");
+    ddplaceholder.value = "";
+    dstore.setCurrentPage("");
+    navigateTo(routeName);
+  }
+  isShowButton.value = false;
+  console.log(selectedProject.value, ddplaceholder.value);
+};
 
 // export const onChangeSelectedProject = (event) => {
 //   if (event.value == "-1") {

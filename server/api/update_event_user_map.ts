@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     if (nData) {
       const { data, error } = await client.rpc("update_event_user_map", {
         n_user_id: nData.user_id,
-        n_event_id: nData.id.toString(),
+        n_event_id: nData.project_id.toString(),
         n_role: nData.role,
         n_department: nData.department,
         n_position: nData.position,

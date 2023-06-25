@@ -22,12 +22,14 @@
 </template>
 
 <script setup>
+import currentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 dstore.setCurrentPage("Overview");
 dstore.setSelectedProject("-1");
+currentProject().setCurrentProject("-1");
 console.log("ov selected project", dstore.getSelectedProject);
 watchEffect(() => {
   if (!useSupabaseUser().value) {

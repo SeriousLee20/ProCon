@@ -68,6 +68,7 @@
 <script setup>
 import { useToast } from "primevue/usetoast";
 import { switchPage } from "~/components/Navbar.vue";
+import useCurrentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 import { refreshDatastore } from "./index.vue";
 
@@ -78,6 +79,7 @@ const toast = useToast();
 var loading = ref(false);
 const dstore = useDataStore();
 const router = useRouter();
+const { currentProject, setCurrentProject } = useCurrentProject();
 
 const validate = () => {
   console.log("entered project name", projectName.value);
@@ -130,7 +132,8 @@ const createProject = async () => {
         console.log("donrefresh ds", doneRefresh);
         if (doneRefresh.doneRefreshDs) {
           console.log("ds after refresh", dstore.getFullData());
-          loading = false;
+          loading.value = false;
+          setCurrentProject(createdProject.id);
           //   navigateTo(`/eventManagement/${createdProject.id}`);
           // dstore.setSelectedProject(createdProject.id);
           switchPage(`/eventManagement/${createdProject.id}`, "Edit Event");
