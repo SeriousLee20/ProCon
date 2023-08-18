@@ -86,6 +86,7 @@
         ></iframe>
       </div>
 
+      <!-- my tasks -->
       <div
         style="
           display: grid;
@@ -95,13 +96,6 @@
           gap: 1.25rem;
         "
       >
-        <div>
-          <iframe
-            style="pointer-events: none; border: none"
-            src="https://embed.lottiefiles.com/animation/145811"
-          ></iframe>
-          This is my task list, but under construction
-        </div>
         <div
           style="
             display: flex;
@@ -157,6 +151,7 @@
                   "
                 >
                   <Pbutton
+                    v-if="isAdmin"
                     @click="openModalNow()"
                     icon="pi pi-plus"
                     rounded
@@ -234,7 +229,171 @@
                 </div>
               </div>
               <div
-                v-if="announcements.length === 0 || !announcements"
+                v-if="
+                  filteredAnnouncements.length === 0 || !filteredAnnouncements
+                "
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 200px;
+                "
+              >
+                <p
+                  style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 15px;
+                    display: flex;
+                    align-items: center;
+                  "
+                >
+                  No Announcements!
+                </p>
+              </div>
+            </ClientOnly>
+          </div>
+        </div>
+
+        <!-- announcement -->
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+          "
+        >
+          <div
+            style="
+              border: 5px solid #bae8e8;
+              filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
+              border-radius: 30px;
+              width: 100%;
+              background-color: white;
+            "
+          >
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+              "
+            >
+              <div style="grid-column: span 1 / span 1"></div>
+              <div style="grid-column: span 1 / span 1">
+                <h5
+                  style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 15px;
+                    text-align: center;
+                  "
+                >
+                  Announcements
+                </h5>
+              </div>
+
+              <div
+                style="
+                  grid-column: span 1 / span 1;
+                  height: 100%;
+                  padding: 15px;
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    justify-content: end;
+                    align-self: center;
+                  "
+                >
+                  <Pbutton
+                    v-if="isAdmin"
+                    @click="openModalNow()"
+                    icon="pi pi-plus"
+                    rounded
+                    outlined
+                    aria-label="Filter"
+                  />
+                </div>
+              </div>
+            </div>
+            <ClientOnly>
+              <div v-if="filteredAnnouncements.length > 0">
+                <div
+                  style="
+                    padding-left: 8px;
+                    padding-right: 8px;
+                    padding-top: 12px;
+                    padding-bottom: 12px;
+                    overflow-y: scroll;
+                    height: 200px;
+                  "
+                >
+                  <div
+                    v-for="announcement in filteredAnnouncements"
+                    :key="announcement.id"
+                  >
+                    <div
+                      style="
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                      "
+                    >
+                      <div
+                        style="display: flex; gap: 12px; align-items: center"
+                      >
+                        <p
+                          style="
+                            font-family: 'Montserrat';
+                            font-style: normal;
+                            font-weight: 700;
+                            font-size: 12px;
+                            line-height: 15px;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          {{ announcement.name ?? "" }}
+                        </p>
+                        <i
+                          class="pi pi-info-circle"
+                          v-tooltip.top="
+                            announcement.description ??
+                            'No description provided'
+                          "
+                          style="font-size: 1rem; color: #4a9292"
+                        ></i>
+                      </div>
+
+                      <p
+                        style="
+                          font-family: 'Montserrat';
+                          font-style: normal;
+                          font-weight: 400;
+                          font-size: 12px;
+                          line-height: 15px;
+                          display: flex;
+                          align-items: center;
+                        "
+                      >
+                        {{ formatDate(announcement.creation_timestamp) ?? "" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="
+                  filteredAnnouncements.length === 0 || !filteredAnnouncements
+                "
                 style="
                   display: flex;
                   justify-content: center;
@@ -270,88 +429,118 @@ import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
 import { ref, onMounted } from "vue";
 
-const { eventid } = useRoute().params;
+const { projectid } = useRoute().params;
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
 const table = userData.value;
 const toast = useToast();
+const groupedUsers = ref([]);
 let announcements = [];
-let filteredAnnouncements = [];
+// let filteredAnnouncements = [];
 let userOptions = [];
+
+dstore.setSelectedProject(projectid);
+dstore.setCurrentPage("");
 
 const openModal = ref(false);
 const title = ref(null);
 const description = ref(null);
 const selectedUsers = ref([]);
 const valueArr = ref([]);
+const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
 
 console.log("data from db-userid", table[0].user_id);
-console.log("current eventid", eventid);
+console.log("current projectid", projectid);
+console.log("isAdmin", dstore.getSelectedProject, isAdmin);
+
+// isAdmin.value = dstore.getSelectedProject.role == "Admin";
 
 // Create a single supabase client for interacting with your database
-const supabase = createClient(
-  "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
-);
+// const supabase = createClient(
+//   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
+// );
 
-const { data: announcementData, error: announcementError } = await supabase
-  .from("announcement")
-  .select();
+// const { data: announcementData, error: announcementError } = await supabase
+//   .from("announcement")
+//   .select();
 
-let { data: eventMember, error: getEventError } = await supabase.rpc(
-  "get_users_by_event_id",
+// let { data: projectMember, error: getEventError } = await supabase.rpc(
+//   "get_users_by_event_id",
+//   {
+//     n_event_id: projectid,
+//   }
+// );
+
+const { data: projectAnnouncementRes } = await useFetch(
+  "/api/get_announcement",
   {
-    n_event_id: eventid,
+    method: "POST",
+    body: { project_id: projectid },
+    headers: { "cache-control": "no-cache" },
   }
 );
 
-if (getEventError) console.error(getEventError);
-else console.log(eventMember);
-
-announcements = announcementData;
-console.log(announcements);
-
-for (let i = 0; i < announcements.length; i++) {
-  const announcement = announcements[i];
-  if (
-    announcement.event_id === eventid &&
-    announcement.receiver_ids.includes(table[0].user_id)
-  ) {
-    filteredAnnouncements.push(announcement);
+const { data: projectMemberRes } = await useFetch(
+  "/api/get_users_by_project_id",
+  {
+    method: "POST",
+    body: { project_id: projectid },
+    headers: { "cache-control": "no-cache" },
   }
-  console.log("announcement fetching");
-  // console.log(announcement);
-  // console.log(announcement.event_id);
-  // console.log(eventid);
-  // console.log(announcement.event_id === eventid);
+);
 
-  // console.log(announcement.receiver_ids);
-  // console.log(table[0].user_id);
-  // console.log(announcement.receiver_ids.includes(table[0].user_id));
-}
+const projectMember = projectMemberRes.value.data;
+const filteredAnnouncements = projectAnnouncementRes.value.data;
+
+// if (getEventError) console.error(getEventError);
+// else
+console.log(projectMember);
+
+// announcements = announcementData;
+// console.log(announcements);
+
+// for (let i = 0; i < announcements.length; i++) {
+//   const announcement = announcements[i];
+//   if (
+//     announcement.event_id === projectid &&
+//     announcement.receiver_ids.includes(table[0].user_id)
+//   ) {
+//     filteredAnnouncements.push(announcement);
+//   }
+//   console.log("announcement fetching");
+//   // console.log(announcement);
+//   // console.log(announcement.event_id);
+//   // console.log(projectid);
+//   // console.log(announcement.event_id === projectid);
+
+//   // console.log(announcement.receiver_ids);
+//   // console.log(table[0].user_id);
+//   // console.log(announcement.receiver_ids.includes(table[0].user_id));
+// }
 
 // console.log(typeof filteredAnnouncements[0]);
-// console.log(typeof eventMember);
+// console.log(typeof projectMember);
 
-if (Array.isArray(eventMember)) {
-  userOptions = eventMember.map((user) => ({
+if (Array.isArray(projectMember)) {
+  userOptions = projectMember.map((user) => ({
     label: user.name,
     value: user.id,
   }));
 } else {
   userOptions = {
-    label: eventMember.name,
-    value: eventMember.id,
+    label: projectMember.name,
+    value: projectMember.id,
   };
 }
 
-const groupedUsers = ref([
-  {
-    label: "All Users",
-    items: [userOptions],
-  },
-]);
+console.log("useroption", userOptions);
+groupedUsers.value.push({
+  label: "All Users",
+  items: userOptions,
+});
+console.log("groupedUsers", groupedUsers);
 console.log(selectedUsers);
 
 const formatDate = (dateString) => {
@@ -375,7 +564,7 @@ watchEffect(() => {
       valueArr.value.push(user.value);
     }
 
-    console.log(typeof valueArr.value);
+    console.log(valueArr.value, typeof valueArr.value);
   }
 });
 
@@ -383,7 +572,7 @@ async function addAnnouncement() {
   let payload = {
     name: title.value,
     description: description.value,
-    event_id: eventid,
+    event_id: projectid,
     creator_id: table[0].user_id,
     creation_timestamp: new Date(),
     receiver_ids: valueArr.value,
@@ -400,7 +589,6 @@ async function addAnnouncement() {
     });
 
     console.log(data);
-    loading = false;
   } catch (error) {
     console.log(error);
   }
@@ -419,8 +607,6 @@ const logout = async () => {
   dstore.logout();
 };
 
-dstore.setSelectedProject(eventid);
-dstore.setCurrentPage("");
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],
