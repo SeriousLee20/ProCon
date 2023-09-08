@@ -77,7 +77,6 @@
         padding: 20px;
       "
       class="h-screen grid"
-      class="h-screen grid"
     >
       <div class="col-8">
         <div>Completed</div>
@@ -113,7 +112,6 @@
           /* grid-column-start: 3; */
           gap: 1.25rem;
         "
-        class="col-4"
         class="col-4"
       >
         <div
