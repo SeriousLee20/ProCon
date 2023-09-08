@@ -120,14 +120,10 @@
           :modal="true"
           class="p-fluid"
         >
-          <template #header>
-            <div class="flex flex-column">
-              <div class="footer2">
-                Please enter the department name, press enter to separate them.
-              </div>
-              <div class="footer2">Remember to save.</div>
-            </div>
-          </template>
+          <div class="footer2">
+            Please enter the user id, press enter to separate them.
+          </div>
+          <div class="footer2">Remember to save.</div>
           <Pchips v-model="newMember"></Pchips>
 
           <div class="flex align-self-end w-8">
@@ -148,14 +144,10 @@
           :modal="true"
           class="p-fluid"
         >
-          <template #header>
-            <div class="flex flex-column">
-              <div class="footer2">
-                Please enter the department name, press enter to separate them.
-              </div>
-              <div class="footer2">Remember to save.</div>
-            </div>
-          </template>
+          <div class="footer2">
+            Please enter the department name, press enter to separate them.
+          </div>
+          <div class="footer2">Remember to save.</div>
           <div class="flex flex-column gap-3">
             <Pchips v-model="newDepartment"></Pchips>
 
@@ -209,14 +201,10 @@
           :modal="true"
           class="p-fluid"
         >
-          <template #header>
-            <div class="flex flex-column">
-              <div class="footer2">
-                Please enter the positions name, press enter to separate them.
-              </div>
-              <div class="footer2">Remember to save.</div>
-            </div>
-          </template>
+          <div class="footer2">
+            Please enter the positions name, press enter to separate them.
+          </div>
+          <div class="footer2">Remember to save.</div>
           <div class="flex flex-column gap-3">
             <Pchips v-model="newPosition"></Pchips>
 
@@ -276,7 +264,7 @@ import { useConfirm } from "primevue/useconfirm";
 const dstore = useDataStore();
 const toast = useToast();
 const confirm = useConfirm();
-const { eventid } = useRoute().params;
+const { projectid } = useRoute().params;
 
 const board = ref();
 const positions = ref([]);
@@ -291,7 +279,6 @@ const disableRole = ref(false);
 const boardMenu = ref();
 const newDepartment = ref();
 const newPosition = ref();
-console.log("New Pos:", newPosition);
 const newMember = ref();
 const editBoardMenu = ref([
   {
@@ -308,7 +295,7 @@ const editBoardMenu = ref([
   },
 ]);
 
-console.log("manage event-eventid", eventid);
+console.log("manage event-projectid", projectid);
 
 const toggle = (event) => {
   boardMenu.value.toggle(event);
@@ -318,14 +305,14 @@ const { data: projectMemberList } = await useFetch(
   "/api/get_management_board",
   {
     method: "POST",
-    body: { project_id: eventid },
+    body: { project_id: projectid },
     headers: { "cache-control": "no-cache" },
   }
 );
 
 const { data: boardComponent } = await useFetch("/api/get_board_component", {
   method: "POST",
-  body: { project_id: eventid },
+  body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },
 });
 
@@ -374,7 +361,7 @@ const saveMemberDetails = async () => {
   udpatedMember.user_department = udpatedMember.user_department.user_department;
 
   const updatedData = {
-    project_id: eventid,
+    project_id: projectid,
     user_id: udpatedMember.user_id,
     role: udpatedMember.user_role ? udpatedMember.user_role : "",
     department: udpatedMember.user_department
@@ -423,7 +410,7 @@ const deleteMember = (event, clickedMember) => {
 
       const { data: deleteMemberRes } = await useFetch("/api/delete_member", {
         method: "POST",
-        body: { user_id: clickedMember.user_id, project_id: eventid },
+        body: { user_id: clickedMember.user_id, project_id: projectid },
         headers: { "cache-control": "no-cache" },
       });
       console.log(deleteMemberRes.value);
@@ -435,83 +422,104 @@ const hideAddMemberDialog = () => {
   addMemberDialog.value = false;
 };
 
-const addMember = () => {
+const addMember = async () => {
   let hasNewMember = false;
   let existedMember = [];
   let addedMember = [];
   let userName = "";
+  let invalidUser = [];
 
-  console.log("newmember", newMember.value, newMember.length);
-  //   if (newMember && newMember.length > 0) {
-  newMember.value.forEach(async (newMember) => {
-    console.log("member exist", newMember);
-    if (!board.value.find((oldMember) => oldMember.user_id == newMember)) {
-      const { data: getUserRes } = await useFetch("/api/get_user", {
-        method: "POST",
-        body: { user_id: newMember },
-        headers: { "cache-control": "no-cache" },
-      });
-
-      userName = getUserRes.value.data.name;
-      console.log("getuserres", getUserRes.value);
-
-      const newMemberData = {
-        user_department: null,
-        user_id: newMember,
-        user_position: "Member",
-        user_role: "Member",
-        username: userName,
-      };
-
-      board.value.push(newMemberData);
-
-      newMemberData["project_id"] = eventid;
-      newMemberData["user_id"] = newMember;
-      newMemberData["role"] = "Member";
-
-      console.log("newmemberdata", newMemberData);
-      if (getUserRes.value.success) {
-        const { data: addMemberRes } = await useFetch("/api/map_user_event", {
-          method: "POST",
-          body: newMemberData,
-          headers: { "cache-control": "no-cache" },
-        });
-        console.log("addmemberres", addMemberRes.value);
-        hasNewMember = true;
-        addedMember.push(userName);
-      } else {
-        toast.add({
-          severity: "warn",
-          summary: "User not found.",
-          detail: `${newMember} cannot be found. Please check the id again.`,
-          life: 50000,
-        });
-      }
-    } else {
-      existedMember.push(userName);
-    }
+  const { data: getUserRes } = await useFetch("/api/get_user", {
+    method: "POST",
+    body: { user_id: newMember },
+    headers: { "cache-control": "no-cache" },
   });
 
-  if (existedMember.length > 0) {
-    toast.add({
-      severity: "warn",
-      summary: "Member joined.",
-      detail: `${existedMember.join(", ")} already joined this project.`,
-      life: 50000,
-    });
-  }
-  if (hasNewMember) {
-    toast.add({
-      severity: "success",
-      summary: "Success",
-      detail: `Added ${addedMember.join(", ")} to the project.`,
-      life: 50000,
-    });
-  }
+  console.log(
+    "newmember",
+    newMember.value,
+    newMember.value.length,
+    getUserRes.value
+  );
 
-  newMember.value = null;
-  console.log("updated board", board.value);
-  //   }
+  if (newMember && newMember.value.length > 0) {
+    newMember.value.forEach(async (newMb) => {
+      console.log("curr member", newMb);
+
+      const validateUser = getUserRes.value.data.find(
+        (user) => user.id == newMb
+      );
+      if (validateUser) {
+        userName = validateUser.name;
+
+        if (
+          !board.value.find((oldMember) => {
+            return oldMember.user_id == newMb;
+          })
+        ) {
+          const newMemberData = {
+            user_department: null,
+            user_id: newMb,
+            user_position: "Member",
+            user_role: "Member",
+            username: userName,
+          };
+
+          board.value.push(newMemberData);
+
+          newMemberData["project_id"] = projectid;
+          newMemberData["user_id"] = newMb;
+          newMemberData["role"] = "Member";
+
+          console.log("newmemberdata", newMemberData);
+
+          const { data: addMemberRes } = await useFetch("/api/map_user_event", {
+            method: "POST",
+            body: newMemberData,
+            headers: { "cache-control": "no-cache" },
+          });
+
+          console.log("addmemberres", addMemberRes.value);
+          hasNewMember = true;
+          addedMember.push(userName);
+          console.log("updated board", board.value);
+        } else {
+          existedMember.push(userName);
+        }
+      } else {
+        invalidUser.push(userName);
+      }
+    });
+
+    if (existedMember.length > 0) {
+      toast.add({
+        severity: "warn",
+        summary: "Member joined.",
+        detail: `${existedMember.join(", ")} already joined this project.`,
+        life: 50000,
+      });
+    }
+    if (hasNewMember) {
+      toast.add({
+        severity: "success",
+        summary: "Success",
+        detail: `Added ${addedMember.join(", ")} to the project.`,
+        life: 50000,
+      });
+    }
+    if (invalidUser.length > 0) {
+      toast.add({
+        severity: "warn",
+        summary: "User not found.",
+        detail: `${invalidUser.join(
+          ", "
+        )} cannot be found. Please check the id again.`,
+        life: 50000,
+      });
+    }
+
+    newMember.value = null;
+  }
 };
 
 const updateDbMapMember = async (updatedData) => {
@@ -555,7 +563,15 @@ const addDepartment = async () => {
       });
     }
     if (hasNewDeprtment) {
-      const insertDepartmentRes = updateDbDepartment();
+      const { data: insertDepartmentRes } = await useFetch(
+        "/api/insert_department",
+        {
+          method: "POST",
+          body: { project_id: projectid, departments: departments.value },
+          headers: { "cache-control": "no-cache" },
+        }
+      );
+      console.log("updatedepartment", insertDepartmentRes);
 
       if (insertDepartmentRes.value.success) {
         toast.add({
@@ -600,7 +616,7 @@ const deleteDepartment = (event, department) => {
         "/api/insert_department",
         {
           method: "POST",
-          body: { project_id: eventid, departments: departments.value },
+          body: { project_id: projectid, departments: departments.value },
           headers: { "cache-control": "no-cache" },
         }
       );
@@ -619,7 +635,7 @@ const deleteDepartment = (event, department) => {
           board.value[index].user_department = null;
           console.log("memberdetails", memberDetails);
           let updatedData = {
-            project_id: eventid,
+            project_id: projectid,
             department: null,
             user_id: memberDetails.user_id,
             position: memberDetails.user_position,
@@ -648,7 +664,7 @@ const deleteDepartment = (event, department) => {
 const updateDbDepartment = async () => {
   const { data: updateDepartment } = await useFetch("/api/insert_department", {
     method: "POST",
-    body: { project_id: eventid, departments: departments.value },
+    body: { project_id: projectid, departments: departments.value },
     headers: { "cache-control": "no-cache" },
   });
   console.log("updatedepartment", updateDepartment);
@@ -691,7 +707,7 @@ const addPosition = async () => {
         "/api/insert_positions",
         {
           method: "POST",
-          body: { project_id: eventid, positions: positions.value },
+          body: { project_id: projectid, positions: positions.value },
           headers: { "cache-control": "no-cache" },
         }
       );
@@ -738,7 +754,7 @@ const deletePosition = (event, position) => {
       );
       const { data: updatePosition } = await useFetch("/api/insert_positions", {
         method: "POST",
-        body: { project_id: eventid, positions: positions.value },
+        body: { project_id: projectid, positions: positions.value },
         headers: { "cache-control": "no-cache" },
       });
       console.log("updatePosition", updatePosition);
@@ -755,7 +771,7 @@ const deletePosition = (event, position) => {
           board.value[index].user_position = null;
           console.log("memberdetails", memberDetails);
           let updatedData = {
-            project_id: eventid,
+            project_id: projectid,
             department: memberDetails.user_department,
             user_id: memberDetails.user_id,
             position: memberDetails.user_position,
@@ -786,7 +802,7 @@ const deletePosition = (event, position) => {
 const updateDbPosition = async () => {
   const { data: insertPosition } = await useFetch("/api/insert_positions", {
     method: "POST",
-    body: { project_id: eventid, positions: positions.value },
+    body: { project_id: projectid, positions: positions.value },
     headers: { "cache-control": "no-cache" },
   });
   console.log("insertPosition", insertPosition);
@@ -805,7 +821,7 @@ const findComponentIndex = (arr, key, value) => {
   return indices;
 };
 
-dstore.setSelectedProject(eventid);
+dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("");
 definePageMeta({
   layout: "custom",

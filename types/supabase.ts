@@ -3,7 +3,7 @@ export type Json =
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json | undefined }
   | Json[]
 
 export interface Database {
@@ -71,31 +71,6 @@ export interface Database {
           },
           {
             foreignKeyName: "fk_announcement_event_id"
-            columns: ["event_id"]
-            referencedRelation: "event"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      department: {
-        Row: {
-          event_id: string
-          id: string
-          name: string | null
-        }
-        Insert: {
-          event_id: string
-          id?: string
-          name?: string | null
-        }
-        Update: {
-          event_id?: string
-          id?: string
-          name?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_department_event_id"
             columns: ["event_id"]
             referencedRelation: "event"
             referencedColumns: ["id"]
@@ -182,31 +157,6 @@ export interface Database {
           }
         ]
       }
-      position: {
-        Row: {
-          event_id: string
-          id: string
-          name: string | null
-        }
-        Insert: {
-          event_id: string
-          id?: string
-          name?: string | null
-        }
-        Update: {
-          event_id?: string
-          id?: string
-          name?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_position_event_id"
-            columns: ["event_id"]
-            referencedRelation: "event"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       user: {
         Row: {
           contact_number: string | null
@@ -267,6 +217,21 @@ export interface Database {
           positions: Json[] | null
         }[]
       }
+      get_announcement: {
+        Args: {
+          n_user_id: string
+          n_event_id: string
+        }
+        Returns: {
+          creation_timestamp: string
+          creator_id: string
+          description: string | null
+          event_id: string
+          id: string
+          name: string
+          receiver_ids: string[]
+        }[]
+      }
       get_board_components: {
         Args: {
           n_event_id: string
@@ -320,7 +285,7 @@ export interface Database {
       }
       get_user: {
         Args: {
-          user_id: string
+          user_id: string[]
         }
         Returns: {
           contact_number: string | null
@@ -332,7 +297,7 @@ export interface Database {
           start_working_hour: string
         }[]
       }
-      get_users_by_event_id: {
+      get_users_by_project_id: {
         Args: {
           n_event_id: string
         }
