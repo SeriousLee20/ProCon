@@ -21,6 +21,7 @@ import Dialog from "primevue/dialog";
 import Chips from "primevue/chips";
 import ConfirmPopup from "primevue/confirmpopup";
 import ConfirmationService from "primevue/confirmationservice";
+import ToggleButton from "primevue/togglebutton";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -42,6 +43,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pdialog", Dialog);
   nuxtApp.vueApp.component("Pchips", Chips);
   nuxtApp.vueApp.component("Pconfirmpopup", ConfirmPopup);
+  nuxtApp.vueApp.component("Ptogglebutton", ToggleButton);
 
   //other components that you need
 

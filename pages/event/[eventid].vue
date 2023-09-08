@@ -1,7 +1,7 @@
 <template>
   <form
     @submit="addAnnouncement()"
-    v-if="openModal"
+    v-if="isOpenAnnouncementModal"
     class="fixed top-0 left-0 w-screen h-screen disabled-div"
     style="
       background-color: rgba(0, 0, 0, 0.7);
@@ -62,46 +62,60 @@
       </Pmultiselect>
       <div style="display: flex; gap: 10px; align-items: center">
         <Pbutton type="submit">Add</Pbutton>
-        <Pbutton @click="closeModal()">Close</Pbutton>
+        <Pbutton @click="closeAnnouncementAnnouncementModal()">Close</Pbutton>
       </div>
     </div>
   </form>
+
   <div>
     <div
       style="
         display: grid;
         height: 100%;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2rem;
+        /* grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2rem; */
         padding: 20px;
       "
+      class="h-screen grid"
+      class="h-screen grid"
     >
-      <div>
-        This is task list, but under construction
-        <iframe
-          style="pointer-events: none; border: none"
-          width="500"
-          height="400"
-          src="https://embed.lottiefiles.com/animation/145811"
-        ></iframe>
+      <div class="col-8">
+        <div>Completed</div>
+
+        <!-- <div
+          style="
+            display: grid;
+            height: 100%;
+            grid-template-rows: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-column: span 2 / span 2;
+            gap: 1.25rem;
+            background-color: #4a9292;
+          "
+        >
+          <div style="background-color: blue"></div>
+
+          <div style="background-color: coral"></div>
+          <div style="background-color: blue"></div>
+
+          <div style="background-color: coral"></div> -->
+
+        <!-- </div> -->
       </div>
 
       <div
         style="
           display: grid;
           height: 100%;
-          grid-template-rows: repeat(2, minmax(0, 1fr));
-          grid-row: span 1 / span 1;
+          /* /* grid-template-rows: repeat(2, minmax(0, 1fr)); */ */
+          /* /* grid-row: span 1 / span 1; */
+          /* grid-column-start: 3; */ */
+          /* grid-column-start: 3; */
           gap: 1.25rem;
         "
+        class="col-4"
+        class="col-4"
       >
-        <div>
-          <iframe
-            style="pointer-events: none; border: none"
-            src="https://embed.lottiefiles.com/animation/145811"
-          ></iframe>
-          This is my task list, but under construction
-        </div>
         <div
           style="
             display: flex;
@@ -119,12 +133,161 @@
               background-color: white;
             "
           >
-            <div
-              style="
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-              "
-            >
+            <div>
+              <div class="show-completed-cont">
+                <Ptogglebutton
+                  v-model="showMyTaskCompleted"
+                  onLabel="Completed"
+                  offLabel="Completed"
+                  onIcon="pi pi-eye"
+                  offIcon="pi pi-eye-slash"
+                  class="show-completed-button"
+                  text
+                ></Ptogglebutton>
+              </div>
+              <div>
+                <h5
+                  style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 15px;
+                    text-align: center;
+                  "
+                >
+                  My Tasks
+                </h5>
+              </div>
+
+              <div>
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    justify-content: end;
+                    align-self: center;
+                  "
+                >
+                  <Pdropdown />
+                </div>
+              </div>
+            </div>
+            <ClientOnly>
+              <div v-if="filteredAnnouncements.length > 0">
+                <div
+                  style="
+                    padding-left: 8px;
+                    padding-right: 8px;
+                    padding-top: 12px;
+                    padding-bottom: 12px;
+                    overflow-y: scroll;
+                    height: 200px;
+                  "
+                >
+                  <div
+                    v-for="announcement in filteredAnnouncements"
+                    :key="announcement.id"
+                  >
+                    <div
+                      style="
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                      "
+                    >
+                      <div
+                        style="display: flex; gap: 12px; align-items: center"
+                      >
+                        <p
+                          style="
+                            font-family: 'Montserrat';
+                            font-style: normal;
+                            font-weight: 700;
+                            font-size: 12px;
+                            line-height: 15px;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          {{ announcement.name ?? "" }}
+                        </p>
+                        <i
+                          class="pi pi-info-circle"
+                          v-tooltip.top="
+                            announcement.description ??
+                            'No description provided'
+                          "
+                          style="font-size: 1rem; color: #4a9292"
+                        ></i>
+                      </div>
+
+                      <p
+                        style="
+                          font-family: 'Montserrat';
+                          font-style: normal;
+                          font-weight: 400;
+                          font-size: 12px;
+                          line-height: 15px;
+                          display: flex;
+                          align-items: center;
+                        "
+                      >
+                        {{ formatDate(announcement.creation_timestamp) ?? "" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="
+                  filteredAnnouncements.length === 0 || !filteredAnnouncements
+                "
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 200px;
+                "
+              >
+                <p
+                  style="
+                    font-family: 'Montserrat';
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 12px;
+                    line-height: 15px;
+                    display: flex;
+                    align-items: center;
+                  "
+                >
+                  No Tasks!
+                </p>
+              </div>
+            </ClientOnly>
+          </div>
+        </div>
+
+        <!-- announcement -->
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+          "
+        >
+          <div
+            style="
+              border: 5px solid #bae8e8;
+              filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
+              border-radius: 30px;
+              width: 100%;
+              background-color: white;
+            "
+          >
+            <div>
               <div style="grid-column: span 1 / span 1"></div>
               <div style="grid-column: span 1 / span 1">
                 <h5
@@ -140,13 +303,7 @@
                 </h5>
               </div>
 
-              <div
-                style="
-                  grid-column: span 1 / span 1;
-                  height: 100%;
-                  padding: 15px;
-                "
-              >
+              <div style="height: 100%; padding: 15px">
                 <div
                   style="
                     display: flex;
@@ -157,7 +314,8 @@
                   "
                 >
                   <Pbutton
-                    @click="openModalNow()"
+                    v-if="isAdmin"
+                    @click="openAnnouncementModal()"
                     icon="pi pi-plus"
                     rounded
                     outlined
@@ -266,7 +424,6 @@
 
 <script setup>
 import { useDataStore } from "~/stores/datastore";
-import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
 import { ref, onMounted } from "vue";
 
@@ -276,11 +433,12 @@ const dstore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
 const table = userData.value;
 const toast = useToast();
-let announcements = [];
-let filteredAnnouncements = [];
-let userOptions = [];
+dstore.setSelectedProject(projectid);
+dstore.setCurrentPage("");
 
-const openModal = ref(false);
+const showMyTaskCompleted = ref(true);
+
+const isOpenAnnouncementModal = ref(false);
 const title = ref(null);
 const description = ref(null);
 const selectedUsers = ref([]);
@@ -406,12 +564,12 @@ async function addAnnouncement() {
   }
 }
 
-function closeModal() {
-  openModal.value = false;
+function closeAnnouncementModal() {
+  isOpenAnnouncementModal.value = false;
 }
 
-function openModalNow() {
-  openModal.value = true;
+function openAnnouncementModal() {
+  isOpenAnnouncementModal.value = true;
 }
 
 const logout = async () => {
@@ -427,4 +585,18 @@ definePageMeta({
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="css" scoped>
+.show-completed-button {
+  font-size: 0.75rem;
+  border: none;
+}
+
+.show-completed-button.p-togglebutton.p-button:not(.p-disabled).p-focus {
+  box-shadow: none;
+}
+.show-completed-cont {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
