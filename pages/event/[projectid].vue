@@ -2,37 +2,15 @@
   <form
     @submit="addAnnouncement()"
     v-if="isOpenAnnouncementModal"
-    class="fixed top-0 left-0 w-screen h-screen disabled-div"
-    style="
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 10;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    "
+    class="fixed top-0 left-0 w-screen h-screen disabled-div bg-black-alpha-70 z-5 flex justify-content-center align-items-center"
   >
     <div
-      class="bg-white"
-      style="
-        min-width: 500px;
-        font-family: sans-serif;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        gap: 40px;
-        padding-top: 24px;
-        padding-bottom: 24px;
-        padding-left: 32px;
-        padding-right: 32px;
-      "
+      class="form-modal bg-white flex flex-column gap-6 px-4 py-5 align-items-center"
     >
-      <div style="padding-top: 20px; padding-bottom: 20px">
-        Add Announcement
-      </div>
+      <div class="py-2"><h3>Add Announcement</h3></div>
       <span class="p-float-label">
         <Pinputtext id="title" v-model="title" type="text" required />
-        <label for="title" style="text-align: center">Title</label>
+        <label for="title">Title</label>
       </span>
       <span class="p-float-label">
         <Ptextarea
@@ -41,7 +19,7 @@
           type="text"
           required
         />
-        <label for="description" style="text-align: center">Description</label>
+        <label for="description">Description</label>
       </span>
       <Pmultiselect
         v-model="selectedUsers"
@@ -60,341 +38,69 @@
           </div>
         </template>
       </Pmultiselect>
-      <div style="display: flex; gap: 10px; align-items: center">
+      <div class="flex gap-2 align-items-center">
         <Pbutton type="submit">Add</Pbutton>
-        <Pbutton @click="closeAnnouncementAnnouncementModal()">Close</Pbutton>
+        <Pbutton @click="closeAnnouncementModal()">Close</Pbutton>
       </div>
     </div>
   </form>
 
   <div>
-    <div
-      style="
-        display: grid;
-        height: 100%;
-        /* grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 2rem; */
-        padding: 20px;
-      "
-      class="h-screen grid"
-    >
+    <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
         <div>Completed</div>
-
-        <!-- <div
-          style="
-            display: grid;
-            height: 100%;
-            grid-template-rows: repeat(2, minmax(0, 1fr));
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-column: span 2 / span 2;
-            gap: 1.25rem;
-            background-color: #4a9292;
-          "
-        >
-          <div style="background-color: blue"></div>
-
-          <div style="background-color: coral"></div>
-          <div style="background-color: blue"></div>
-
-          <div style="background-color: coral"></div> -->
-
-        <!-- </div> -->
       </div>
 
-      <!-- my tasks -->
-      <div
-        style="
-          display: grid;
-          height: 100%;
-          /* /* grid-template-rows: repeat(2, minmax(0, 1fr)); */ */
-          /* /* grid-row: span 1 / span 1; */
-          /* grid-column-start: 3; */ */
-          /* grid-column-start: 3; */
-          gap: 1.25rem;
-        "
-        class="col-4"
-      >
-        <div
-          style="
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-          "
-        >
-          <div
-            style="
-              border: 5px solid #bae8e8;
-              filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
-              border-radius: 30px;
-              width: 100%;
-              background-color: white;
-            "
-          >
-            <div
-              style="
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-              "
-            >
-              <div style="grid-column: span 1 / span 1"></div>
-              <div style="grid-column: span 1 / span 1">
-                <h5
-                  style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 700;
-                    font-size: 15px;
-                    text-align: center;
-                  "
-                >
-                  Announcements
-                </h5>
-              </div>
-
-              <div
-                style="
-                  grid-column: span 1 / span 1;
-                  height: 100%;
-                  padding: 15px;
-                "
-              >
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    width: 100%;
-                    justify-content: end;
-                    align-self: center;
-                  "
-                >
-                  <Pbutton
-                    v-if="isAdmin"
-                    @click="openModalNow()"
-                    icon="pi pi-plus"
-                    rounded
-                    outlined
-                    aria-label="Filter"
-                  />
-                </div>
-              </div>
-            </div>
-            <ClientOnly>
-              <div v-if="filteredAnnouncements.length > 0">
-                <div
-                  style="
-                    padding-left: 8px;
-                    padding-right: 8px;
-                    padding-top: 12px;
-                    padding-bottom: 12px;
-                    overflow-y: scroll;
-                    height: 200px;
-                  "
-                >
-                  <div
-                    v-for="announcement in filteredAnnouncements"
-                    :key="announcement.id"
-                  >
-                    <div
-                      style="
-                        width: 100%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                      "
-                    >
-                      <div
-                        style="display: flex; gap: 12px; align-items: center"
-                      >
-                        <p
-                          style="
-                            font-family: 'Montserrat';
-                            font-style: normal;
-                            font-weight: 700;
-                            font-size: 12px;
-                            line-height: 15px;
-                            display: flex;
-                            align-items: center;
-                          "
-                        >
-                          {{ announcement.name ?? "" }}
-                        </p>
-                        <i
-                          class="pi pi-info-circle"
-                          v-tooltip.top="
-                            announcement.description ??
-                            'No description provided'
-                          "
-                          style="font-size: 1rem; color: #4a9292"
-                        ></i>
-                      </div>
-
-                      <p
-                        style="
-                          font-family: 'Montserrat';
-                          font-style: normal;
-                          font-weight: 400;
-                          font-size: 12px;
-                          line-height: 15px;
-                          display: flex;
-                          align-items: center;
-                        "
-                      >
-                        {{ formatDate(announcement.creation_timestamp) ?? "" }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                v-if="
-                  filteredAnnouncements.length === 0 || !filteredAnnouncements
-                "
-                style="
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 200px;
-                "
-              >
-                <p
-                  style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 400;
-                    font-size: 12px;
-                    line-height: 15px;
-                    display: flex;
-                    align-items: center;
-                  "
-                >
-                  No Announcements!
-                </p>
-              </div>
-            </ClientOnly>
-          </div>
-        </div>
-
+      <div class="col-4">
+        <div></div>
         <!-- announcement -->
-        <div
-          style="
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-          "
-        >
+        <div>
           <div
-            style="
-              border: 5px solid #bae8e8;
-              filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
-              border-radius: 30px;
-              width: 100%;
-              background-color: white;
-            "
+            class="mainpage-card border-primary-200 border-2 bg-white w-full"
           >
-            <div>
-              <div class="show-completed-cont">
-                <Ptogglebutton
-                  v-model="showMyTaskCompleted"
-                  onLabel="Completed"
-                  offLabel="Completed"
-                  onIcon="pi pi-eye"
-                  offIcon="pi pi-eye-slash"
-                  class="show-completed-button"
-                  text
-                ></Ptogglebutton>
-              </div>
-              <div>
-                <h5
-                  style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 700;
-                    font-size: 15px;
-                    text-align: center;
-                  "
-                >
-                  My Tasks
-                </h5>
+            <div class="grid justify-content-evenly">
+              <div class="col-3 col-offset-4">
+                <h5>Announcements</h5>
               </div>
 
-              <div>
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    width: 100%;
-                    justify-content: end;
-                    align-self: center;
-                  "
-                >
-                  <Pdropdown />
-                </div>
+              <div
+                class="col-2 col-offset-2 flex justify-content-end align-self-center"
+              >
+                <Pbutton
+                  v-if="isAdmin"
+                  @click="openAnnouncementModal()"
+                  icon="pi pi-plus"
+                  rounded
+                  outlined
+                  aria-label="Filter"
+                  size="small"
+                />
               </div>
             </div>
             <ClientOnly>
               <div v-if="filteredAnnouncements.length > 0">
-                <div
-                  style="
-                    padding-left: 8px;
-                    padding-right: 8px;
-                    padding-top: 12px;
-                    padding-bottom: 12px;
-                    overflow-y: scroll;
-                    height: 200px;
-                  "
-                >
+                <div class="px-2 py-2 overflow-y-scroll line-height-1 h-12rem">
                   <div
                     v-for="announcement in filteredAnnouncements"
                     :key="announcement.id"
                   >
                     <div
-                      style="
-                        width: 100%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                      "
+                      class="w-full flex align-items-center justify-content-between"
                     >
-                      <div
-                        style="display: flex; gap: 12px; align-items: center"
-                      >
-                        <p
-                          style="
-                            font-family: 'Montserrat';
-                            font-style: normal;
-                            font-weight: 700;
-                            font-size: 12px;
-                            line-height: 15px;
-                            display: flex;
-                            align-items: center;
-                          "
-                        >
+                      <div class="flex gap-2 align-content-center">
+                        <p class="footnote-2">
                           {{ announcement.name ?? "" }}
                         </p>
                         <i
-                          class="pi pi-info-circle"
+                          class="pi pi-info-circle text-base text-color-secondary"
                           v-tooltip.top="
                             announcement.description ??
                             'No description provided'
                           "
-                          style="font-size: 1rem; color: #4a9292"
                         ></i>
                       </div>
 
-                      <p
-                        style="
-                          font-family: 'Montserrat';
-                          font-style: normal;
-                          font-weight: 400;
-                          font-size: 12px;
-                          line-height: 15px;
-                          display: flex;
-                          align-items: center;
-                        "
-                      >
+                      <p class="footnote">
                         {{ formatDate(announcement.creation_timestamp) ?? "" }}
                       </p>
                     </div>
@@ -402,180 +108,12 @@
                 </div>
               </div>
               <div
+                class="flex align-items-center justify-content-center h-12rem"
                 v-if="
                   filteredAnnouncements.length === 0 || !filteredAnnouncements
                 "
-                style="
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 200px;
-                "
               >
-                <p
-                  style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 400;
-                    font-size: 12px;
-                    line-height: 15px;
-                    display: flex;
-                    align-items: center;
-                  "
-                >
-                  No Tasks!
-                </p>
-              </div>
-            </ClientOnly>
-          </div>
-        </div>
-
-        <!-- announcement -->
-        <div
-          style="
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-          "
-        >
-          <div
-            style="
-              border: 5px solid #bae8e8;
-              filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
-              border-radius: 30px;
-              width: 100%;
-              background-color: white;
-            "
-          >
-            <div>
-              <div style="grid-column: span 1 / span 1"></div>
-              <div style="grid-column: span 1 / span 1">
-                <h5
-                  style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 700;
-                    font-size: 15px;
-                    text-align: center;
-                  "
-                >
-                  Announcements
-                </h5>
-              </div>
-
-              <div style="height: 100%; padding: 15px">
-                <div
-                  style="
-                    display: flex;
-                    flex-direction: row;
-                    width: 100%;
-                    justify-content: end;
-                    align-self: center;
-                  "
-                >
-                  <Pbutton
-                    v-if="isAdmin"
-                    @click="openAnnouncementModal()"
-                    icon="pi pi-plus"
-                    rounded
-                    outlined
-                    aria-label="Filter"
-                  />
-                </div>
-              </div>
-            </div>
-            <ClientOnly>
-              <div v-if="filteredAnnouncements.length > 0">
-                <div
-                  style="
-                    padding-left: 8px;
-                    padding-right: 8px;
-                    padding-top: 12px;
-                    padding-bottom: 12px;
-                    overflow-y: scroll;
-                    height: 200px;
-                  "
-                >
-                  <div
-                    v-for="announcement in filteredAnnouncements"
-                    :key="announcement.id"
-                  >
-                    <div
-                      style="
-                        width: 100%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                      "
-                    >
-                      <div
-                        style="display: flex; gap: 12px; align-items: center"
-                      >
-                        <p
-                          style="
-                            font-family: 'Montserrat';
-                            font-style: normal;
-                            font-weight: 700;
-                            font-size: 12px;
-                            line-height: 15px;
-                            display: flex;
-                            align-items: center;
-                          "
-                        >
-                          {{ announcement.name ?? "" }}
-                        </p>
-                        <i
-                          class="pi pi-info-circle"
-                          v-tooltip.top="
-                            announcement.description ??
-                            'No description provided'
-                          "
-                          style="font-size: 1rem; color: #4a9292"
-                        ></i>
-                      </div>
-
-                      <p
-                        style="
-                          font-family: 'Montserrat';
-                          font-style: normal;
-                          font-weight: 400;
-                          font-size: 12px;
-                          line-height: 15px;
-                          display: flex;
-                          align-items: center;
-                        "
-                      >
-                        {{ formatDate(announcement.creation_timestamp) ?? "" }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                v-if="
-                  filteredAnnouncements.length === 0 || !filteredAnnouncements
-                "
-                style="
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 200px;
-                "
-              >
-                <p
-                  style="
-                    font-family: 'Montserrat';
-                    font-style: normal;
-                    font-weight: 400;
-                    font-size: 12px;
-                    line-height: 15px;
-                    display: flex;
-                    align-items: center;
-                  "
-                >
-                  No Announcements!
-                </p>
+                <p class="footnote">No Announcements!</p>
               </div>
             </ClientOnly>
           </div>
@@ -615,25 +153,6 @@ console.log("data from db-userid", table[0].user_id);
 console.log("current projectid", projectid);
 console.log("isAdmin", dstore.getSelectedProject, isAdmin);
 
-// isAdmin.value = dstore.getSelectedProject.role == "Admin";
-
-// Create a single supabase client for interacting with your database
-// const supabase = createClient(
-//   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
-//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
-// );
-
-// const { data: announcementData, error: announcementError } = await supabase
-//   .from("announcement")
-//   .select();
-
-// let { data: projectMember, error: getEventError } = await supabase.rpc(
-//   "get_users_by_event_id",
-//   {
-//     n_event_id: projectid,
-//   }
-// );
-
 const { data: projectAnnouncementRes } = await useFetch(
   "/api/get_announcement",
   {
@@ -658,31 +177,6 @@ const filteredAnnouncements = projectAnnouncementRes.value.data;
 // if (getEventError) console.error(getEventError);
 // else
 console.log(projectMember);
-
-// announcements = announcementData;
-// console.log(announcements);
-
-// for (let i = 0; i < announcements.length; i++) {
-//   const announcement = announcements[i];
-//   if (
-//     announcement.event_id === projectid &&
-//     announcement.receiver_ids.includes(table[0].user_id)
-//   ) {
-//     filteredAnnouncements.push(announcement);
-//   }
-//   console.log("announcement fetching");
-//   // console.log(announcement);
-//   // console.log(announcement.event_id);
-//   // console.log(projectid);
-//   // console.log(announcement.event_id === projectid);
-
-//   // console.log(announcement.receiver_ids);
-//   // console.log(table[0].user_id);
-//   // console.log(announcement.receiver_ids.includes(table[0].user_id));
-// }
-
-// console.log(typeof filteredAnnouncements[0]);
-// console.log(typeof projectMember);
 
 if (Array.isArray(projectMember)) {
   userOptions = projectMember.map((user) => ({
@@ -739,6 +233,7 @@ async function addAnnouncement() {
     receiver_ids: valueArr.value,
   };
   console.log(payload);
+  //TODO:add API to insert announcement
   try {
     const { data, error } = await supabase.from("announcement").insert(payload);
 
@@ -787,5 +282,31 @@ definePageMeta({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+h5 {
+  font-weight: 700;
+  font-size: 0.938rem;
+}
+
+.mainpage-card {
+  filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
+  border-radius: 30px;
+}
+
+.footnote-2 {
+  font-weight: 700;
+  font-size: 12px;
+  /* line-height: 15px; */
+}
+
+.footnote {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.form-modal {
+  min-width: 500px;
+  border-radius: 8px;
 }
 </style>
