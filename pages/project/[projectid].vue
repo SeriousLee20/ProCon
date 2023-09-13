@@ -52,20 +52,46 @@
       </div>
 
       <div class="col-4">
-        <div></div>
         <!-- announcement -->
         <div>
+          <div
+            class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2"
+          >
+            <div class="grid justify-content-evenly">
+              <div class="col-4 flex align-items-center justify-content-start">
+                <Pbutton
+                  class="no-shadow"
+                  :icon="myTaskShowCompletedIcon"
+                  @click="toggleMyTaskShowCompleted"
+                  label="Completed"
+                  size="small"
+                  text
+                ></Pbutton>
+              </div>
+              <div class="col-3 text-center"><h5>My Tasks</h5></div>
+              <div class="col-3 flex justify-content-end align-items-center">
+                <Pdropdown
+                  style="box-shadow: none; border: none"
+                  v-model="myTaskSortOption"
+                  :options="myTaskSortOptions"
+                  optionLabel="desc"
+                  optionValue="id"
+                ></Pdropdown>
+              </div>
+            </div>
+            <div class="h-24rem">
+              <div></div>
+            </div>
+          </div>
           <div
             class="mainpage-card border-primary-200 border-2 bg-white w-full"
           >
             <div class="grid justify-content-evenly">
-              <div class="col-3 col-offset-4">
+              <div class="col-3 col-offset-5 text-center">
                 <h5>Announcements</h5>
               </div>
 
-              <div
-                class="col-2 col-offset-2 flex justify-content-end align-self-center"
-              >
+              <div class="col-3 flex justify-content-end align-self-center">
                 <Pbutton
                   v-if="isAdmin"
                   @click="openAnnouncementModal()"
@@ -132,7 +158,7 @@ const { projectid } = useRoute().params;
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const { data: userData } = await useFetch("/api/get_full_data");
-const table = userData.value;
+const table = userData.value.response;
 const toast = useToast();
 const groupedUsers = ref([]);
 let announcements = [];
@@ -171,8 +197,33 @@ const { data: projectMemberRes } = await useFetch(
   }
 );
 
-const projectMember = projectMemberRes.value.data;
-const filteredAnnouncements = projectAnnouncementRes.value.data;
+const projectMember = projectMemberRes.value.response;
+const filteredAnnouncements = projectAnnouncementRes.value.response;
+const myTaskSortOptions = ref([
+  { id: 1, desc: "Due Date" },
+  { id: 2, desc: "Importance" },
+  { id: 3, desc: "Status" },
+  { id: 4, desc: "Assigner" },
+]);
+
+const setShowCompletedIcon = (show, listName) => {
+  if (show) {
+    if (listName == "myTask") myTaskShowCompletedIcon.value = "pi pi-eye";
+    // else if (listName == "mainTask")
+  } else {
+    if (listName == "myTask") myTaskShowCompletedIcon.value = "pi pi-eye-slash";
+  }
+};
+
+const myTaskSortOption = ref(1);
+const myTaskShowCompleted = ref(false);
+const myTaskShowCompletedIcon = ref("");
+setShowCompletedIcon(false, "myTask");
+
+const toggleMyTaskShowCompleted = () => {
+  myTaskShowCompleted.value = !myTaskShowCompleted.value;
+  setShowCompletedIcon(myTaskShowCompleted.value, "myTask");
+};
 
 // if (getEventError) console.error(getEventError);
 // else
@@ -275,9 +326,10 @@ definePageMeta({
   border: none;
 }
 
-.show-completed-button.p-togglebutton.p-button:not(.p-disabled).p-focus {
+.no-shadow {
   box-shadow: none;
 }
+
 .show-completed-cont {
   display: flex;
   align-items: center;

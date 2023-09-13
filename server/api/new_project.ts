@@ -7,16 +7,18 @@ export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
   const dstore = useDataStore();
-  const project = await readBody(event);
-
+  const data = await readBody(event);
   var success = false;
-  console.log(project);
+
+  console.log(data);
+
   if (user) {
-    const nData = project ? project : null;
+    const nData = data ? data : null;
     const id = user?.id.toString();
     console.log(nData);
+
     if (nData) {
-      const { data: insertProject, error: insertError } = await client.rpc(
+      const { data: queryResponse, error: queryError } = await client.rpc(
         "new_project",
         {
           n_name: nData.name,
@@ -25,13 +27,13 @@ export default defineEventHandler(async (event) => {
         }
       );
 
-      if (insertError) {
-        throw createError({ statusMessage: insertError.message });
+      if (queryError) {
+        throw createError({ statusMessage: queryError.message });
       } else {
         success = true;
       }
-      return { input: project, data: insertProject, success: success };
+      return { input: data, response: queryResponse, success: success };
     }
   }
-  return { input: project, success: success };
+  return { input: data, success: success };
 });

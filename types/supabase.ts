@@ -39,27 +39,27 @@ export interface Database {
           creation_timestamp: string
           creator_id: string
           description: string | null
-          event_id: string
           id: string
           name: string
+          project_id: string
           receiver_ids: string[]
         }
         Insert: {
           creation_timestamp?: string
           creator_id: string
           description?: string | null
-          event_id: string
           id?: string
           name: string
+          project_id: string
           receiver_ids: string[]
         }
         Update: {
           creation_timestamp?: string
           creator_id?: string
           description?: string | null
-          event_id?: string
           id?: string
           name?: string
+          project_id?: string
           receiver_ids?: string[]
         }
         Relationships: [
@@ -70,14 +70,57 @@ export interface Database {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_announcement_event_id"
-            columns: ["event_id"]
-            referencedRelation: "event"
+            foreignKeyName: "announcement_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "project"
             referencedColumns: ["id"]
           }
         ]
       }
-      event: {
+      map_project: {
+        Row: {
+          department: string | null
+          is_show_in_overview: boolean | null
+          position: string | null
+          project_id: string
+          user_event_id: number
+          user_id: string
+          user_role: string
+        }
+        Insert: {
+          department?: string | null
+          is_show_in_overview?: boolean | null
+          position?: string | null
+          project_id: string
+          user_event_id?: number
+          user_id: string
+          user_role: string
+        }
+        Update: {
+          department?: string | null
+          is_show_in_overview?: boolean | null
+          position?: string | null
+          project_id?: string
+          user_event_id?: number
+          user_id?: string
+          user_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_project_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "map_project_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      project: {
         Row: {
           creation_timestamp: string
           creator_id: string | null
@@ -107,52 +150,61 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "event_creator_id_fkey"
+            foreignKeyName: "project_creator_id_fkey"
             columns: ["creator_id"]
             referencedRelation: "user"
             referencedColumns: ["id"]
           }
         ]
       }
-      map_event: {
+      task: {
         Row: {
-          department: string | null
-          event_id: string
-          is_show_in_overview: boolean | null
-          position: string | null
-          user_event_id: number
-          user_id: string
-          user_role: string
+          creation_timestamp: string
+          creator_id: string
+          description: string | null
+          due_date_time: string | null
+          id: string
+          name: string
+          owner_ids: string[]
+          project_id: string
+          status: string
+          urgent_date: string | null
         }
         Insert: {
-          department?: string | null
-          event_id: string
-          is_show_in_overview?: boolean | null
-          position?: string | null
-          user_event_id?: number
-          user_id: string
-          user_role: string
+          creation_timestamp?: string
+          creator_id: string
+          description?: string | null
+          due_date_time?: string | null
+          id?: string
+          name: string
+          owner_ids: string[]
+          project_id: string
+          status: string
+          urgent_date?: string | null
         }
         Update: {
-          department?: string | null
-          event_id?: string
-          is_show_in_overview?: boolean | null
-          position?: string | null
-          user_event_id?: number
-          user_id?: string
-          user_role?: string
+          creation_timestamp?: string
+          creator_id?: string
+          description?: string | null
+          due_date_time?: string | null
+          id?: string
+          name?: string
+          owner_ids?: string[]
+          project_id?: string
+          status?: string
+          urgent_date?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "map_event_event_id_fkey"
-            columns: ["event_id"]
-            referencedRelation: "event"
+            foreignKeyName: "task_creator_id_fkey"
+            columns: ["creator_id"]
+            referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "map_event_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "user"
+            foreignKeyName: "task_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "project"
             referencedColumns: ["id"]
           }
         ]
@@ -201,11 +253,11 @@ export interface Database {
       delete_member: {
         Args: {
           n_user_id: string
-          n_event_id: string
+          n_project_id: string
         }
         Returns: Record<string, unknown>
       }
-      get_all_event: {
+      get_all_project: {
         Args: Record<PropertyKey, never>
         Returns: {
           creation_timestamp: string
@@ -220,27 +272,27 @@ export interface Database {
       get_announcement: {
         Args: {
           n_user_id: string
-          n_event_id: string
+          n_project_id: string
         }
         Returns: {
           creation_timestamp: string
           creator_id: string
           description: string | null
-          event_id: string
           id: string
           name: string
+          project_id: string
           receiver_ids: string[]
         }[]
       }
       get_board_components: {
         Args: {
-          n_event_id: string
+          n_project_id: string
         }
         Returns: Record<string, unknown>
       }
       get_department: {
         Args: {
-          event_id: string
+          project_id: string
         }
         Returns: {
           creation_timestamp: string
@@ -263,17 +315,17 @@ export interface Database {
           contact_number: string
           start_working_hour: string
           end_working_hour: string
-          event_id: string
+          project_id: string
           user_role: string
           is_show_in_overview: boolean
-          event_name: string
-          event_desc: string
-          event_creator_id: string
+          project_name: string
+          project_desc: string
+          project_creator_id: string
         }[]
       }
       get_management_board: {
         Args: {
-          n_event_id: string
+          n_project_id: string
         }
         Returns: {
           user_id: string
@@ -299,21 +351,29 @@ export interface Database {
       }
       get_users_by_project_id: {
         Args: {
-          n_event_id: string
+          n_project_id: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          contact_number: string | null
+          created_at: string | null
+          email: string
+          end_working_hour: string | null
+          id: string
+          name: string | null
+          start_working_hour: string
+        }[]
       }
       insert_department: {
         Args: {
           n_name: Json[]
-          event_id: string
+          project_id: string
         }
         Returns: Record<string, unknown>
       }
       insert_position: {
         Args: {
           n_name: Json[]
-          event_id: string
+          project_id: string
         }
         Returns: Record<string, unknown>
       }
@@ -327,10 +387,10 @@ export interface Database {
         }
         Returns: string
       }
-      map_user_event: {
+      map_user_project: {
         Args: {
           n_user_id: string
-          n_event_id: string
+          n_project_id: string
           n_role: string
         }
         Returns: Record<string, unknown>
@@ -343,10 +403,10 @@ export interface Database {
         }
         Returns: Record<string, unknown>
       }
-      update_event_user_map: {
+      update_project_user_map: {
         Args: {
           n_user_id: string
-          n_event_id: string
+          n_project_id: string
           n_role: string
           n_department: string
           n_position: string

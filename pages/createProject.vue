@@ -105,9 +105,9 @@ const createProject = async () => {
     });
     console.log("insert project response", insertResponse);
 
-    const createdProject = insertResponse.value.data;
+    const createdProject = insertResponse.value.response;
     if (insertResponse.value.success) {
-      const { data: mapResponse } = await useFetch("api/map_user_event", {
+      const { data: mapResponse } = await useFetch("api/map_user_project", {
         method: "POST",
         body: {
           user_id: dstore.getUserId,
@@ -118,13 +118,14 @@ const createProject = async () => {
         headers: { "cache-control": "no-cache" },
       });
 
-      console.log("map new event creator", mapResponse);
+      console.log("map new project creator", mapResponse);
 
       if (mapResponse.value.success) {
         toast.add({
           severity: "success",
           summary: "Yay!",
-          detail: "The event is created. Edit the details in management page.",
+          detail:
+            "The project is created. Edit the details in management page.",
           lifetime: 1000,
         });
 
@@ -134,15 +135,15 @@ const createProject = async () => {
           console.log("ds after refresh", dstore.getFullData());
           loading.value = false;
           setCurrentProject(createdProject.id);
-          //   navigateTo(`/eventManagement/${createdProject.id}`);
+          //   navigateTo(`/projectManagement/${createdProject.id}`);
           // dstore.setSelectedProject(createdProject.id);
-          switchPage(`/eventManagement/${createdProject.id}`, "Edit Event");
+          switchPage(`/projectManagement/${createdProject.id}`, "Edit Project");
         }
       } else {
         toast.add({
           severity: "danger",
           summary: "Oops",
-          detail: "Error in creating event. Please try again later.",
+          detail: "Error in creating project. Please try again later.",
           lifetime: 1000,
         });
       }
@@ -151,7 +152,7 @@ const createProject = async () => {
 };
 
 dstore.setSelectedProject(null);
-dstore.setCurrentPage("Create Event");
+dstore.setCurrentPage("Create Project");
 definePageMeta({
   middleware: ["auth", "initiate"],
   layout: "custom",

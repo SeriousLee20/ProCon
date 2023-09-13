@@ -11,7 +11,7 @@
               type="button"
               icon="pi pi-cog"
               @click="toggle"
-              aria-label="edit_event"
+              aria-label="edit_project"
               aria-haspopup="true"
               aria-controls="edit-board"
             />
@@ -295,7 +295,7 @@ const editBoardMenu = ref([
   },
 ]);
 
-console.log("manage event-projectid", projectid);
+console.log("manage project-projectid", projectid);
 
 const toggle = (event) => {
   boardMenu.value.toggle(event);
@@ -316,13 +316,13 @@ const { data: boardComponent } = await useFetch("/api/get_board_component", {
   headers: { "cache-control": "no-cache" },
 });
 
-board.value = projectMemberList.value.data;
+board.value = projectMemberList.value.response;
 
-if (boardComponent.value.data.departments)
-  departments.value.push(...boardComponent.value.data.departments);
-if (boardComponent.value.data.positions)
-  positions.value.push(...boardComponent.value.data.positions);
-console.log("projectmemberlist", projectMemberList.value.data);
+if (boardComponent.value.response.departments)
+  departments.value.push(...boardComponent.value.response.departments);
+if (boardComponent.value.response.positions)
+  positions.value.push(...boardComponent.value.response.positions);
+console.log("projectmemberlist", projectMemberList.value.response);
 console.log("board value", board.value);
 console.log("boardcomponent", boardComponent);
 console.log("department, position", departments.value, positions.value);
@@ -369,11 +369,14 @@ const saveMemberDetails = async () => {
       : "",
     position: udpatedMember.user_position ? udpatedMember.user_position : "",
   };
-  const { data: mapMemberRes } = await useFetch("/api/update_event_user_map", {
-    method: "POST",
-    body: updatedData,
-    headers: { "cache-control": "no-cache" },
-  });
+  const { data: mapMemberRes } = await useFetch(
+    "/api/update_project_user_map",
+    {
+      method: "POST",
+      body: updatedData,
+      headers: { "cache-control": "no-cache" },
+    }
+  );
 
   if (mapMemberRes.value.success) {
     let editedMember = board.value.findIndex((member) => {
@@ -446,7 +449,7 @@ const addMember = async () => {
     newMember.value.forEach(async (newMb) => {
       console.log("curr member", newMb);
 
-      const validateUser = getUserRes.value.data.find(
+      const validateUser = getUserRes.value.response.find(
         (user) => user.id == newMb
       );
       if (validateUser) {
@@ -473,11 +476,14 @@ const addMember = async () => {
 
           console.log("newmemberdata", newMemberData);
 
-          const { data: addMemberRes } = await useFetch("/api/map_user_event", {
-            method: "POST",
-            body: newMemberData,
-            headers: { "cache-control": "no-cache" },
-          });
+          const { data: addMemberRes } = await useFetch(
+            "/api/map_user_project",
+            {
+              method: "POST",
+              body: newMemberData,
+              headers: { "cache-control": "no-cache" },
+            }
+          );
 
           console.log("addmemberres", addMemberRes.value);
           hasNewMember = true;
@@ -523,7 +529,7 @@ const addMember = async () => {
 };
 
 const updateDbMapMember = async (updatedData) => {
-  const { data: mapResponse } = await useFetch("/api/update_event_user_map", {
+  const { data: mapResponse } = await useFetch("/api/update_project_user_map", {
     method: "POST",
     body: updatedData,
     headers: { "cache-control": "no-cache" },
@@ -642,7 +648,7 @@ const deleteDepartment = (event, department) => {
             role: memberDetails.user_role,
           };
           const { data: mapResponse } = await useFetch(
-            "/api/update_event_user_map",
+            "/api/update_project_user_map",
             {
               method: "POST",
               body: updatedData,
@@ -778,7 +784,7 @@ const deletePosition = (event, position) => {
             role: memberDetails.user_role,
           };
           const { data: mapResponse } = await useFetch(
-            "/api/update_event_user_map",
+            "/api/update_project_user_map",
             {
               method: "POST",
               body: updatedData,

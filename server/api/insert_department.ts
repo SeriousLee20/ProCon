@@ -6,30 +6,32 @@ import { useDataStore } from "../../stores/datastore";
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
-  const departments = await readBody(event);
-
+  const data = await readBody(event);
   var success = false;
-  console.log(departments);
+
+  console.log(data);
+
   if (user) {
-    const nData = departments ? departments : null;
+    const nData = data ? data : null;
     const id = user?.id.toString();
     console.log(nData);
+
     if (nData) {
-      const { data: insertProject, error: insertError } = await client.rpc(
+      const { data: queryResponse, error: queryError } = await client.rpc(
         "insert_department",
         {
-          event_id: nData.project_id,
+          project_id: nData.project_id,
           n_name: nData.departments,
         }
       );
 
-      if (insertError) {
-        throw createError({ statusMessage: insertError.message });
+      if (queryError) {
+        throw createError({ statusMessage: queryError.message });
       } else {
         success = true;
       }
-      return { input: departments, data: insertProject, success: success };
+      return { input: data, response: queryResponse, success: success };
     }
   }
-  return { input: departments, success: success };
+  return { input: data, success: success };
 });

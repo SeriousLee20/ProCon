@@ -1,13 +1,13 @@
 import { Database } from "../../types/supabase";
 import { serverSupabaseUser } from "../../src/runtime/server/services/serverSupabaseUser";
 import { serverSupabaseClient } from "../../src/runtime/server/services/serverSupabaseClient";
-import { useDataStore } from "../../stores/datastore";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
-  const dstore = useDataStore();
-  const data = dstore.getUser;
+  const data = await readBody(event);
+
+  console.log(data);
   var success = false;
 
   if (user) {
@@ -16,14 +16,13 @@ export default defineEventHandler(async (event) => {
     console.log(nData);
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "update_user",
+        "update_project_user_map",
         {
-          user_id: id,
-          n_name: nData?.name,
-          n_email: nData?.email,
-          n_contact_number: nData?.contact_number,
-          n_start_working_hour: nData?.start_working_hour,
-          n_end_working_hour: nData?.end_working_hour,
+          n_user_id: nData.user_id,
+          n_project_id: nData.project_id.toString(),
+          n_role: nData.role,
+          n_department: nData.department,
+          n_position: nData.position,
         }
       );
 
