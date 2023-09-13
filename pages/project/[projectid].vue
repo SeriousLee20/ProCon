@@ -275,30 +275,56 @@ watchEffect(() => {
 });
 
 async function addAnnouncement() {
-  let payload = {
-    name: title.value,
-    description: description.value,
-    event_id: projectid,
-    creator_id: table[0].user_id,
-    creation_timestamp: new Date(),
-    receiver_ids: valueArr.value,
-  };
-  console.log(payload);
-  //TODO:add API to insert announcement
-  try {
-    const { data, error } = await supabase.from("announcement").insert(payload);
+  console.log(valueArr.value);
+  const { data: addAnnouncementRes } = await useFetch(
+    "/api/insert_announcement",
+    {
+      method: "POST",
+      body: {
+        name: title.value,
+        description: description.value,
+        project_id: projectid,
+        creator_id: table[0].user_id,
+        creation_timestamp: new Date(),
+        receiver_ids: valueArr.value,
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
 
+  if (addAnnouncementRes.value.success) {
     toast.add({
       severity: "success",
       summary: "Hurray!",
       detail: "Profile Updated Successfully",
       life: 50000,
     });
-
-    console.log(data);
-  } catch (error) {
-    console.log(error);
   }
+
+  // let payload = {
+  //   name: title.value,
+  //   description: description.value,
+  //   project_id: projectid,
+  //   creator_id: table[0].user_id,
+  //   creation_timestamp: new Date(),
+  //   receiver_ids: valueArr.value,
+  // };
+  // console.log(payload);
+  // //TODO:add API to insert announcement
+  // try {
+  //   const { data, error } = await supabase.from("announcement").insert(payload);
+
+  //   toast.add({
+  //     severity: "success",
+  //     summary: "Hurray!",
+  //     detail: "Profile Updated Successfully",
+  //     life: 50000,
+  //   });
+
+  //   console.log(data);
+  // } catch (error) {
+  //   console.log(error);
+  // }
 }
 
 function closeAnnouncementModal() {

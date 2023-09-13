@@ -363,6 +363,17 @@ export interface Database {
           start_working_hour: string
         }[]
       }
+      insert_announcement: {
+        Args: {
+          n_name: string
+          n_description: string
+          n_project_id: string
+          n_creator_id: string
+          n_creation_timestamp: string
+          n_receiver_ids: string[]
+        }
+        Returns: Record<string, unknown>
+      }
       insert_department: {
         Args: {
           n_name: Json[]
