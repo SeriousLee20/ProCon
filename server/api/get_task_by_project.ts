@@ -1,7 +1,6 @@
 import { Database } from "../../types/supabase";
 import { serverSupabaseUser } from "../../src/runtime/server/services/serverSupabaseUser";
 import { serverSupabaseClient } from "../../src/runtime/server/services/serverSupabaseClient";
-import { useDataStore } from "../../stores/datastore";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
@@ -14,17 +13,12 @@ export default defineEventHandler(async (event) => {
   if (user) {
     const nData = data ? data : null;
     const id = user?.id.toString();
-    console.log("ann data", nData);
+    console.log(nData);
 
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "insert_announcement",
+        "get_task_by_project",
         {
-          n_name: nData.name,
-          n_description: nData.description,
-          n_creator_id: id,
-          n_receiver_ids: nData.receiver_ids,
-          n_creation_timestamp: nData.creation_timestamp,
           n_project_id: nData.project_id,
         }
       );

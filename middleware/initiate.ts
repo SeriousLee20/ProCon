@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   //TODO: add api to get project list separately, error when no project joined
   const dstore = useDataStore();
-  const userData = data.value?.response;
+  const userData = data.value;
 
   console.log("middleware", data);
   console.log("initiate: selectedproject", dstore.getSelectedProject);

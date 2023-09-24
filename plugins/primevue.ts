@@ -22,6 +22,13 @@ import Chips from "primevue/chips";
 import ConfirmPopup from "primevue/confirmpopup";
 import ConfirmationService from "primevue/confirmationservice";
 import ToggleButton from "primevue/togglebutton";
+import DataView from "primevue/dataview";
+import DataViewLayoutOptions from "primevue/dataviewlayoutoptions"; // optional
+import Tag from "primevue/tag";
+import Editor from "primevue/editor";
+import Quill from "quill";
+import Calendar from "primevue/calendar";
+import Rating from "primevue/rating";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -44,6 +51,11 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pchips", Chips);
   nuxtApp.vueApp.component("Pconfirmpopup", ConfirmPopup);
   nuxtApp.vueApp.component("Ptogglebutton", ToggleButton);
+  nuxtApp.vueApp.component("Pdataview", DataView);
+  nuxtApp.vueApp.component("Ptag", Tag);
+  nuxtApp.vueApp.component("Peditor", Editor);
+  nuxtApp.vueApp.component("Pcalendar", Calendar);
+  nuxtApp.vueApp.component("Prating", Rating);
 
   //other components that you need
 

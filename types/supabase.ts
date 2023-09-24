@@ -77,6 +77,37 @@ export interface Database {
           }
         ]
       }
+      filters: {
+        Row: {
+          board_name: string
+          filter: Json | null
+          id: number
+          modified_at: string
+          user_id: string
+        }
+        Insert: {
+          board_name: string
+          filter?: Json | null
+          id?: number
+          modified_at?: string
+          user_id: string
+        }
+        Update: {
+          board_name?: string
+          filter?: Json | null
+          id?: number
+          modified_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "filters_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       map_project: {
         Row: {
           department: string | null
@@ -119,6 +150,27 @@ export interface Database {
             referencedColumns: ["id"]
           }
         ]
+      }
+      parameters: {
+        Row: {
+          created_at: string
+          id: number
+          param_list: Json[]
+          param_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          param_list: Json[]
+          param_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          param_list?: Json[]
+          param_name?: string
+        }
+        Relationships: []
       }
       project: {
         Row: {
@@ -164,10 +216,14 @@ export interface Database {
           description: string | null
           due_date_time: string | null
           id: string
+          importance: number | null
+          importance_rate: number | null
+          modified_at: string | null
+          modified_by: string | null
           name: string
           owner_ids: string[]
           project_id: string
-          status: string
+          status_code: number
           urgent_date: string | null
         }
         Insert: {
@@ -176,10 +232,14 @@ export interface Database {
           description?: string | null
           due_date_time?: string | null
           id?: string
+          importance?: number | null
+          importance_rate?: number | null
+          modified_at?: string | null
+          modified_by?: string | null
           name: string
           owner_ids: string[]
           project_id: string
-          status: string
+          status_code?: number
           urgent_date?: string | null
         }
         Update: {
@@ -188,10 +248,14 @@ export interface Database {
           description?: string | null
           due_date_time?: string | null
           id?: string
+          importance?: number | null
+          importance_rate?: number | null
+          modified_at?: string | null
+          modified_by?: string | null
           name?: string
           owner_ids?: string[]
           project_id?: string
-          status?: string
+          status_code?: number
           urgent_date?: string | null
         }
         Relationships: [
@@ -208,6 +272,33 @@ export interface Database {
             referencedColumns: ["id"]
           }
         ]
+      }
+      task_status: {
+        Row: {
+          created_at: string
+          id: number
+          status_code: number
+          status_icon: string | null
+          status_name: string
+          status_severity: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          status_code?: number
+          status_icon?: string | null
+          status_name: string
+          status_severity?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          status_code?: number
+          status_icon?: string | null
+          status_name?: string
+          status_severity?: string | null
+        }
+        Relationships: []
       }
       user: {
         Row: {
@@ -304,6 +395,15 @@ export interface Database {
           positions: Json[] | null
         }[]
       }
+      get_filters: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          board_name: string
+          filter: Json[]
+        }[]
+      }
       get_full_data: {
         Args: {
           current_user_id: string
@@ -335,6 +435,54 @@ export interface Database {
           user_department: string
         }[]
       }
+      get_parameter_bridge:
+        | {
+            Args: {
+              ref1: unknown
+              ref2: unknown
+            }
+            Returns: undefined
+          }
+        | {
+            Args: Record<PropertyKey, never>
+            Returns: undefined
+          }
+      get_parameters: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          param_name: string
+          param_list: Json[]
+        }[]
+      }
+      get_parameters_1: {
+        Args: {
+          ref1: unknown
+          ref2: unknown
+        }
+        Returns: unknown[]
+      }
+      get_task_by_project: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creation_timestamp: string
+          owner_ids: string[]
+          status: string
+          status_code: number
+          due_date_time: string
+          urgent_date: string
+          importance: number
+          importance_rate: number
+          user_name: string[]
+          status_icon: string
+          status_severity: string
+        }[]
+      }
       get_user: {
         Args: {
           user_id: string[]
@@ -354,13 +502,11 @@ export interface Database {
           n_project_id: string
         }
         Returns: {
-          contact_number: string | null
-          created_at: string | null
-          email: string
-          end_working_hour: string | null
-          id: string
-          name: string | null
-          start_working_hour: string
+          user_id: string
+          user_role: string
+          user_position: string
+          user_department: string
+          username: string
         }[]
       }
       insert_announcement: {
@@ -414,6 +560,20 @@ export interface Database {
         }
         Returns: Record<string, unknown>
       }
+      update_filter: {
+        Args: {
+          n_user_id: string
+          n_board_name: string
+          n_filter: Json
+        }
+        Returns: {
+          board_name: string
+          filter: Json | null
+          id: number
+          modified_at: string
+          user_id: string
+        }[]
+      }
       update_project_user_map: {
         Args: {
           n_user_id: string
@@ -442,6 +602,24 @@ export interface Database {
           name: string | null
           start_working_hour: string
         }[]
+      }
+      upsert_task: {
+        Args: {
+          n_task_id: string
+          n_name: string
+          n_description: string
+          n_creator_id: string
+          n_owner_ids: string[]
+          n_due_date_time: string
+          n_urgent_date: string
+          n_project_id: string
+          n_importance: number
+          n_importance_rate: number
+          n_status_code: number
+          n_modified_at: string
+          n_modified_by: string
+        }
+        Returns: Record<string, unknown>[]
       }
     }
     Enums: {
