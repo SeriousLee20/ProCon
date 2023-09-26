@@ -401,7 +401,7 @@ export interface Database {
         }
         Returns: {
           board_name: string
-          filter: Json[]
+          filter: Json
         }[]
       }
       get_full_data: {
@@ -435,18 +435,13 @@ export interface Database {
           user_department: string
         }[]
       }
-      get_parameter_bridge:
-        | {
-            Args: {
-              ref1: unknown
-              ref2: unknown
-            }
-            Returns: undefined
-          }
-        | {
-            Args: Record<PropertyKey, never>
-            Returns: undefined
-          }
+      get_parameter_bridge: {
+        Args: {
+          ref1: unknown
+          ref2: unknown
+        }
+        Returns: undefined
+      }
       get_parameters: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -470,6 +465,7 @@ export interface Database {
           task_name: string
           task_desc: string
           creator_id: string
+          creator_name: string
           creation_timestamp: string
           owner_ids: string[]
           status: string

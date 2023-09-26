@@ -313,7 +313,6 @@ let userOptions = [];
 
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("");
-const { data: parameters } = await useFetch("/api/get_parameters");
 const isEditTask = ref(false);
 const taskInfo = ref();
 const taskName = ref("");
@@ -324,6 +323,8 @@ const taskImportance = ref(1);
 const taskStatus = ref(1);
 const taskImportanceRate = ref();
 const taskOwner = ref();
+const { data: parameters } = await useFetch("/api/get_parameters");
+const { data: filters } = await useFetch("/api/get_filters");
 const { data: tasksRes } = await useFetch("/api/get_task_by_project", {
   method: "POST",
   body: { project_id: projectid },
@@ -340,6 +341,12 @@ const myTaskSortOptions = ref(
     (param) => param.param_name == "sort_option"
   )[0].param_list
 );
+const getMyTaskSortOption = () => {
+  const sort_option_id = filters.value.response.filter(
+    (item) => item.board_name == "my_task"
+  )[0]?.filter?.sort_option;
+  return { sort_option_id };
+};
 const isOpenAnnouncementModal = ref(false);
 const announcementTitle = ref(null);
 const announcementDesc = ref(null);
@@ -348,7 +355,7 @@ const announcementReceiverArr = ref([]);
 const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
 
 console.log("param", parameters);
-
+console.log("filters", filters);
 console.log("task", tasksRes);
 console.log("current projectid", projectid);
 console.log("isAdmin", dstore.getSelectedProject, isAdmin);
@@ -376,13 +383,25 @@ const setShowCompletedIcon = (show) => {
 };
 
 const myTaskList = () => {
+  const sort_option = parameters.value.response
+    .filter((param) => param.param_name == "sort_option")[0]
+    .param_list?.filter((op) => op.id == myTaskSortOption.value)[0]?.col;
   const filteredList = tasksRes.value.response.filter(
     (task) => task.creator_id == userId || task.owner_ids.include(userId)
   );
+
+  filteredList.sort((t1, t2) =>
+    t1[sort_option] > t2[sort_option]
+      ? 1
+      : t1[sort_option] < t2[sort_option]
+      ? -1
+      : 0
+  );
+  console.log("sort", sort_option, filteredList);
   return { filteredList: filteredList };
 };
 console.log("mytask", tasksRes.value.response, myTaskList);
-const myTaskSortOption = ref(1);
+const myTaskSortOption = ref(getMyTaskSortOption().sort_option_id);
 const myTaskShowCompleted = ref(false);
 // const myTaskShowCompletedIcon = ref("");
 // setShowCompletedIcon(false, "myTask");
@@ -394,7 +413,6 @@ const toggleMyTaskShowCompleted = () => {
 
 const toggleEditTask = (props) => {
   isEditTask.value = !isEditTask.value;
-
   if (isEditTask.value) {
     console.log("mytask props", props);
     taskInfo.value = props.data;
@@ -414,38 +432,81 @@ const toggleEditTask = (props) => {
 };
 
 const upsertTask = async () => {
-  // const { data: upsertTaskRes } = await useFetch("/api/upsert_task", {
-  //   method: "POST",
-  //   body: {
-  //     task_id: taskInfo.value.task_id,
-  //     task_name: taskName.value,
-  //     task_desc: taskDesc.value,
-  //     creator_id: taskInfo.value.creator_id,
-  //     owner_ids: taskOwner.value,
-  //     due_date_time: taskDueDatetime.value,
-  //     urgent_date: taskUrgentDate.value,
-  //     project_id: projectid,
-  //     importance: taskImportance.value,
-  //     importance_rate: taskImportanceRate.value,
-  //     status_code: taskStatus.value,
-  //     modified_at: useNow(),
-  //   },
-  //   headers: { "cache-control": "no-cache" },
-  // });
-
-  // console.log("upserttask", upsertTaskRes);
   console.log(
+    1,
     taskInfo.value.task_id,
+    2,
     taskName.value,
+    3,
     taskDesc.value,
+    4,
     taskInfo.value.creator_id,
+    5,
     taskOwner.value,
+    6,
     taskDueDatetime.value,
+    7,
     taskUrgentDate.value,
+    8,
     projectid,
+    9,
     taskImportance.value,
+    10,
     taskImportanceRate.value,
+    11,
     taskStatus.value,
+    12,
+    useNow()
+  );
+  const { data: upsertTaskRes } = await useFetch("/api/upsert_task", {
+    method: "POST",
+    body: {
+      task_id: taskInfo.value?.task_id ? taskInfo.value.task_id : null,
+      task_name: taskName.value,
+      task_desc: taskDesc.value ? taskDesc.value : null,
+      creator_id: taskInfo.value.creator_id,
+      owner_ids: taskOwner.value ? taskOwner.value : null,
+      due_date_time: taskDueDatetime.value
+        ? new Date(taskDueDatetime.value)
+        : null,
+      urgent_date: taskUrgentDate.value ? new Date(taskUrgentDate.value) : null,
+      project_id: projectid,
+      importance: taskImportance.value ? taskImportance : null,
+      importance_rate: taskImportanceRate.value ? taskImportance : null,
+      status_code: taskStatus.value ? taskStatus : null,
+      modified_at: useNow(),
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  if (upsertTaskRes.value.response) {
+    isEditTask.value = false;
+  }
+  console.log("upserttask", upsertTaskRes);
+  console.log(
+    1,
+    taskInfo.value.task_id,
+    2,
+    taskName.value,
+    3,
+    taskDesc.value,
+    4,
+    taskInfo.value.creator_id,
+    5,
+    taskOwner.value,
+    6,
+    taskDueDatetime.value,
+    7,
+    taskUrgentDate.value,
+    8,
+    projectid,
+    9,
+    taskImportance.value,
+    10,
+    taskImportanceRate.value,
+    11,
+    taskStatus.value,
+    12,
     useNow()
   );
 
