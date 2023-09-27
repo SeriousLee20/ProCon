@@ -56,6 +56,7 @@
     header="Edit Task"
     :modal="true"
     class="p-fluid"
+    @submit="upsertTask()"
   >
     <div class="flex flex-column gap-3">
       <span>
@@ -137,12 +138,7 @@
         </Pmultiselect>
       </span>
       <div class="flex gap-2 align-self-end">
-        <Pbutton
-          label="Save"
-          icon="pi pi-check"
-          text
-          @click="upsertTask"
-        ></Pbutton>
+        <Pbutton label="Save" icon="pi pi-check" text type="submit"></Pbutton>
         <Pbutton
           label="Cancel"
           severity="danger"
