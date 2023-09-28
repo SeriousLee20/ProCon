@@ -57,7 +57,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pcalendar", Calendar);
   nuxtApp.vueApp.component("Prating", Rating);
 
-  Quill.register({}, true);
+  // Quill.register({}, true);
 
   //other components that you need
 

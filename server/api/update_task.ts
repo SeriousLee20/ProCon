@@ -15,12 +15,12 @@ export default defineEventHandler(async (event) => {
     console.log(nData);
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "upsert_task",
+        "update_task",
         {
           n_task_id: nData?.task_id,
           n_name: nData?.task_name,
           n_description: nData?.task_desc,
-          n_creator_id: nData?.creator_id,
+          // n_creator_id: nData?.creator_id,
           n_owner_ids: nData?.owner_ids,
           n_due_date_time: nData?.due_date_time,
           n_urgent_date: nData?.urgent_date,
@@ -32,6 +32,26 @@ export default defineEventHandler(async (event) => {
           n_modified_by: id,
         }
       );
+
+      // const { data: queryResponse, error: queryError } = await client
+      //   .from("task")
+      //   .upsert({
+      //     name: nData.task_name,
+      //     description: nData.task_desc,
+      //     project_id: nData.project_id,
+      //     creator_id: nData.creator_id,
+      //     creation_timestamp: nData.creation_timestamp,
+      //     owner_ids: nData.owner_ids,
+      //     status_code: nData.status_code,
+      //     due_date_time: nData.due_date_time,
+      //     urgent_date: nData.urgent_date,
+      //     importance: nData.importance,
+      //     importance_rate: nData.importance_rate,
+      //     modified_at: nData.modified_at,
+      //     modified_by: nData.modified_by,
+      //   })
+      //   .eq(id, nData.task_id)
+      //   .select();
 
       if (queryError) {
         throw createError({ statusMessage: queryError.message });

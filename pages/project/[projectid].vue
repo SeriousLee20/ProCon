@@ -50,105 +50,6 @@
     </div>
   </form>
 
-  <Pdialog
-    v-model:visible="isEditTask"
-    style="width: 80%"
-    header="Edit Task"
-    :modal="true"
-    class="p-fluid"
-    @submit="upsertTask()"
-  >
-    <div class="flex flex-column gap-3">
-      <span>
-        <label for="task-name">Task</label>
-        <Pinputtext id="task-name" v-model="taskName" type="text"></Pinputtext>
-      </span>
-      <span>
-        <label for="task-desc">Description</label>
-        <Peditor id="task-desc" v-model="taskDesc" class="min-h-full"></Peditor>
-      </span>
-      <div class="flex justify-content-between">
-        <span>
-          <label for="task-due-datetime">Due Datetime</label>
-          <Pcalendar
-            id="task-due-datetime"
-            v-model="taskDueDatetime"
-            showTime
-            hourFormat="24"
-          ></Pcalendar>
-        </span>
-        <span>
-          <label for="task-urgent-date">Urgent Date</label>
-          <Pcalendar id="task-urgent-date" v-model="taskUrgentDate"></Pcalendar>
-        </span>
-        <span>
-          <label for="task-importance">Importance</label>
-          <Pdropdown
-            id="task-importance"
-            v-model="taskImportance"
-            :options="importanceOptions"
-            optionLabel="desc"
-            optionValue="id"
-            class="w-12rem"
-          ></Pdropdown>
-        </span>
-        <span>
-          <label for="task-status">Status</label>
-          <Pdropdown
-            id="task-status"
-            v-model="taskStatus"
-            :options="statusOptions"
-            optionLabel="status_name"
-            optionValue="status_code"
-            class="w-12rem"
-          ></Pdropdown>
-        </span>
-        <span>
-          <label for="task-importanceRate">Importance Rate</label>
-          <Prating v-model="taskImportanceRate" :cancel="false" :stars="4">
-            <template #onicon>
-              <i class="pi pi-exclamation-triangle pt-2" style="color: red"></i>
-            </template>
-            <template #officon>
-              <i class="pi pi-exclamation-triangle pt-2"></i>
-            </template>
-          </Prating>
-        </span>
-      </div>
-      <span>
-        <label for="task-owner">Assign To</label>
-        <Pmultiselect
-          id="task-owner"
-          v-model="taskOwner"
-          :options="groupedUsers"
-          optionLabel="username"
-          optionValue="user_id"
-          optionGroupLabel="department"
-          filter
-          optionGroupChildren="users"
-          display="chip"
-          placeholder="Select members"
-          class="w-full"
-        >
-          <template #optiongroup="slotProps">
-            <div class="flex align-items-center">
-              <div>{{ slotProps.option.department }}</div>
-            </div>
-          </template>
-        </Pmultiselect>
-      </span>
-      <div class="flex gap-2 align-self-end">
-        <Pbutton label="Save" icon="pi pi-check" text type="submit"></Pbutton>
-        <Pbutton
-          label="Cancel"
-          severity="danger"
-          icon="pi pi-times"
-          text
-          @click="toggleEditTask"
-        ></Pbutton>
-      </div>
-    </div>
-  </Pdialog>
   <div>
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
@@ -158,33 +59,40 @@
       <div class="col-4">
         <!-- right panel -->
         <div>
-          <div
+          <Pcard>
+            <!-- <div
             class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2"
-          >
-            <div class="grid justify-content-evenly">
-              <div class="col-4 flex align-items-center justify-content-start">
-                <Pbutton
-                  class="no-shadow"
-                  :icon="setShowCompletedIcon(myTaskShowCompleted)"
-                  @click="toggleMyTaskShowCompleted"
-                  label="Completed"
-                  size="small"
-                  text
-                ></Pbutton>
+          > -->
+            <template #title>
+              <div class="grid justify-content-evenly">
+                <div
+                  class="col-4 flex align-items-center justify-content-start"
+                >
+                  <Pbutton
+                    class="no-shadow"
+                    :icon="setShowCompletedIcon(myTaskShowCompleted)"
+                    @click="toggleMyTaskShowCompleted"
+                    label="Completed"
+                    size="small"
+                    text
+                  ></Pbutton>
+                </div>
+                <div class="col-3 text-center"><h5>My Tasks</h5></div>
+                <div class="col-3 flex justify-content-end align-items-center">
+                  <Pdropdown
+                    style="box-shadow: none; border: none"
+                    v-model="myTaskSortOption"
+                    :options="myTaskSortOptions"
+                    optionLabel="desc"
+                    optionValue="id"
+                    @change="updateFilter('sortOption', 'my_task')"
+                  ></Pdropdown>
+                </div>
               </div>
-              <div class="col-3 text-center"><h5>My Tasks</h5></div>
-              <div class="col-3 flex justify-content-end align-items-center">
-                <Pdropdown
-                  style="box-shadow: none; border: none"
-                  v-model="myTaskSortOption"
-                  :options="myTaskSortOptions"
-                  optionLabel="desc"
-                  optionValue="id"
-                ></Pdropdown>
-              </div>
-            </div>
-            <div class="h-24rem">
-              <Pdataview :value="myTaskList().filteredList">
+            </template>
+            <template #content>
+              <!-- <div class="h-24rem"> -->
+              <Pdataview :value="myTaskList">
                 <template #list="slotProps">
                   <div
                     class="col-12 cursor-pointer hover:bg-primary-100 pb-1 pl-1"
@@ -194,6 +102,7 @@
                       <p class="footnote-2 mb-0">
                         {{ slotProps.data.task_name }}
                       </p>
+                      <!-- TODO: reorder when sort option change -->
                       <div class="flex gap-1">
                         <Ptag
                           v-if="slotProps.data.status"
@@ -214,6 +123,13 @@
                           v-if="slotProps.data.importance"
                           :value="slotProps.data.importance"
                           rounded
+                          icon="pi pi-exclamation-triangle"
+                          class="max-h-1rem"
+                        />
+                        <Ptag
+                          v-if="slotProps.data.importance_rate"
+                          :value="slotProps.data.importance_rate"
+                          rounded
                           icon="pi pi-flag"
                           class="max-h-1rem"
                         />
@@ -222,8 +138,126 @@
                   </div>
                 </template>
               </Pdataview>
-            </div>
-          </div>
+              <!-- </div> -->
+              <Pdialog
+                v-model:visible="editTaskDialog"
+                style="width: 80%"
+                header="Edit Task"
+                :modal="true"
+                class="p-fluid"
+              >
+                <div class="field">
+                  <label for="task-name">Task</label>
+                  <Pinputtext
+                    type="text"
+                    id="task-name"
+                    v-model="selectedTask.task_name"
+                  />
+                </div>
+                <div class="field">
+                  <label for="task-desc">Description</label>
+                  <Peditor
+                    id="task-desc"
+                    v-model="selectedTask.task_desc"
+                    class="min-h-full"
+                  ></Peditor>
+                </div>
+                <div class="field">
+                  <!-- TODO: add min max value -->
+                  <label for="task-due-datetime">Due Datetime</label>
+                  <Pcalendar
+                    id="task-due-datetime"
+                    v-model="taskDueDatetime"
+                    showTime
+                    hourFormat="24"
+                    dateFormat="M dd, yy"
+                  ></Pcalendar>
+                </div>
+                <div class="field">
+                  <label for="task-urgent-date">Urgent Date</label>
+                  <Pcalendar
+                    id="task-urgent-date"
+                    v-model="taskUrgentDate"
+                    dateFormat="M dd, yy"
+                  ></Pcalendar>
+                </div>
+                <div class="field">
+                  <label for="task-status">Status</label>
+                  <Pdropdown
+                    id="task-status"
+                    v-model="selectedTask.status_code"
+                    :options="statusOptions"
+                    optionLabel="status_name"
+                    optionValue="status_code"
+                    class="w-12rem"
+                  ></Pdropdown>
+                </div>
+                <div class="field">
+                  <label for="task-importance">Importance</label>
+                  <Pdropdown
+                    id="task-importance"
+                    v-model="selectedTask.importance"
+                    :options="importanceOptions"
+                    optionLabel="desc"
+                    optionValue="id"
+                    class="w-12rem"
+                  ></Pdropdown>
+                </div>
+                <div class="field">
+                  <label for="task-importanceRate">Importance Rate</label>
+                  <Prating v-model="selectedTask.importance_rate" :stars="4">
+                    <template #onicon>
+                      <i
+                        class="pi pi-exclamation-triangle pt-2"
+                        style="color: red"
+                      ></i>
+                    </template>
+                    <template #officon>
+                      <i class="pi pi-exclamation-triangle pt-2"></i>
+                    </template>
+                    <template #cancelicon>
+                      <i class="pi pi-times pt-2"></i>
+                    </template>
+                  </Prating>
+                </div>
+
+                <!-- <div class="field">
+                  <label for="department">Department</label>
+                  <Pdropdown
+                    id="department"
+                    v-model="member.user_department"
+                    :options="departments"
+                    optionLabel="user_department"
+                  />
+                </div>
+                <div class="field">
+                  <label for="role">Role</label>
+                  <Pdropdown
+                    id="role"
+                    v-model="member.user_role"
+                    :options="roles"
+                    :disabled="disableRole"
+                  />
+                </div> -->
+                <template #footer>
+                  <Pbutton
+                    label="Cancel"
+                    icon="pi pi-times"
+                    text
+                    @click="toggleEditTask"
+                  />
+                  <Pbutton
+                    label="Save"
+                    icon="pi pi-check"
+                    text
+                    @click="updateTask"
+                  />
+                </template>
+              </Pdialog>
+            </template>
+
+            <!-- </div> -->
+          </Pcard>
           <div
             class="mainpage-card border-primary-200 border-2 bg-white w-full"
           >
@@ -309,8 +343,8 @@ let userOptions = [];
 
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("");
-const isEditTask = ref(false);
-const taskInfo = ref();
+const editTaskDialog = ref(false);
+const selectedTask = ref();
 const taskName = ref("");
 const taskDesc = ref("");
 const taskDueDatetime = ref();
@@ -321,7 +355,7 @@ const taskImportanceRate = ref();
 const taskOwner = ref();
 const { data: parameters } = await useFetch("/api/get_parameters");
 const { data: filters } = await useFetch("/api/get_filters");
-const { data: tasksRes } = await useFetch("/api/get_task_by_project", {
+var { data: tasksRes } = await useFetch("/api/get_task_by_project", {
   method: "POST",
   body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },
@@ -337,11 +371,14 @@ const myTaskSortOptions = ref(
     (param) => param.param_name == "sort_option"
   )[0].param_list
 );
-const getMyTaskSortOption = () => {
-  const sort_option_id = filters.value.response.filter(
+console.log("filters", filters);
+
+const getMyTaskFilter = () => {
+  const thisFilter = filters.value.response.filter(
     (item) => item.board_name == "my_task"
-  )[0]?.filter?.sort_option;
-  return { sort_option_id };
+  )[0]?.filter;
+  console.log("sortoption", thisFilter);
+  return { thisFilter };
 };
 const isOpenAnnouncementModal = ref(false);
 const announcementTitle = ref(null);
@@ -378,7 +415,14 @@ const setShowCompletedIcon = (show) => {
   return show ? "pi pi-eye" : "pi pi-eye-slash";
 };
 
-const myTaskList = () => {
+const myTaskList = ref();
+console.log("mytask", tasksRes.value.response, myTaskList);
+const myTaskSortOption = ref(getMyTaskFilter().thisFilter.sort_option);
+const myTaskShowCompleted = ref(false);
+// const myTaskShowCompletedIcon = ref("");
+// setShowCompletedIcon(false, "myTask");
+
+const getMyTaskList = () => {
   const sort_option = parameters.value.response
     .filter((param) => param.param_name == "sort_option")[0]
     .param_list?.filter((op) => op.id == myTaskSortOption.value)[0]?.col;
@@ -396,115 +440,71 @@ const myTaskList = () => {
   console.log("sort", sort_option, filteredList);
   return { filteredList: filteredList };
 };
-console.log("mytask", tasksRes.value.response, myTaskList);
-const myTaskSortOption = ref(getMyTaskSortOption().sort_option_id);
-const myTaskShowCompleted = ref(false);
-// const myTaskShowCompletedIcon = ref("");
-// setShowCompletedIcon(false, "myTask");
-
+myTaskList.value = getMyTaskList().filteredList;
 const toggleMyTaskShowCompleted = () => {
   myTaskShowCompleted.value = !myTaskShowCompleted.value;
   // setShowCompletedIcon(myTaskShowCompleted.value, "myTask");
 };
 
 const toggleEditTask = (props) => {
-  isEditTask.value = !isEditTask.value;
-  if (isEditTask.value) {
-    console.log("mytask props", props);
-    taskInfo.value = props.data;
-    taskName.value = props.data.task_name;
-    taskDesc.value = props.data.task_desc;
+  editTaskDialog.value = !editTaskDialog.value;
+  console.log(editTaskDialog.value);
+  if (editTaskDialog.value) {
+    selectedTask.value = props.data;
     taskDueDatetime.value = props.data.due_date_time
       ? new Date(props.data.due_date_time)
-      : "";
+      : null;
     taskUrgentDate.value = props.data.urgent_date
       ? new Date(props.data.urgent_date)
-      : "";
-    taskImportance.value = props.data.importance;
-    taskImportanceRate.value = props.data.importance_rate;
-    taskStatus.value = props.data.status_code;
-    taskOwner.value = props.data.owner_ids;
+      : null;
+    console.log(
+      "mytask props",
+      props,
+      selectedTask.value,
+      taskDueDatetime.value,
+      taskUrgentDate.value
+    );
   }
 };
 
-const upsertTask = async () => {
-  console.log(
-    1,
-    taskInfo.value.task_id,
-    2,
-    taskName.value,
-    3,
-    taskDesc.value,
-    4,
-    taskInfo.value.creator_id,
-    5,
-    taskOwner.value,
-    6,
-    taskDueDatetime.value,
-    7,
-    taskUrgentDate.value,
-    8,
-    projectid,
-    9,
-    taskImportance.value,
-    10,
-    taskImportanceRate.value,
-    11,
-    taskStatus.value,
-    12,
-    useNow()
-  );
-  const { data: upsertTaskRes } = await useFetch("/api/upsert_task", {
+const updateFilter = async (filterName, boardName) => {
+  if (filterName == "sortOption") {
+    let updatedFilter = {};
+    updatedFilter["board_name"] = boardName;
+    updatedFilter["filter"] = getMyTaskFilter().thisFilter;
+
+    const { data: updateFilterRes } = await useFetch("/api/update_filter", {
+      method: "POST",
+      body: updatedFilter,
+      headers: { "cache-control": "no-cache" },
+    });
+    console.log("updatedfilter", updateFilterRes);
+  }
+};
+
+const updateTask = async () => {
+  editTaskDialog.value = false;
+
+  const updatedTask = selectedTask.value;
+  selectedTask.value.due_date_time = taskDueDatetime.value;
+  selectedTask.value.urgent_date = taskUrgentDate.value;
+  updatedTask["project_id"] = projectid;
+  updatedTask["modified_at"] = new Date();
+  updatedTask["due_date_time"] = taskDueDatetime.value;
+  updatedTask["urgent_date"] = taskUrgentDate.value;
+  console.log(selectedTask.value, updatedTask);
+
+  const { data: upsertTaskRes } = await useFetch("/api/update_task", {
     method: "POST",
-    body: {
-      task_id: taskInfo.value?.task_id ? taskInfo.value.task_id : null,
-      task_name: taskName.value,
-      task_desc: taskDesc.value ? taskDesc.value : null,
-      creator_id: taskInfo.value.creator_id,
-      owner_ids: taskOwner.value ? taskOwner.value : null,
-      due_date_time: taskDueDatetime.value
-        ? new Date(taskDueDatetime.value)
-        : null,
-      urgent_date: taskUrgentDate.value ? new Date(taskUrgentDate.value) : null,
-      project_id: projectid,
-      importance: taskImportance.value ? taskImportance : null,
-      importance_rate: taskImportanceRate.value ? taskImportance : null,
-      status_code: taskStatus.value ? taskStatus : null,
-      modified_at: useNow(),
-    },
+    body: updatedTask,
     headers: { "cache-control": "no-cache" },
   });
-
-  if (upsertTaskRes.value.response) {
-    isEditTask.value = false;
-  }
   console.log("upserttask", upsertTaskRes);
-  console.log(
-    1,
-    taskInfo.value.task_id,
-    2,
-    taskName.value,
-    3,
-    taskDesc.value,
-    4,
-    taskInfo.value.creator_id,
-    5,
-    taskOwner.value,
-    6,
-    taskDueDatetime.value,
-    7,
-    taskUrgentDate.value,
-    8,
-    projectid,
-    9,
-    taskImportance.value,
-    10,
-    taskImportanceRate.value,
-    11,
-    taskStatus.value,
-    12,
-    useNow()
-  );
+
+  if (upsertTaskRes.value.success) {
+    tasksRes = upsertTaskRes;
+    myTaskList.value = getMyTaskList().filteredList;
+  }
 
   //TODO:input validation
 };
@@ -574,7 +574,9 @@ const formatDate = (dateString) => {
   //   hour12: false,
   // });
 
-  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm");
+  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
+    locales: "en-US",
+  });
   return formattedDate.value;
 };
 

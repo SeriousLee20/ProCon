@@ -68,7 +68,9 @@ import { ref } from "vue";
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 // const { currentProject, setCurrentProject } = useCurrentProject();
-const dateToday = useDateFormat(useNow(), "MMM DD, YYYY");
+const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
+  locales: "en-US",
+});
 // const menu = ref();
 // const isShowButton = ref(false);
 // const menuItems = ref([]);

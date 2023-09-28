@@ -211,7 +211,7 @@ export interface Database {
       }
       task: {
         Row: {
-          creation_timestamp: string
+          creation_timestamp: string | null
           creator_id: string
           description: string | null
           due_date_time: string | null
@@ -219,15 +219,15 @@ export interface Database {
           importance: number | null
           importance_rate: number | null
           modified_at: string | null
-          modified_by: string | null
+          modified_by: string
           name: string
           owner_ids: string[]
           project_id: string
-          status_code: number
+          status_code: number | null
           urgent_date: string | null
         }
         Insert: {
-          creation_timestamp?: string
+          creation_timestamp?: string | null
           creator_id: string
           description?: string | null
           due_date_time?: string | null
@@ -235,15 +235,15 @@ export interface Database {
           importance?: number | null
           importance_rate?: number | null
           modified_at?: string | null
-          modified_by?: string | null
+          modified_by: string
           name: string
           owner_ids: string[]
           project_id: string
-          status_code?: number
+          status_code?: number | null
           urgent_date?: string | null
         }
         Update: {
-          creation_timestamp?: string
+          creation_timestamp?: string | null
           creator_id?: string
           description?: string | null
           due_date_time?: string | null
@@ -251,11 +251,11 @@ export interface Database {
           importance?: number | null
           importance_rate?: number | null
           modified_at?: string | null
-          modified_by?: string | null
+          modified_by?: string
           name?: string
           owner_ids?: string[]
           project_id?: string
-          status_code?: number
+          status_code?: number | null
           urgent_date?: string | null
         }
         Relationships: [
@@ -580,6 +580,40 @@ export interface Database {
         }
         Returns: Record<string, unknown>
       }
+      update_task: {
+        Args: {
+          n_task_id: string
+          n_name: string
+          n_description: string
+          n_owner_ids: string[]
+          n_status_code: number
+          n_due_date_time: string
+          n_urgent_date: string
+          n_importance: number
+          n_importance_rate: number
+          n_modified_at: string
+          n_modified_by: string
+          n_project_id: string
+        }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creator_name: string
+          creation_timestamp: string
+          owner_ids: string[]
+          status: string
+          status_code: number
+          due_date_time: string
+          urgent_date: string
+          importance: number
+          importance_rate: number
+          user_name: string[]
+          status_icon: string
+          status_severity: string
+        }[]
+      }
       update_user: {
         Args: {
           user_id: string
@@ -598,24 +632,6 @@ export interface Database {
           name: string | null
           start_working_hour: string
         }[]
-      }
-      upsert_task: {
-        Args: {
-          n_task_id: string
-          n_name: string
-          n_description: string
-          n_creator_id: string
-          n_owner_ids: string[]
-          n_due_date_time: string
-          n_urgent_date: string
-          n_project_id: string
-          n_importance: number
-          n_importance_rate: number
-          n_status_code: number
-          n_modified_at: string
-          n_modified_by: string
-        }
-        Returns: Record<string, unknown>[]
       }
     }
     Enums: {
