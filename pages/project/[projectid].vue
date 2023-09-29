@@ -54,15 +54,39 @@
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
         <div>Completed</div>
+        <div>Filter</div>
+        <div class="flex">
+          <div class="col-5 bg-blue-100 h-20rem">1</div>
+          <div
+            class="col-1 bg-blue-300 h-20rem w-2rem flex align-items-center justify-content-center"
+          >
+            <div class="-rotate-90">IMPORTANT</div>
+          </div>
+          <div class="col-5 bg-blue-500 h-20rem">3</div>
+        </div>
+        <div class="flex">
+          <div class="col-5 bg-green-100 h-5rem">1</div>
+          <div class="col-1 bg-green-300 w-2rem">2</div>
+          <div class="col-5 bg-green-500 h-5rem">3</div>
+        </div>
+        <div class="flex">
+          <div class="col-5 bg-blue-100 h-20rem">1</div>
+          <div
+            class="col-1 bg-blue-300 h-20rem w-2rem flex align-items-center justify-content-center"
+          >
+            <div class="-rotate-90 w-20rem">NOT IMPORTANT</div>
+          </div>
+          <div class="col-5 bg-blue-500 h-20rem">3</div>
+        </div>
       </div>
 
       <div class="col-4">
         <!-- right panel -->
         <div>
-          <Pcard>
-            <!-- <div
+          <!-- TODO:edit card styling -->
+          <Pcard
             class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2"
-          > -->
+          >
             <template #title>
               <div class="grid justify-content-evenly">
                 <div
@@ -91,54 +115,54 @@
               </div>
             </template>
             <template #content>
-              <!-- <div class="h-24rem"> -->
-              <Pdataview :value="myTaskList">
-                <template #list="slotProps">
-                  <div
-                    class="col-12 cursor-pointer hover:bg-primary-100 pb-1 pl-1"
-                    @click="toggleEditTask(slotProps)"
-                  >
-                    <div class="">
-                      <p class="footnote-2 mb-0">
-                        {{ slotProps.data.task_name }}
-                      </p>
-                      <!-- TODO: reorder when sort option change -->
-                      <div class="flex gap-1">
-                        <Ptag
-                          v-if="slotProps.data.status"
-                          :value="slotProps.data.status"
-                          rounded
-                          :icon="slotProps.data.status_icon"
-                          :severity="slotProps.data.status_severity"
-                          class="max-h-1rem"
-                        />
-                        <Ptag
-                          v-if="slotProps.data.due_date_time"
-                          :value="formatDate(slotProps.data.due_date_time)"
-                          rounded
-                          icon="pi pi-stopwatch"
-                          class="max-h-1rem"
-                        />
-                        <Ptag
-                          v-if="slotProps.data.importance"
-                          :value="slotProps.data.importance"
-                          rounded
-                          icon="pi pi-exclamation-triangle"
-                          class="max-h-1rem"
-                        />
-                        <Ptag
-                          v-if="slotProps.data.importance_rate"
-                          :value="slotProps.data.importance_rate"
-                          rounded
-                          icon="pi pi-flag"
-                          class="max-h-1rem"
-                        />
+              <div class="h-24rem">
+                <Pdataview :value="myTaskList">
+                  <template #list="slotProps">
+                    <div
+                      class="col-12 cursor-pointer hover:bg-primary-100 pb-1 pl-1"
+                      @click="toggleEditTask(slotProps)"
+                    >
+                      <div class="">
+                        <p class="footnote-2 mb-0">
+                          {{ slotProps.data.task_name }}
+                        </p>
+                        <!-- TODO: reorder when sort option change -->
+                        <div class="flex gap-1">
+                          <Ptag
+                            v-if="slotProps.data.status"
+                            :value="slotProps.data.status"
+                            rounded
+                            :icon="slotProps.data.status_icon"
+                            :severity="slotProps.data.status_severity"
+                            class="max-h-1rem"
+                          />
+                          <Ptag
+                            v-if="slotProps.data.due_date_time"
+                            :value="formatDate(slotProps.data.due_date_time)"
+                            rounded
+                            icon="pi pi-stopwatch"
+                            class="max-h-1rem"
+                          />
+                          <Ptag
+                            v-if="slotProps.data.importance"
+                            :value="slotProps.data.importance"
+                            rounded
+                            icon="pi pi-exclamation-triangle"
+                            class="max-h-1rem"
+                          />
+                          <Ptag
+                            v-if="slotProps.data.importance_rate"
+                            :value="slotProps.data.importance_rate"
+                            rounded
+                            icon="pi pi-flag"
+                            class="max-h-1rem"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </template>
-              </Pdataview>
-              <!-- </div> -->
+                  </template>
+                </Pdataview>
+              </div>
               <Pdialog
                 v-model:visible="editTaskDialog"
                 style="width: 80%"
@@ -220,25 +244,7 @@
                     </template>
                   </Prating>
                 </div>
-
-                <!-- <div class="field">
-                  <label for="department">Department</label>
-                  <Pdropdown
-                    id="department"
-                    v-model="member.user_department"
-                    :options="departments"
-                    optionLabel="user_department"
-                  />
-                </div>
-                <div class="field">
-                  <label for="role">Role</label>
-                  <Pdropdown
-                    id="role"
-                    v-model="member.user_role"
-                    :options="roles"
-                    :disabled="disableRole"
-                  />
-                </div> -->
+                <!-- add delete button -->
                 <template #footer>
                   <Pbutton
                     label="Cancel"
@@ -252,72 +258,81 @@
                     text
                     @click="updateTask"
                   />
+                  <!-- TODO:add creation and modification info -->
                 </template>
               </Pdialog>
             </template>
-
-            <!-- </div> -->
           </Pcard>
-          <div
+
+          <!-- TODO:change to Pcard -->
+          <Pcard
             class="mainpage-card border-primary-200 border-2 bg-white w-full"
           >
-            <div class="grid justify-content-evenly">
-              <div class="col-3 col-offset-5 text-center">
-                <h5>Announcements</h5>
-              </div>
+            <template #title>
+              <div class="grid justify-content-evenly">
+                <div class="col-3 col-offset-5 text-center">
+                  <h5>Announcements</h5>
+                </div>
 
-              <div class="col-3 flex justify-content-end align-self-center">
-                <Pbutton
-                  v-if="isAdmin"
-                  @click="openAnnouncementModal()"
-                  icon="pi pi-plus"
-                  rounded
-                  outlined
-                  aria-label="Filter"
-                  size="small"
-                />
+                <div class="col-3 flex justify-content-end align-self-center">
+                  <Pbutton
+                    v-if="isAdmin"
+                    @click="openAnnouncementModal()"
+                    icon="pi pi-plus"
+                    rounded
+                    outlined
+                    aria-label="Filter"
+                    size="small"
+                  />
+                </div>
               </div>
-            </div>
-            <ClientOnly>
-              <div v-if="filteredAnnouncements.length > 0">
-                <div class="px-2 py-2 overflow-y-scroll line-height-1 h-12rem">
+            </template>
+            <template #content>
+              <ClientOnly>
+                <div v-if="filteredAnnouncements.length > 0">
                   <div
-                    v-for="announcement in filteredAnnouncements"
-                    :key="announcement.id"
+                    class="px-2 py-2 overflow-y-scroll line-height-1 h-12rem"
                   >
                     <div
-                      class="w-full flex align-items-center justify-content-between"
+                      v-for="announcement in filteredAnnouncements"
+                      :key="announcement.id"
                     >
-                      <div class="flex gap-2 align-content-center">
-                        <p class="footnote-2">
-                          {{ announcement.name ?? "" }}
-                        </p>
-                        <i
-                          class="pi pi-info-circle text-base text-color-secondary"
-                          v-tooltip.top="
-                            announcement.description ??
-                            'No description provided'
-                          "
-                        ></i>
-                      </div>
+                      <div
+                        class="w-full flex align-items-center justify-content-between"
+                      >
+                        <div class="flex gap-2 align-content-center">
+                          <p class="footnote-2">
+                            {{ announcement.name ?? "" }}
+                          </p>
+                          <i
+                            class="pi pi-info-circle text-base text-color-secondary"
+                            v-tooltip.top="
+                              announcement.description ??
+                              'No description provided'
+                            "
+                          ></i>
+                        </div>
 
-                      <p class="footnote">
-                        {{ formatDate(announcement.creation_timestamp) ?? "" }}
-                      </p>
+                        <p class="footnote">
+                          {{
+                            formatDate(announcement.creation_timestamp) ?? ""
+                          }}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="flex align-items-center justify-content-center h-12rem"
-                v-if="
-                  filteredAnnouncements.length === 0 || !filteredAnnouncements
-                "
-              >
-                <p class="footnote">No Announcements!</p>
-              </div>
-            </ClientOnly>
-          </div>
+                <div
+                  class="flex align-items-center justify-content-center h-12rem"
+                  v-if="
+                    filteredAnnouncements.length === 0 || !filteredAnnouncements
+                  "
+                >
+                  <p class="footnote">No Announcements!</p>
+                </div>
+              </ClientOnly>
+            </template>
+          </Pcard>
         </div>
       </div>
     </div>
