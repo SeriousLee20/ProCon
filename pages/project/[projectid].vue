@@ -53,30 +53,50 @@
   <div>
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
-        <div>Completed</div>
-        <div>Filter</div>
+        <div class="flex justify-content-between">
+          <div>Completed</div>
+
+          <div class="flex gap-5">
+            <div>Filter</div>
+            <div>Sort</div>
+          </div>
+        </div>
         <div class="flex">
-          <div class="col-5 bg-blue-100 h-20rem">1</div>
+          <div class="col-5 bg-primary h-21rem flex-auto">1</div>
           <div
-            class="col-1 bg-blue-300 h-20rem w-2rem flex align-items-center justify-content-center"
+            class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
             <div class="-rotate-90">IMPORTANT</div>
           </div>
-          <div class="col-5 bg-blue-500 h-20rem">3</div>
+          <div class="col-5 bg-primary h-21rem flex-auto">3</div>
         </div>
         <div class="flex">
-          <div class="col-5 bg-green-100 h-5rem">1</div>
-          <div class="col-1 bg-green-300 w-2rem">2</div>
-          <div class="col-5 bg-green-500 h-5rem">3</div>
-        </div>
-        <div class="flex">
-          <div class="col-5 bg-blue-100 h-20rem">1</div>
           <div
-            class="col-1 bg-blue-300 h-20rem w-2rem flex align-items-center justify-content-center"
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
           >
-            <div class="-rotate-90 w-20rem">NOT IMPORTANT</div>
+            NOT URGENT
           </div>
-          <div class="col-5 bg-blue-500 h-20rem">3</div>
+          <div
+            class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
+          >
+            2
+          </div>
+          <div
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
+          >
+            URGENT
+          </div>
+        </div>
+        <div class="flex">
+          <div class="col-5 bg-primary h-21rem flex-auto flex-auto">1</div>
+          <div
+            class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
+          >
+            <div class="-rotate-90 w-21rem">
+              <nobr>NOT IMPORTANT</nobr>
+            </div>
+          </div>
+          <div class="col-5 bg-primary h-21rem flex-auto">3</div>
         </div>
       </div>
 
@@ -115,7 +135,7 @@
               </div>
             </template>
             <template #content>
-              <div class="h-24rem">
+              <div class="h-15rem">
                 <Pdataview :value="myTaskList">
                   <template #list="slotProps">
                     <div
