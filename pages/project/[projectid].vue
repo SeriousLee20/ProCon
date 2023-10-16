@@ -54,21 +54,77 @@
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
         <div class="flex justify-content-between">
-          <div>Completed</div>
+          <div class="flex gap-5">
+            <Pbutton
+              class="no-shadow"
+              :icon="setShowCompletedIcon(taskShowCompleted)"
+              @click="toggleTaskShowCompleted"
+              label="Completed"
+              size="small"
+              text
+            />
+            <Pbutton
+              class="no-shadow"
+              :icon="setShowMyTaskIcon(mainShowMyTaskOnly)"
+              @click="toggleShowMyTaskOnly"
+              label="My Task Only"
+              size="small"
+              text
+            />
+          </div>
 
           <div class="flex gap-5">
-            <div>Filter</div>
-            <div>Sort</div>
+            <Pcalendar
+              id="filter-task-duedate-range"
+              v-model="filterTaskDueDateRange"
+              selectionMode="range"
+              dateFormat="M dd, y"
+              placeholder="Filter Due Date(s)"
+              :hideOnRangeSelection="true"
+              class="min-w-max"
+              showButtonBar
+              @clear-click="getDefaultDueDateRange"
+              @hide="
+                updateFilter(
+                  'due_date_range',
+                  filterTaskDueDateRange,
+                  'main_task'
+                )
+              "
+            />
+            <!-- sort by importance rate, status -->
+            <Pdropdown
+              v-model="mainTaskSortOption"
+              :options="mainTaskSortOptions"
+              optionLabel="desc"
+              optionValue="id"
+            />
           </div>
         </div>
-        <div class="flex">
-          <div class="col-5 bg-primary h-21rem flex-auto">1</div>
+        <div class="flex pt-2">
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q4"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-edit-task-dialog="toggleEditTask($event)"
+              />
+            </template>
+          </Pcard>
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
             <div class="-rotate-90">IMPORTANT</div>
           </div>
-          <div class="col-5 bg-primary h-21rem flex-auto">3</div>
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q1"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-edit-task-dialog="toggleEditTask($event)"
+              />
+            </template>
+          </Pcard>
         </div>
         <div class="flex">
           <div
@@ -79,7 +135,7 @@
           <div
             class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
           >
-            2
+            <Pbutton icon="pi pi-plus" rounded />
           </div>
           <div
             class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
@@ -88,15 +144,31 @@
           </div>
         </div>
         <div class="flex">
-          <div class="col-5 bg-primary h-21rem flex-auto flex-auto">1</div>
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q3"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-edit-task-dialog="toggleEditTask($event)"
+              />
+            </template>
+          </Pcard>
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90 w-21rem">
-              <nobr>NOT IMPORTANT</nobr>
+            <div class="-rotate-90 w-21rem" style="white-space: nowrap">
+              NOT IMPORTANT
             </div>
           </div>
-          <div class="col-5 bg-primary h-21rem flex-auto">3</div>
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q2"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-edit-task-dialog="toggleEditTask($event)"
+              />
+            </template>
+          </Pcard>
         </div>
       </div>
 
@@ -129,158 +201,30 @@
                     :options="myTaskSortOptions"
                     optionLabel="desc"
                     optionValue="id"
-                    @change="updateFilter('sortOption', 'my_task')"
+                    @change="
+                      updateFilter('sort_option', myTaskSortOption, 'my_task')
+                    "
                   ></Pdropdown>
                 </div>
               </div>
             </template>
             <template #content>
-              <div class="h-15rem">
-                <Pdataview :value="myTaskList">
-                  <template #list="slotProps">
-                    <div
-                      class="col-12 cursor-pointer hover:bg-primary-100 pb-1 pl-1"
-                      @click="toggleEditTask(slotProps)"
-                    >
-                      <div class="">
-                        <p class="footnote-2 mb-0">
-                          {{ slotProps.data.task_name }}
-                        </p>
-                        <!-- TODO: reorder when sort option change -->
-                        <div class="flex gap-1">
-                          <Ptag
-                            v-if="slotProps.data.status"
-                            :value="slotProps.data.status"
-                            rounded
-                            :icon="slotProps.data.status_icon"
-                            :severity="slotProps.data.status_severity"
-                            class="max-h-1rem"
-                          />
-                          <Ptag
-                            v-if="slotProps.data.due_date_time"
-                            :value="formatDate(slotProps.data.due_date_time)"
-                            rounded
-                            icon="pi pi-stopwatch"
-                            class="max-h-1rem"
-                          />
-                          <Ptag
-                            v-if="slotProps.data.importance"
-                            :value="slotProps.data.importance"
-                            rounded
-                            icon="pi pi-exclamation-triangle"
-                            class="max-h-1rem"
-                          />
-                          <Ptag
-                            v-if="slotProps.data.importance_rate"
-                            :value="slotProps.data.importance_rate"
-                            rounded
-                            icon="pi pi-flag"
-                            class="max-h-1rem"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                </Pdataview>
-              </div>
-              <Pdialog
-                v-model:visible="editTaskDialog"
-                style="width: 80%"
-                header="Edit Task"
-                :modal="true"
-                class="p-fluid"
-              >
-                <div class="field">
-                  <label for="task-name">Task</label>
-                  <Pinputtext
-                    type="text"
-                    id="task-name"
-                    v-model="selectedTask.task_name"
-                  />
-                </div>
-                <div class="field">
-                  <label for="task-desc">Description</label>
-                  <Peditor
-                    id="task-desc"
-                    v-model="selectedTask.task_desc"
-                    class="min-h-full"
-                  ></Peditor>
-                </div>
-                <div class="field">
-                  <!-- TODO: add min max value -->
-                  <label for="task-due-datetime">Due Datetime</label>
-                  <Pcalendar
-                    id="task-due-datetime"
-                    v-model="taskDueDatetime"
-                    showTime
-                    hourFormat="24"
-                    dateFormat="M dd, yy"
-                  ></Pcalendar>
-                </div>
-                <div class="field">
-                  <label for="task-urgent-date">Urgent Date</label>
-                  <Pcalendar
-                    id="task-urgent-date"
-                    v-model="taskUrgentDate"
-                    dateFormat="M dd, yy"
-                  ></Pcalendar>
-                </div>
-                <div class="field">
-                  <label for="task-status">Status</label>
-                  <Pdropdown
-                    id="task-status"
-                    v-model="selectedTask.status_code"
-                    :options="statusOptions"
-                    optionLabel="status_name"
-                    optionValue="status_code"
-                    class="w-12rem"
-                  ></Pdropdown>
-                </div>
-                <div class="field">
-                  <label for="task-importance">Importance</label>
-                  <Pdropdown
-                    id="task-importance"
-                    v-model="selectedTask.importance"
-                    :options="importanceOptions"
-                    optionLabel="desc"
-                    optionValue="id"
-                    class="w-12rem"
-                  ></Pdropdown>
-                </div>
-                <div class="field">
-                  <label for="task-importanceRate">Importance Rate</label>
-                  <Prating v-model="selectedTask.importance_rate" :stars="4">
-                    <template #onicon>
-                      <i
-                        class="pi pi-exclamation-triangle pt-2"
-                        style="color: red"
-                      ></i>
-                    </template>
-                    <template #officon>
-                      <i class="pi pi-exclamation-triangle pt-2"></i>
-                    </template>
-                    <template #cancelicon>
-                      <i class="pi pi-times pt-2"></i>
-                    </template>
-                  </Prating>
-                </div>
-                <!-- add delete button -->
-                <template #footer>
-                  <Pbutton
-                    label="Cancel"
-                    icon="pi pi-times"
-                    text
-                    @click="toggleEditTask"
-                  />
-                  <Pbutton
-                    label="Save"
-                    icon="pi pi-check"
-                    text
-                    @click="updateTask"
-                  />
-                  <!-- TODO:add creation and modification info -->
-                </template>
-              </Pdialog>
+              <Tasklist
+                class="h-15rem"
+                :taskList="myTaskList"
+                @open-edit-task-dialog="toggleEditTask($event)"
+              />
+
+              <Taskdialog
+                :editTaskDialog="editTaskDialog"
+                :selectedTask="selectedTask"
+                :taskDueDatetime="taskDueDatetime"
+                :taskUrgentDate="taskUrgentDate"
+                :groupedUsers="groupedUsers"
+                :taskOptions="taskOptions"
+                @update-task="updateTask($event)"
+                @close-edit-task-dialog="toggleEditTask"
+              />
             </template>
           </Pcard>
 
@@ -369,6 +313,8 @@ const { projectid } = useRoute().params;
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const userId = dstore.getUserId;
+dstore.setSelectedProject(projectid);
+dstore.setCurrentPage("");
 
 const toast = useToast();
 const groupedUsers = ref([]);
@@ -376,58 +322,19 @@ let announcements = [];
 // let filteredAnnouncements = [];
 let userOptions = [];
 
-dstore.setSelectedProject(projectid);
-dstore.setCurrentPage("");
-const editTaskDialog = ref(false);
-const selectedTask = ref();
-const taskName = ref("");
-const taskDesc = ref("");
-const taskDueDatetime = ref();
-const taskUrgentDate = ref();
-const taskImportance = ref(1);
-const taskStatus = ref(1);
-const taskImportanceRate = ref();
-const taskOwner = ref();
+const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
 const { data: parameters } = await useFetch("/api/get_parameters");
-const { data: filters } = await useFetch("/api/get_filters");
+var { data: filters } = await useFetch("/api/get_filters");
 var { data: tasksRes } = await useFetch("/api/get_task_by_project", {
   method: "POST",
   body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },
 });
-const importanceOptions = parameters.value.response.filter(
-  (param) => param.param_name == "importance"
-)[0].param_list;
-const statusOptions = parameters.value.response.filter(
-  (param) => param.param_name == "task_status"
-)[0].param_list;
-const myTaskSortOptions = ref(
-  parameters.value.response.filter(
-    (param) => param.param_name == "sort_option"
-  )[0].param_list
-);
-console.log("filters", filters);
-
-const getMyTaskFilter = () => {
-  const thisFilter = filters.value.response.filter(
-    (item) => item.board_name == "my_task"
-  )[0]?.filter;
-  console.log("sortoption", thisFilter);
-  return { thisFilter };
-};
-const isOpenAnnouncementModal = ref(false);
-const announcementTitle = ref(null);
-const announcementDesc = ref(null);
-const announcementReceivers = ref([]);
-const announcementReceiverArr = ref([]);
-const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
-
-console.log("param", parameters);
-console.log("filters", filters);
-console.log("task", tasksRes);
-console.log("current projectid", projectid);
-console.log("isAdmin", dstore.getSelectedProject, isAdmin);
-
+const { data: projectMemberRes } = await useFetch("/api/get_management_board", {
+  method: "POST",
+  body: { project_id: projectid },
+  headers: { "cache-control": "no-cache" },
+});
 const { data: projectAnnouncementRes } = await useFetch(
   "/api/get_announcement",
   {
@@ -437,51 +344,241 @@ const { data: projectAnnouncementRes } = await useFetch(
   }
 );
 
-const { data: projectMemberRes } = await useFetch("/api/get_management_board", {
-  method: "POST",
-  body: { project_id: projectid },
-  headers: { "cache-control": "no-cache" },
-});
+const getSortOptions = (listName) => {
+  return parameters.value.response.filter(
+    (param) => param.param_name == listName
+  )[0].param_list;
+};
 
+console.log("filters", filters);
+
+const getFilter = (listName) => {
+  const thisFilter = filters.value.response.filter(
+    (item) => item.board_name == listName
+  )[0]?.filter;
+  console.log("sortoption", thisFilter);
+  return { thisFilter };
+};
+
+const taskOptions = {
+  importance: getSortOptions("importance"),
+  status: getSortOptions("task_status"),
+};
+const importanceOptions = getSortOptions("importance");
+const statusOptions = getSortOptions("task_status");
+const myTaskSortOptions = getSortOptions("sort_option");
+const mainTaskSortOptions = getSortOptions("main_task_sort_option");
+const editTaskDialog = ref(false);
+const selectedTask = ref();
+//TODO:when filter is null, set to default range
+const filterTaskDueDateRange = ref();
+const mainShowMyTaskOnly = ref(false);
+const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
+const taskDueDatetime = ref();
+const taskUrgentDate = ref();
+const mainTaskList = ref({});
+const myTaskList = ref();
+const myTaskSortOption = ref(getFilter("my_task").thisFilter.sort_option);
+const myTaskShowCompleted = ref(getFilter("my_task").thisFilter.show_completed);
+const taskShowCompleted = ref(
+  getFilter("main_task").thisFilter?.show_completed
+);
 const projectMember = projectMemberRes.value.response;
-const filteredAnnouncements = projectAnnouncementRes.value.response;
+const isOpenAnnouncementModal = ref(false);
+const announcementTitle = ref(null);
+const announcementDesc = ref(null);
+const announcementReceivers = ref([]);
+const announcementReceiverArr = ref([]);
+
+console.log("mytask", tasksRes.value.response, myTaskList);
+console.log("param", parameters);
+console.log("filters", filters);
+console.log("task", tasksRes);
+console.log("current projectid", projectid);
+console.log("isAdmin", dstore.getSelectedProject, isAdmin);
+
+const groupMember = projectMember.reduce((result, item) => {
+  const department = item.user_department;
+
+  if (!result[department]) {
+    result[department] = [];
+  }
+
+  const itemWithoutDepartment = { ...item };
+  delete itemWithoutDepartment.user_department;
+
+  result[department].push(itemWithoutDepartment);
+
+  return result;
+}, {});
+
+const formattedData = Object.keys(groupMember).map((department) => ({
+  department,
+  users: groupMember[department],
+}));
+
+console.log("groupmember", groupMember, formattedData);
+console.log("groupedUsers", groupedUsers);
+console.log("projectmember", projectMember);
+
+if (Array.isArray(projectMember)) {
+  userOptions = projectMember.map((user) => ({
+    label: user.username,
+    value: user.user_id,
+  }));
+} else {
+  userOptions = {
+    label: projectMember.usernme,
+    value: projectMember.user_id,
+  };
+}
+
+groupedUsers.value = [...formattedData];
+
+console.log("useroption", userOptions);
+const setShowMyTaskIcon = (show) => {
+  return show ? "pi pi-check-circle" : "pi pi-circle";
+};
 
 const setShowCompletedIcon = (show) => {
   return show ? "pi pi-eye" : "pi pi-eye-slash";
 };
 
-const myTaskList = ref();
-console.log("mytask", tasksRes.value.response, myTaskList);
-const myTaskSortOption = ref(getMyTaskFilter().thisFilter.sort_option);
-const myTaskShowCompleted = ref(false);
-// const myTaskShowCompletedIcon = ref("");
-// setShowCompletedIcon(false, "myTask");
-
-const getMyTaskList = () => {
-  const sort_option = parameters.value.response
-    .filter((param) => param.param_name == "sort_option")[0]
-    .param_list?.filter((op) => op.id == myTaskSortOption.value)[0]?.col;
-  const filteredList = tasksRes.value.response.filter(
-    (task) => task.creator_id == userId || task.owner_ids.include(userId)
-  );
-
-  filteredList.sort((t1, t2) =>
-    t1[sort_option] > t2[sort_option]
-      ? 1
-      : t1[sort_option] < t2[sort_option]
-      ? -1
-      : 0
-  );
-  console.log("sort", sort_option, filteredList);
-  return { filteredList: filteredList };
+const toggleShowMyTaskOnly = () => {
+  mainShowMyTaskOnly.value = !mainShowMyTaskOnly.value;
 };
-myTaskList.value = getMyTaskList().filteredList;
+
+const toggleTaskShowCompleted = () => {
+  taskShowCompleted.value = !taskShowCompleted.value;
+  updateFilter("show_completed", taskShowCompleted.value, "main_task");
+};
 const toggleMyTaskShowCompleted = () => {
   myTaskShowCompleted.value = !myTaskShowCompleted.value;
+  updateFilter("show_completed", myTaskShowCompleted.value, "my_task");
   // setShowCompletedIcon(myTaskShowCompleted.value, "myTask");
 };
 
+const getDefaultDueDateRange = () => {
+  let temp_list = tasksRes.value.response.sort((t1, t2) =>
+    t1.due_date_time > t2.due_date_time
+      ? 1
+      : t1.due_date_time < t2.due_date_time
+      ? -1
+      : 0
+  );
+
+  let dateRange = [
+    temp_list[0].due_date_time,
+    temp_list[temp_list.length - 1].due_date_time,
+  ];
+
+  filterTaskDueDateRange.value = [
+    new Date(dateRange[0]),
+    new Date(dateRange[1]),
+  ];
+  return { dateRange };
+};
+
+const sortList = (filteredList, listName) => {
+  const today = new Date();
+  const filter = getFilter(listName).thisFilter;
+  const sortOption = getSortOptions("sort_option")?.filter(
+    (op) => op.id == filter.sort_option
+  )[0]?.col;
+
+  filteredList = filter.show_completed
+    ? filteredList
+    : filteredList.filter((item) => item.status != "Completed");
+
+  filteredList =
+    sortOption == "importance_rate"
+      ? filteredList.sort((t1, t2) =>
+          t1[sortOption] < t2[sortOption]
+            ? 1
+            : t1[sortOption] > t2[sortOption]
+            ? -1
+            : 0
+        )
+      : filteredList.sort((t1, t2) =>
+          t1[sortOption] > t2[sortOption]
+            ? 1
+            : t1[sortOption] < t2[sortOption]
+            ? -1
+            : 0
+        );
+
+  if (listName == "main_task") {
+    let dateRange = getDefaultDueDateRange().dateRange;
+    if (filter.due_date_range) {
+      let temp_range = filter.due_date_range;
+      dateRange =
+        temp_range[0] >= dateRange[0] && temp_range[1] <= dateRange[1]
+          ? [...temp_range]
+          : [...dateRange];
+    }
+    filterTaskDueDateRange.value = [
+      new Date(dateRange[0]),
+      new Date(dateRange[1]),
+    ];
+    filteredList.filter(
+      (task) =>
+        task.due_date_time >= dateRange[0] && task.due_date_time <= dateRange[1]
+    );
+
+    filteredList = filter.show_my_task_only
+      ? filteredList.filter((task) => task.owner_ids == userId)
+      : filteredList;
+
+    mainTaskList.value["q1"] = [];
+    mainTaskList.value["q2"] = [];
+    mainTaskList.value["q3"] = [];
+    mainTaskList.value["q4"] = [];
+    filteredList.forEach((task) => {
+      // urgent
+      if (task.urgent_date && new Date(task.urgent_date) <= today) {
+        if (task.importance == 1) {
+          mainTaskList.value.q1.push(task);
+        } else {
+          mainTaskList.value.q2.push(task);
+        }
+      } else {
+        // not urgent
+        if (task.importance == 1) {
+          mainTaskList.value.q4.push(task);
+        } else {
+          mainTaskList.value.q3.push(task);
+        }
+      }
+    });
+
+    console.log("maintasklist", mainTaskList.value);
+  }
+
+  return filteredList;
+};
+
+const getMainTaskList = () => {
+  const filteredList = sortList(tasksRes.value.response, "main_task");
+  console.log("daterange", filterTaskDueDateRange.value);
+  console.log(filteredList);
+
+  return { filteredList };
+};
+getMainTaskList();
+
+const getMyTaskList = () => {
+  var filteredList = tasksRes.value.response.filter(
+    (task) => task.creator_id == userId || task.owner_ids.include(userId)
+  );
+
+  filteredList = sortList(filteredList, "my_task");
+  console.log("sort", filteredList);
+  return { filteredList };
+};
+myTaskList.value = getMyTaskList().filteredList;
+
 const toggleEditTask = (props) => {
+  console.log("edit", props);
   editTaskDialog.value = !editTaskDialog.value;
   console.log(editTaskDialog.value);
   if (editTaskDialog.value) {
@@ -502,19 +599,21 @@ const toggleEditTask = (props) => {
   }
 };
 
-const updateFilter = async (filterName, boardName) => {
-  if (filterName == "sortOption") {
-    let updatedFilter = {};
-    updatedFilter["board_name"] = boardName;
-    updatedFilter["filter"] = getMyTaskFilter().thisFilter;
-
-    const { data: updateFilterRes } = await useFetch("/api/update_filter", {
-      method: "POST",
-      body: updatedFilter,
-      headers: { "cache-control": "no-cache" },
-    });
-    console.log("updatedfilter", updateFilterRes);
-  }
+const updateFilter = async (filterName, filterValue, boardName) => {
+  let updatedFilter = {};
+  console.log(myTaskSortOption.value);
+  updatedFilter["board_name"] = boardName;
+  updatedFilter["filter"] = getFilter(boardName).thisFilter;
+  updatedFilter.filter[filterName] = filterValue;
+  const { data: updateFilterRes } = await useFetch("/api/update_filter", {
+    method: "POST",
+    body: updatedFilter,
+    headers: { "cache-control": "no-cache" },
+  });
+  filters = updateFilterRes;
+  myTaskList.value = getMyTaskList().filteredList;
+  console.log(myTaskList.value);
+  console.log("updatedfilter", updateFilterRes, updatedFilter);
 };
 
 const updateTask = async () => {
@@ -539,99 +638,22 @@ const updateTask = async () => {
   if (upsertTaskRes.value.success) {
     tasksRes = upsertTaskRes;
     myTaskList.value = getMyTaskList().filteredList;
+    getMainTaskList();
   }
 
   //TODO:input validation
 };
 
-const groupMember = projectMember.reduce((result, item) => {
-  const department = item.user_department;
-
-  if (!result[department]) {
-    result[department] = [];
-  }
-
-  const itemWithoutDepartment = { ...item };
-  delete itemWithoutDepartment.user_department;
-
-  result[department].push(itemWithoutDepartment);
-
-  return result;
-}, {});
-
-const formattedData = Object.keys(groupMember).map((department) => ({
-  department,
-  users: groupMember[department],
-}));
-
-console.log("groupmember", groupMember, formattedData);
-
-console.log("groupedUsers", groupedUsers);
-console.log("projectmember", projectMember);
-
-if (Array.isArray(projectMember)) {
-  userOptions = projectMember.map((user) => ({
-    label: user.username,
-    value: user.user_id,
-  }));
-} else {
-  userOptions = {
-    label: projectMember.usernme,
-    value: projectMember.user_id,
-  };
-}
-
-console.log("useroption", userOptions);
-// groupedUsers.value.push({
-//   label: "All Users",
-//   items: userOptions,
-// });
-
-groupedUsers.value = [...formattedData];
-
 console.log(announcementReceivers);
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.toLocaleString("default", { day: "2-digit" });
-  const month = date.toLocaleString("default", { month: "2-digit" });
-  const year = date.getFullYear();
-  const hours = date.toLocaleString("default", { hour: "2-digit" });
-  const minutes = date.toLocaleString("default", { minutes: "2-digit" });
-  const ampm = hours >= 12 ? "PM" : "AM";
-  // return `${minutes}`;
-  // return date.toLocaleDateString("en-us", {
-  //   year: "numeric",
-  //   month: "short",
-  //   day: "2-digit",
-  //   hour: "2-digit",
-  //   minute: "2-digit",
-  //   hour12: false,
-  // });
-
   const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
     locales: "en-US",
   });
   return formattedDate.value;
 };
 
-watchEffect(() => {
-  if (!useSupabaseUser().value) {
-    navigateTo("/login");
-  }
-  announcementReceiverArr.value = [];
-  if (announcementReceivers.value.length !== 0) {
-    for (const user of announcementReceivers.value) {
-      announcementReceiverArr.value.push(user.value);
-    }
-
-    console.log(
-      announcementReceiverArr.value,
-      typeof announcementReceiverArr.value
-    );
-  }
-});
-
+const filteredAnnouncements = projectAnnouncementRes.value.response;
 async function addAnnouncement() {
   console.log(announcementReceiverArr.value);
   const { data: addAnnouncementRes } = await useFetch(
@@ -666,6 +688,23 @@ function closeAnnouncementModal() {
 function openAnnouncementModal() {
   isOpenAnnouncementModal.value = true;
 }
+
+watchEffect(() => {
+  if (!useSupabaseUser().value) {
+    navigateTo("/login");
+  }
+  announcementReceiverArr.value = [];
+  if (announcementReceivers.value.length !== 0) {
+    for (const user of announcementReceivers.value) {
+      announcementReceiverArr.value.push(user.value);
+    }
+
+    console.log(
+      announcementReceiverArr.value,
+      typeof announcementReceiverArr.value
+    );
+  }
+});
 
 const logout = async () => {
   await auth.signOut();
