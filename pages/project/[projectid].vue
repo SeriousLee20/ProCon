@@ -107,7 +107,7 @@
               <Tasklist
                 :taskList="mainTaskList.q4"
                 :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-edit-task-dialog="toggleEditTask($event)"
+                @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
           </Pcard>
@@ -121,7 +121,7 @@
               <Tasklist
                 :taskList="mainTaskList.q1"
                 :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-edit-task-dialog="toggleEditTask($event)"
+                @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
           </Pcard>
@@ -135,7 +135,11 @@
           <div
             class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
           >
-            <Pbutton icon="pi pi-plus" rounded />
+            <Pbutton
+              icon="pi pi-plus"
+              @click="toggleTaskDialog(null, false)"
+              rounded
+            />
           </div>
           <div
             class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
@@ -149,7 +153,7 @@
               <Tasklist
                 :taskList="mainTaskList.q3"
                 :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-edit-task-dialog="toggleEditTask($event)"
+                @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
           </Pcard>
@@ -165,7 +169,7 @@
               <Tasklist
                 :taskList="mainTaskList.q2"
                 :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-edit-task-dialog="toggleEditTask($event)"
+                @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
           </Pcard>
@@ -210,20 +214,20 @@
             </template>
             <template #content>
               <Tasklist
-                class="h-15rem"
+                class="h-15rem overflow-scroll"
                 :taskList="myTaskList"
-                @open-edit-task-dialog="toggleEditTask($event)"
+                @open-task-dialog="toggleTaskDialog($event, true)"
               />
 
               <Taskdialog
-                :editTaskDialog="editTaskDialog"
+                :taskDialog="taskDialog"
                 :selectedTask="selectedTask"
-                :taskDueDatetime="taskDueDatetime"
-                :taskUrgentDate="taskUrgentDate"
                 :groupedUsers="groupedUsers"
                 :taskOptions="taskOptions"
-                @update-task="updateTask($event)"
-                @close-edit-task-dialog="toggleEditTask"
+                :isEditTask="isEditTask"
+                @update-task="updateTask()"
+                @insert-task="insertTask()"
+                @close-task-dialog="toggleTaskDialog(null, false)"
               />
             </template>
           </Pcard>
@@ -364,11 +368,11 @@ const taskOptions = {
   importance: getSortOptions("importance"),
   status: getSortOptions("task_status"),
 };
-const importanceOptions = getSortOptions("importance");
-const statusOptions = getSortOptions("task_status");
+
 const myTaskSortOptions = getSortOptions("sort_option");
 const mainTaskSortOptions = getSortOptions("main_task_sort_option");
-const editTaskDialog = ref(false);
+const taskDialog = ref(false);
+const isEditTask = ref(false);
 const selectedTask = ref();
 //TODO:when filter is null, set to default range
 const filterTaskDueDateRange = ref();
@@ -486,6 +490,12 @@ const sortList = (filteredList, listName) => {
     (op) => op.id == filter.sort_option
   )[0]?.col;
 
+  filteredList = filteredList.map((task) => ({
+    ...task,
+    urgent_date: task.urgent_date ? new Date(task.urgent_date) : null,
+    due_date_time: task.due_date_time ? new Date(task.due_date_time) : null,
+  }));
+
   filteredList = filter.show_completed
     ? filteredList
     : filteredList.filter((item) => item.status != "Completed");
@@ -567,8 +577,8 @@ const getMainTaskList = () => {
 getMainTaskList();
 
 const getMyTaskList = () => {
-  var filteredList = tasksRes.value.response.filter(
-    (task) => task.creator_id == userId || task.owner_ids.include(userId)
+  var filteredList = tasksRes.value.response.filter((task) =>
+    task.owner_ids?.includes(userId)
   );
 
   filteredList = sortList(filteredList, "my_task");
@@ -577,18 +587,32 @@ const getMyTaskList = () => {
 };
 myTaskList.value = getMyTaskList().filteredList;
 
-const toggleEditTask = (props) => {
-  console.log("edit", props);
-  editTaskDialog.value = !editTaskDialog.value;
-  console.log(editTaskDialog.value);
-  if (editTaskDialog.value) {
-    selectedTask.value = props.data;
-    taskDueDatetime.value = props.data.due_date_time
-      ? new Date(props.data.due_date_time)
-      : null;
-    taskUrgentDate.value = props.data.urgent_date
-      ? new Date(props.data.urgent_date)
-      : null;
+const toggleTaskDialog = (props, isToEditTask) => {
+  console.log("edit", props, taskDialog);
+  taskDialog.value = !taskDialog.value;
+  isEditTask.value = isToEditTask;
+  console.log(taskDialog.value, isToEditTask);
+  if (taskDialog.value) {
+    if (isToEditTask) {
+      selectedTask.value = props.data;
+      taskDueDatetime.value = props.data.due_date_time
+        ? new Date(props.data.due_date_time)
+        : null;
+      taskUrgentDate.value = props.data.urgent_date
+        ? new Date(props.data.urgent_date)
+        : null;
+    } else {
+      selectedTask.value = {
+        task_name: null,
+        task_desc: null,
+        status_code: 1,
+        importance: 2,
+        importance_rate: null,
+        owner_ids: null,
+        due_date_time: null,
+        urgent_date: null,
+      };
+    }
     console.log(
       "mytask props",
       props,
@@ -617,31 +641,50 @@ const updateFilter = async (filterName, filterValue, boardName) => {
 };
 
 const updateTask = async () => {
-  editTaskDialog.value = false;
+  taskDialog.value = false;
 
   const updatedTask = selectedTask.value;
-  selectedTask.value.due_date_time = taskDueDatetime.value;
-  selectedTask.value.urgent_date = taskUrgentDate.value;
   updatedTask["project_id"] = projectid;
   updatedTask["modified_at"] = new Date();
-  updatedTask["due_date_time"] = taskDueDatetime.value;
-  updatedTask["urgent_date"] = taskUrgentDate.value;
   console.log(selectedTask.value, updatedTask);
 
-  const { data: upsertTaskRes } = await useFetch("/api/update_task", {
+  const { data: updateTaskRes } = await useFetch("/api/update_task", {
     method: "POST",
     body: updatedTask,
     headers: { "cache-control": "no-cache" },
   });
-  console.log("upserttask", upsertTaskRes);
+  console.log("upserttask", updateTaskRes);
 
-  if (upsertTaskRes.value.success) {
-    tasksRes = upsertTaskRes;
+  if (updateTaskRes.value.success) {
+    tasksRes = updateTaskRes;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
   }
 
   //TODO:input validation
+};
+
+const insertTask = async () => {
+  console.trace("inserttask", selectedTask.value);
+
+  taskDialog.value = false;
+  let newTask = selectedTask.value;
+  newTask["modified_at"] = new Date();
+  newTask["project_id"] = projectid;
+
+  const { data: insertTaskRes } = await useFetch("/api/insert_task", {
+    method: "POST",
+    body: newTask,
+    headers: { "cache-control": "no-cache" },
+  });
+
+  console.log("insertaskres", insertTaskRes);
+
+  if (insertTaskRes.value.success) {
+    tasksRes = insertTaskRes;
+    myTaskList.value = getMyTaskList().filteredList;
+    getMainTaskList();
+  }
 };
 
 console.log(announcementReceivers);
@@ -689,6 +732,10 @@ function openAnnouncementModal() {
   isOpenAnnouncementModal.value = true;
 }
 
+defineExpose({
+  editTaskDialog: taskDialog,
+  formatDate,
+});
 watchEffect(() => {
   if (!useSupabaseUser().value) {
     navigateTo("/login");

@@ -1,6 +1,7 @@
 <template>
   <Pdialog
-    v-model:visible="props.editTaskDialog"
+    v-model:visible="props.taskDialog"
+    @update:visible="closeTaskDialog"
     style="width: 80%"
     header="Edit Task"
     :modal="true"
@@ -28,7 +29,7 @@
         <label for="task-due-datetime">Due Datetime</label>
         <Pcalendar
           id="task-due-datetime"
-          v-model="props.taskDueDatetime"
+          v-model="props.selectedTask.due_date_time"
           showTime
           hourFormat="24"
           dateFormat="M dd, yy"
@@ -42,10 +43,10 @@
         <label for="task-urgent-date">Urgent Date</label>
         <Pcalendar
           id="task-urgent-date"
-          v-model="props.taskUrgentDate"
+          v-model="props.selectedTask.urgent_date"
           dateFormat="M dd, yy"
           :minDate="new Date()"
-          :maxDate="props.taskDueDatetime"
+          :maxDate="props.selectedTask.due_date_time"
           :selectOtherMonths="true"
           showButtonBar
         ></Pcalendar>
@@ -72,7 +73,7 @@
           class="w-12rem"
         ></Pdropdown>
       </div>
-      <div class="field">
+      <div class="field" v-if="props.selectedTask.importance == 1">
         <label for="task-importanceRate">Importance Rate</label>
         <Prating v-model="props.selectedTask.importance_rate" :stars="4">
           <template #onicon>
@@ -110,37 +111,74 @@
     </div>
     <!-- add delete button -->
     <template #footer>
-      <Pbutton
-        label="Cancel"
-        icon="pi pi-times"
-        text
-        @click="closeEditTaskDialog"
-      />
-      <Pbutton label="Save" icon="pi pi-check" text @click="saveTaskUpdate" />
-      <!-- TODO:add creation and modification info -->
+      <div class="flex flex-column">
+        <div v-if="props.isEditTask" class="align-self-start">
+          <div>
+            Created by {{ props.selectedTask.creator_name }} at
+            {{ formatDate(props.selectedTask.creation_timestamp) }}
+          </div>
+          <div>
+            Modified by {{ props.selectedTask.modifier_name }} at
+            {{ formatDate(props.selectedTask.modified_at) }}
+          </div>
+        </div>
+        <div class="align-self-end">
+          <Pbutton
+            label="Cancel"
+            icon="pi pi-times"
+            text
+            @click="closeTaskDialog"
+          />
+          <Pbutton
+            label="Save"
+            icon="pi pi-check"
+            text
+            @click="saveTaskUpdate"
+          />
+        </div>
+      </div>
+      <!-- TODO:add delete button, with confirm dialog -->
     </template>
   </Pdialog>
 </template>
 
 <script setup>
 const props = defineProps([
-  "editTaskDialog",
+  "taskDialog",
   "selectedTask",
-  "taskDueDatetime",
-  "taskUrgentDate",
   "groupedUsers",
   "taskOptions",
+  "isEditTask",
 ]);
 
-const emit = defineEmits(["close-edit-task-dialog", "update-task"]);
+// const taskDialogRef = toRef(props, "taskDialog");
+// watch(taskDialogRef, (value) => {
+//   props.taskDialog = value;
+// });
+const isEditTask = props.isEditTask;
+console.log("dialog", isEditTask, props.taskDialog);
 
-const closeEditTaskDialog = () => {
-  emit("close-edit-task-dialog");
+const formatDate = (dateString) => {
+  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
+    locales: "en-US",
+  });
+  return formattedDate.value;
+};
+
+const emit = defineEmits(["close-task-dialog", "update-task", "insert-task"]);
+
+const closeTaskDialog = () => {
+  emit("close-task-dialog");
 };
 
 const saveTaskUpdate = () => {
-  emit("update-task");
-  console.log("update", props.selectedTask);
+  if (props.isEditTask) {
+    emit("update-task");
+    console.log("update", props.selectedTask);
+  } else {
+    emit("insert-task");
+    console.log("insert", props.selectedTask);
+  }
 };
 </script>
 

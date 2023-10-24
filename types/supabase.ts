@@ -155,19 +155,19 @@ export interface Database {
         Row: {
           created_at: string
           id: number
-          param_list: Json[]
+          param_list: Json | null
           param_name: string
         }
         Insert: {
           created_at?: string
           id?: number
-          param_list: Json[]
+          param_list?: Json | null
           param_name: string
         }
         Update: {
           created_at?: string
           id?: number
-          param_list?: Json[]
+          param_list?: Json | null
           param_name?: string
         }
         Relationships: []
@@ -308,7 +308,7 @@ export interface Database {
           end_working_hour: string | null
           id: string
           name: string | null
-          start_working_hour: string
+          start_working_hour: string | null
         }
         Insert: {
           contact_number?: string | null
@@ -317,7 +317,7 @@ export interface Database {
           end_working_hour?: string | null
           id?: string
           name?: string | null
-          start_working_hour: string
+          start_working_hour?: string | null
         }
         Update: {
           contact_number?: string | null
@@ -326,7 +326,7 @@ export interface Database {
           end_working_hour?: string | null
           id?: string
           name?: string | null
-          start_working_hour?: string
+          start_working_hour?: string | null
         }
         Relationships: []
       }
@@ -446,7 +446,7 @@ export interface Database {
         Args: Record<PropertyKey, never>
         Returns: {
           param_name: string
-          param_list: Json[]
+          param_list: Json
         }[]
       }
       get_parameters_1: {
@@ -467,14 +467,18 @@ export interface Database {
           creator_id: string
           creator_name: string
           creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
           owner_ids: string[]
           status: string
           status_code: number
           due_date_time: string
           urgent_date: string
           importance: number
+          importance_desc: string
           importance_rate: number
-          user_name: string[]
+          owner_names: string[]
           status_icon: string
           status_severity: string
         }[]
@@ -490,7 +494,7 @@ export interface Database {
           end_working_hour: string | null
           id: string
           name: string | null
-          start_working_hour: string
+          start_working_hour: string | null
         }[]
       }
       get_users_by_project_id: {
@@ -530,15 +534,43 @@ export interface Database {
         }
         Returns: Record<string, unknown>
       }
-      insert_user: {
+      insert_task: {
         Args: {
-          id: string
-          name: string
-          email: string
-          start_working_hour: string
-          end_working_hour: string
+          n_name: string
+          n_description: string
+          n_creator_id: string
+          n_owner_ids: string[]
+          n_status_code: number
+          n_due_date_time: string
+          n_urgent_date: string
+          n_importance: number
+          n_importance_rate: number
+          n_modified_at: string
+          n_modified_by: string
+          n_project_id: string
         }
-        Returns: string
+        Returns: {
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creator_name: string
+          creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
+          owner_ids: string[]
+          status: string
+          status_code: number
+          due_date_time: string
+          urgent_date: string
+          importance: number
+          importance_desc: string
+          importance_rate: number
+          owner_names: string[]
+          status_icon: string
+          status_severity: string
+        }[]
       }
       map_user_project: {
         Args: {
@@ -564,10 +596,7 @@ export interface Database {
         }
         Returns: {
           board_name: string
-          filter: Json | null
-          id: number
-          modified_at: string
-          user_id: string
+          filter: Json
         }[]
       }
       update_project_user_map: {
@@ -602,14 +631,18 @@ export interface Database {
           creator_id: string
           creator_name: string
           creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
           owner_ids: string[]
           status: string
           status_code: number
           due_date_time: string
           urgent_date: string
           importance: number
+          importance_desc: string
           importance_rate: number
-          user_name: string[]
+          owner_names: string[]
           status_icon: string
           status_severity: string
         }[]
@@ -630,7 +663,7 @@ export interface Database {
           end_working_hour: string | null
           id: string
           name: string | null
-          start_working_hour: string
+          start_working_hour: string | null
         }[]
       }
     }

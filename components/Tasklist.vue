@@ -4,7 +4,7 @@
       <template #list="slotProps">
         <div
           class="col-12 cursor-pointer hover:bg-primary-200 pb-1 pl-1"
-          @click="openEditTaskDialog(slotProps)"
+          @click="openTaskDialog(slotProps)"
         >
           <div class="">
             <p class="footnote-2 mb-0">
@@ -61,9 +61,9 @@ const formatDate = (dateString) => {
   return formattedDate.value;
 };
 
-const emit = defineEmits(["open-edit-task-dialog"]);
-const openEditTaskDialog = (props) => {
-  emit("open-edit-task-dialog", props);
+const emit = defineEmits(["open-task-dialog"]);
+const openTaskDialog = (props) => {
+  emit("open-task-dialog", props);
 };
 </script>
 
