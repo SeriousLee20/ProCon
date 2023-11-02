@@ -75,6 +75,7 @@
 
           <div class="flex gap-5">
             <Pcalendar
+              :pt="{ input: { style: 'box-shadow:none; border: none;' } }"
               id="filter-task-duedate-range"
               v-model="filterTaskDueDateRange"
               selectionMode="range"
@@ -83,7 +84,7 @@
               :hideOnRangeSelection="true"
               class="min-w-max"
               showButtonBar
-              @clear-click="getDefaultDueDateRange"
+              @clear-click="getDefaultDueDateRange(true)"
               @hide="
                 updateFilter(
                   'due_date_range',
@@ -94,10 +95,15 @@
             />
             <!-- sort by importance rate, status -->
             <Pdropdown
+              style="box-shadow: none; border: none"
               v-model="mainTaskSortOption"
               :options="mainTaskSortOptions"
               optionLabel="desc"
               optionValue="id"
+              @change="
+                updateFilter('sort_option', mainTaskSortOption, 'main_task')
+              "
+              class="w-12rem"
             />
           </div>
         </div>
@@ -134,6 +140,7 @@
           </div>
           <div
             class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
+            v-if="isAdmin"
           >
             <Pbutton
               icon="pi pi-plus"
@@ -181,7 +188,7 @@
         <div>
           <!-- TODO:edit card styling -->
           <Pcard
-            class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2"
+            class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2 h-24rem"
           >
             <template #title>
               <div class="grid justify-content-evenly">
@@ -225,16 +232,18 @@
                 :groupedUsers="groupedUsers"
                 :taskOptions="taskOptions"
                 :isEditTask="isEditTask"
+                :isAdmin="isAdmin"
                 @update-task="updateTask()"
                 @insert-task="insertTask()"
                 @close-task-dialog="toggleTaskDialog(null, false)"
+                @delete-task="deleteTask"
               />
             </template>
           </Pcard>
 
           <!-- TODO:change to Pcard -->
           <Pcard
-            class="mainpage-card border-primary-200 border-2 bg-white w-full"
+            class="mainpage-card border-primary-200 border-2 bg-white w-full h-22rem"
           >
             <template #title>
               <div class="grid justify-content-evenly">
@@ -376,7 +385,9 @@ const isEditTask = ref(false);
 const selectedTask = ref();
 //TODO:when filter is null, set to default range
 const filterTaskDueDateRange = ref();
-const mainShowMyTaskOnly = ref(false);
+const mainShowMyTaskOnly = ref(
+  getFilter("main_task").thisFilter.show_completed
+);
 const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
 const taskDueDatetime = ref();
 const taskUrgentDate = ref();
@@ -450,6 +461,7 @@ const setShowCompletedIcon = (show) => {
 
 const toggleShowMyTaskOnly = () => {
   mainShowMyTaskOnly.value = !mainShowMyTaskOnly.value;
+  updateFilter("show_my_task_only", mainShowMyTaskOnly.value, "main_task");
 };
 
 const toggleTaskShowCompleted = () => {
@@ -459,10 +471,9 @@ const toggleTaskShowCompleted = () => {
 const toggleMyTaskShowCompleted = () => {
   myTaskShowCompleted.value = !myTaskShowCompleted.value;
   updateFilter("show_completed", myTaskShowCompleted.value, "my_task");
-  // setShowCompletedIcon(myTaskShowCompleted.value, "myTask");
 };
 
-const getDefaultDueDateRange = () => {
+const getDefaultDueDateRange = (isClearClick) => {
   let temp_list = tasksRes.value.response.sort((t1, t2) =>
     t1.due_date_time > t2.due_date_time
       ? 1
@@ -472,28 +483,32 @@ const getDefaultDueDateRange = () => {
   );
 
   let dateRange = [
-    temp_list[0].due_date_time,
-    temp_list[temp_list.length - 1].due_date_time,
+    temp_list[0]?.due_date_time,
+    temp_list[temp_list.length - 1]?.due_date_time,
   ];
 
   filterTaskDueDateRange.value = [
-    new Date(dateRange[0]),
-    new Date(dateRange[1]),
+    dateRange[0] ? new Date(dateRange[0]) : null,
+    dateRange[1] ? new Date(dateRange[1]) : null,
   ];
+
+  if (isClearClick) {
+    updateFilter("due_date_range", filterTaskDueDateRange, "main_task");
+  }
   return { dateRange };
 };
 
-const sortList = (filteredList, listName) => {
+const sortList = (filteredList, listName, sortOptionName) => {
   const today = new Date();
   const filter = getFilter(listName).thisFilter;
-  const sortOption = getSortOptions("sort_option")?.filter(
+  const sortOption = getSortOptions(sortOptionName)?.filter(
     (op) => op.id == filter.sort_option
   )[0]?.col;
 
   filteredList = filteredList.map((task) => ({
     ...task,
-    urgent_date: task.urgent_date ? new Date(task.urgent_date) : null,
-    due_date_time: task.due_date_time ? new Date(task.due_date_time) : null,
+    urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
+    due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
   }));
 
   filteredList = filter.show_completed
@@ -520,19 +535,23 @@ const sortList = (filteredList, listName) => {
   if (listName == "main_task") {
     let dateRange = getDefaultDueDateRange().dateRange;
     if (filter.due_date_range) {
-      let temp_range = filter.due_date_range;
+      let tempRange = filter.due_date_range;
       dateRange =
-        temp_range[0] >= dateRange[0] && temp_range[1] <= dateRange[1]
-          ? [...temp_range]
+        tempRange[0] >= dateRange[0] && tempRange[1] <= dateRange[1]
+          ? [...tempRange]
           : [...dateRange];
     }
     filterTaskDueDateRange.value = [
-      new Date(dateRange[0]),
-      new Date(dateRange[1]),
+      dateRange[0] ? new Date(dateRange[0]) : null,
+      dateRange[1] ? new Date(dateRange[1]) : null,
     ];
-    filteredList.filter(
+    console.log("filter", filteredList, dateRange);
+    filteredList = filteredList.filter(
       (task) =>
-        task.due_date_time >= dateRange[0] && task.due_date_time <= dateRange[1]
+        new Date(new Date(task?.due_date_time).toDateString()) >=
+          new Date(dateRange[0]) &&
+        new Date(new Date(task?.due_date_time).toDateString()) <=
+          new Date(dateRange[1])
     );
 
     filteredList = filter.show_my_task_only
@@ -568,7 +587,11 @@ const sortList = (filteredList, listName) => {
 };
 
 const getMainTaskList = () => {
-  const filteredList = sortList(tasksRes.value.response, "main_task");
+  const filteredList = sortList(
+    tasksRes.value.response,
+    "main_task",
+    "main_task_sort_option"
+  );
   console.log("daterange", filterTaskDueDateRange.value);
   console.log(filteredList);
 
@@ -581,7 +604,7 @@ const getMyTaskList = () => {
     task.owner_ids?.includes(userId)
   );
 
-  filteredList = sortList(filteredList, "my_task");
+  filteredList = sortList(filteredList, "my_task", "sort_option");
   console.log("sort", filteredList);
   return { filteredList };
 };
@@ -613,13 +636,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
         urgent_date: null,
       };
     }
-    console.log(
-      "mytask props",
-      props,
-      selectedTask.value,
-      taskDueDatetime.value,
-      taskUrgentDate.value
-    );
+    console.log("mytask props", props, selectedTask.value);
   }
 };
 
@@ -635,7 +652,15 @@ const updateFilter = async (filterName, filterValue, boardName) => {
     headers: { "cache-control": "no-cache" },
   });
   filters = updateFilterRes;
-  myTaskList.value = getMyTaskList().filteredList;
+  switch (boardName) {
+    case "my_task":
+      myTaskList.value = getMyTaskList().filteredList;
+      break;
+
+    case "main_task":
+      getMainTaskList();
+      break;
+  }
   console.log(myTaskList.value);
   console.log("updatedfilter", updateFilterRes, updatedFilter);
 };
@@ -682,6 +707,26 @@ const insertTask = async () => {
 
   if (insertTaskRes.value.success) {
     tasksRes = insertTaskRes;
+    myTaskList.value = getMyTaskList().filteredList;
+    getMainTaskList();
+  }
+};
+
+const deleteTask = async () => {
+  taskDialog.value = false;
+
+  const { data: deleteTask } = await useFetch("/api/delete_task", {
+    method: "POST",
+    body: {
+      task_id: selectedTask.value.task_id,
+      project_id: projectid,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  console.log("dlt task", deleteTask.value, selectedTask.value);
+  if (deleteTask.value.success) {
+    tasksRes = deleteTask;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
   }

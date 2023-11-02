@@ -221,7 +221,7 @@ export interface Database {
           modified_at: string | null
           modified_by: string
           name: string
-          owner_ids: string[]
+          owner_ids: string[] | null
           project_id: string
           status_code: number | null
           urgent_date: string | null
@@ -237,7 +237,7 @@ export interface Database {
           modified_at?: string | null
           modified_by: string
           name: string
-          owner_ids: string[]
+          owner_ids?: string[] | null
           project_id: string
           status_code?: number | null
           urgent_date?: string | null
@@ -253,7 +253,7 @@ export interface Database {
           modified_at?: string | null
           modified_by?: string
           name?: string
-          owner_ids?: string[]
+          owner_ids?: string[] | null
           project_id?: string
           status_code?: number | null
           urgent_date?: string | null
@@ -347,6 +347,34 @@ export interface Database {
           n_project_id: string
         }
         Returns: Record<string, unknown>
+      }
+      delete_task: {
+        Args: {
+          n_task_id: string
+          n_project_id: string
+        }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creator_name: string
+          creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
+          owner_ids: string[]
+          status: string
+          status_code: number
+          due_date_time: string
+          urgent_date: string
+          importance: number
+          importance_desc: string
+          importance_rate: number
+          owner_names: string[]
+          status_icon: string
+          status_severity: string
+        }[]
       }
       get_all_project: {
         Args: Record<PropertyKey, never>

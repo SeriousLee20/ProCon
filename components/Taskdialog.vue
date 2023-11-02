@@ -13,14 +13,15 @@
         type="text"
         id="task-name"
         v-model="props.selectedTask.task_name"
+        :disabled="!props.isAdmin"
       />
     </div>
-    <div class="field">
+    <div class="field overflow-scroll h-25rem">
       <label for="task-desc">Description</label>
       <Peditor
         id="task-desc"
         v-model="props.selectedTask.task_desc"
-        class="min-h-full"
+        class="h-20rem"
       ></Peditor>
     </div>
     <div class="flex justify-content-between">
@@ -37,6 +38,7 @@
           :overlayVisible="true"
           :minDate="new Date()"
           :selectOtherMonths="true"
+          :disabled="!props.isAdmin"
         ></Pcalendar>
       </div>
       <div class="field">
@@ -48,6 +50,7 @@
           :minDate="new Date()"
           :maxDate="props.selectedTask.due_date_time"
           :selectOtherMonths="true"
+          :disabled="!props.isAdmin"
           showButtonBar
         ></Pcalendar>
       </div>
@@ -71,11 +74,16 @@
           optionLabel="desc"
           optionValue="id"
           class="w-12rem"
+          :disabled="!props.isAdmin"
         ></Pdropdown>
       </div>
       <div class="field" v-if="props.selectedTask.importance == 1">
         <label for="task-importanceRate">Importance Rate</label>
-        <Prating v-model="props.selectedTask.importance_rate" :stars="4">
+        <Prating
+          v-model="props.selectedTask.importance_rate"
+          :stars="4"
+          :disabled="!props.isAdmin"
+        >
           <template #onicon>
             <i class="pi pi-exclamation-triangle pt-2" style="color: red"></i>
           </template>
@@ -101,6 +109,7 @@
         display="chip"
         placeholder="Assign Task to"
         class="w-full"
+        :disabled="!props.isAdmin"
       >
         <template #optiongroup="slotProps">
           <div class="flex align-items-center">
@@ -111,7 +120,7 @@
     </div>
     <!-- add delete button -->
     <template #footer>
-      <div class="flex flex-column">
+      <div class="flex flex-column pt-3">
         <div v-if="props.isEditTask" class="align-self-start">
           <div>
             Created by {{ props.selectedTask.creator_name }} at
@@ -124,16 +133,26 @@
         </div>
         <div class="align-self-end">
           <Pbutton
+            label="Save"
+            icon="pi pi-check"
+            severity="success"
+            text
+            @click="saveTaskUpdate"
+          />
+          <Pbutton
             label="Cancel"
             icon="pi pi-times"
             text
             @click="closeTaskDialog"
           />
+
           <Pbutton
-            label="Save"
-            icon="pi pi-check"
+            v-if="props.isEditTask"
+            label="Delete"
+            icon="pi pi-trash"
+            severity="danger"
             text
-            @click="saveTaskUpdate"
+            @click="deleteTask"
           />
         </div>
       </div>
@@ -149,6 +168,7 @@ const props = defineProps([
   "groupedUsers",
   "taskOptions",
   "isEditTask",
+  "isAdmin",
 ]);
 
 // const taskDialogRef = toRef(props, "taskDialog");
@@ -165,7 +185,12 @@ const formatDate = (dateString) => {
   return formattedDate.value;
 };
 
-const emit = defineEmits(["close-task-dialog", "update-task", "insert-task"]);
+const emit = defineEmits([
+  "close-task-dialog",
+  "update-task",
+  "insert-task",
+  "delete-task",
+]);
 
 const closeTaskDialog = () => {
   emit("close-task-dialog");
@@ -179,6 +204,11 @@ const saveTaskUpdate = () => {
     emit("insert-task");
     console.log("insert", props.selectedTask);
   }
+};
+
+const deleteTask = () => {
+  console.log("dlt", props.selectedTask);
+  emit("delete-task", props.selectedTask);
 };
 </script>
 
