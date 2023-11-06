@@ -32,13 +32,8 @@
   <div>
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
-        <div class="flex justify-content-between">
-          <div class="flex gap-5">
-            <Showcompleted :showCompleted="taskShowCompleted" :handler="toggleTaskShowCompleted" />
-            <Showmytask :showMyTaskOnly="mainShowMyTaskOnly" :handler="toggleShowMyTaskOnly" />
-          </div>
-
-          <div class="flex gap-5">
+        <div class="flex justify-content-center">
+          <div class="flex gap-5 py-2 w-full flex justify-content-between">
             <Pcalendar :pt="{ input: { style: 'box-shadow:none; border: none;' } }" id="filter-task-duedate-range"
               v-model="filterTaskDueDateRange" selectionMode="range" dateFormat="M dd, y" placeholder="Filter Due Date(s)"
               :hideOnRangeSelection="true" class="min-w-max" showButtonBar @clear-click="getDefaultDueDateRange(true)"
@@ -52,7 +47,14 @@
             <!-- sort by importance rate, status -->
             <Sortoption :sort-options="mainTaskSortOptions" v-model="mainTaskSortOption" :handler="updateFilter"
               :filterName="'sort_option'" :boardName="'main_task'" />
+            <Showcompleted :showCompleted="taskShowCompleted" :handler="toggleTaskShowCompleted" />
+            <Showmytask :showMyTaskOnly="mainShowMyTaskOnly" :handler="toggleShowMyTaskOnly" />
+
           </div>
+
+          <!-- <div class="flex gap-5">
+
+          </div> -->
         </div>
         <div class="flex pt-2">
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
