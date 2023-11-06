@@ -1,13 +1,16 @@
 <template>
   <div v-if="showList">
-    <Pdataview :value="props.taskList" :pt="props.pt">
+    <Pdataview :value="props.taskList" :pt="{
+      column: { class: 'border-none' }
+    }">
       <template #list="slotProps">
-        <div class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round" @click="openTaskDialog(slotProps)">
+        <div class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
+          @click="openTaskDialog(slotProps)">
           <div class="">
             <p class="footnote-2 mb-0">
               {{ slotProps.data.task_name }}
             </p>
-            <!-- TODO: reorder when sort option change -->
+
             <div class="flex gap-1">
               <Ptag v-if="slotProps.data.status" :value="slotProps.data.status" rounded :icon="slotProps.data.status_icon"
                 :severity="slotProps.data.status_severity" class="max-h-1rem" />

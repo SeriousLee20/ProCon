@@ -33,7 +33,7 @@
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
         <div class="flex justify-content-center">
-          <div class="flex gap-5 py-2 w-full flex justify-content-between">
+          <div class="flex gap-5 w-full flex justify-content-between">
             <Pcalendar :pt="{ input: { style: 'box-shadow:none; border: none;' } }" id="filter-task-duedate-range"
               v-model="filterTaskDueDateRange" selectionMode="range" dateFormat="M dd, y" placeholder="Filter Due Date(s)"
               :hideOnRangeSelection="true" class="min-w-max" showButtonBar @clear-click="getDefaultDueDateRange(true)"
@@ -56,7 +56,7 @@
 
           </div> -->
         </div>
-        <div class="flex pt-2">
+        <div class="flex ">
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist :taskList="mainTaskList.q4" :pt="{ content: { class: 'bg-primary-100' } }"
@@ -110,7 +110,7 @@
         <!-- right panel -->
         <div>
           <!-- TODO:edit card styling -->
-          <Pcard class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2 h-24rem">
+          <Pcard class="border-round border-primary-200 border-2 bg-white w-full mb-2 h-24rem">
             <template #title>
               <div class="text-center">
                 <h5>My Tasks</h5>
@@ -138,7 +138,7 @@
           </Pcard>
 
           <!-- TODO:change to Pcard -->
-          <Pcard class="mainpage-card border-primary-200 border-2 bg-white w-full h-22rem">
+          <Pcard class="border-round border-primary-200 border-2 bg-white w-full h-22rem">
             <template #title>
               <div class="grid justify-content-evenly">
                 <div class="col-4 col-offset-4 text-center">
@@ -693,11 +693,6 @@ definePageMeta({
 h5 {
   font-weight: 700;
   font-size: 0.938rem;
-}
-
-.mainpage-card {
-  filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
-  border-radius: 30px;
 }
 
 .footnote-2 {
