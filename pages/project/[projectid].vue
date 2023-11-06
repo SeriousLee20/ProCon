@@ -59,7 +59,8 @@
         <div class="flex ">
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
-              <Tasklist :taskList="mainTaskList.q4" :pt="{ content: { class: 'bg-primary-100' } }"
+              <Tasklist :taskList="mainTaskList.q4"
+                :pt="{ content: { class: 'bg-primary-100' }, column: { class: 'border-none' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)" />
             </template>
           </Pcard>

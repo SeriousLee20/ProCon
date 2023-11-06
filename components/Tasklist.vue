@@ -1,8 +1,6 @@
 <template>
   <div v-if="showList">
-    <Pdataview :value="props.taskList" :pt="{
-      column: { class: 'border-none' }
-    }">
+    <Pdataview :value="props.taskList" :pt="props.pt">
       <template #list="slotProps">
         <div class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
           @click="openTaskDialog(slotProps)">
