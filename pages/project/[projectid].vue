@@ -55,21 +55,13 @@
       <div class="col-8">
         <div class="flex justify-content-between">
           <div class="flex gap-5">
-            <Pbutton
-              class="no-shadow"
-              :icon="setShowCompletedIcon(taskShowCompleted)"
-              @click="toggleTaskShowCompleted"
-              label="Completed"
-              size="small"
-              text
+            <Showcompleted
+              :showCompleted="taskShowCompleted"
+              :handler="toggleTaskShowCompleted"
             />
-            <Pbutton
-              class="no-shadow"
-              :icon="setShowMyTaskIcon(mainShowMyTaskOnly)"
-              @click="toggleShowMyTaskOnly"
-              label="My Task Only"
-              size="small"
-              text
+            <Showmytask
+              :showMyTaskOnly="mainShowMyTaskOnly"
+              :handler="toggleShowMyTaskOnly"
             />
           </div>
 
@@ -94,16 +86,12 @@
               "
             />
             <!-- sort by importance rate, status -->
-            <Pdropdown
-              style="box-shadow: none; border: none"
+            <Sortoption
+              :sort-options="mainTaskSortOptions"
               v-model="mainTaskSortOption"
-              :options="mainTaskSortOptions"
-              optionLabel="desc"
-              optionValue="id"
-              @change="
-                updateFilter('sort_option', mainTaskSortOption, 'main_task')
-              "
-              class="w-12rem"
+              :handler="updateFilter"
+              :filterName="'sort_option'"
+              :boardName="'main_task'"
             />
           </div>
         </div>
@@ -195,27 +183,20 @@
                 <div
                   class="col-4 flex align-items-center justify-content-start"
                 >
-                  <Pbutton
-                    class="no-shadow"
-                    :icon="setShowCompletedIcon(myTaskShowCompleted)"
-                    @click="toggleMyTaskShowCompleted"
-                    label="Completed"
-                    size="small"
-                    text
-                  ></Pbutton>
+                  <Showcompleted
+                    :showCompleted="myTaskShowCompleted"
+                    :handler="toggleMyTaskShowCompleted"
+                  />
                 </div>
                 <div class="col-3 text-center"><h5>My Tasks</h5></div>
                 <div class="col-3 flex justify-content-end align-items-center">
-                  <Pdropdown
-                    style="box-shadow: none; border: none"
+                  <Sortoption
+                    :sort-options="myTaskSortOptions"
                     v-model="myTaskSortOption"
-                    :options="myTaskSortOptions"
-                    optionLabel="desc"
-                    optionValue="id"
-                    @change="
-                      updateFilter('sort_option', myTaskSortOption, 'my_task')
-                    "
-                  ></Pdropdown>
+                    :handler="updateFilter"
+                    :filterName="'sort_option'"
+                    :boardName="'my_task'"
+                  />
                 </div>
               </div>
             </template>
@@ -227,6 +208,7 @@
               />
 
               <Taskdialog
+                v-model:visible="taskDialog"
                 :taskDialog="taskDialog"
                 :selectedTask="selectedTask"
                 :groupedUsers="groupedUsers"
@@ -383,7 +365,6 @@ const mainTaskSortOptions = getSortOptions("main_task_sort_option");
 const taskDialog = ref(false);
 const isEditTask = ref(false);
 const selectedTask = ref();
-//TODO:when filter is null, set to default range
 const filterTaskDueDateRange = ref();
 const mainShowMyTaskOnly = ref(
   getFilter("main_task").thisFilter.show_completed
@@ -451,13 +432,6 @@ if (Array.isArray(projectMember)) {
 groupedUsers.value = [...formattedData];
 
 console.log("useroption", userOptions);
-const setShowMyTaskIcon = (show) => {
-  return show ? "pi pi-check-circle" : "pi pi-circle";
-};
-
-const setShowCompletedIcon = (show) => {
-  return show ? "pi pi-eye" : "pi pi-eye-slash";
-};
 
 const toggleShowMyTaskOnly = () => {
   mainShowMyTaskOnly.value = !mainShowMyTaskOnly.value;
@@ -548,10 +522,11 @@ const sortList = (filteredList, listName, sortOptionName) => {
     console.log("filter", filteredList, dateRange);
     filteredList = filteredList.filter(
       (task) =>
-        new Date(new Date(task?.due_date_time).toDateString()) >=
+        (new Date(new Date(task?.due_date_time).toDateString()) >=
           new Date(dateRange[0]) &&
-        new Date(new Date(task?.due_date_time).toDateString()) <=
-          new Date(dateRange[1])
+          new Date(new Date(task?.due_date_time).toDateString()) <=
+            new Date(dateRange[1])) ||
+        !task?.due_date_time
     );
 
     filteredList = filter.show_my_task_only

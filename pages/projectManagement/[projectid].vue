@@ -688,8 +688,8 @@ const addPosition = async () => {
   let existedPosition = [];
   let addedPosition = [];
 
+  console.log(newPosition.value);
   if (newPosition.value.length > 0) {
-    console.log(newPosition.value);
     newPosition.value.forEach((newPos) => {
       if (!positions.value.find((oldPos) => oldPos.user_position == newPos)) {
         hasNewPosition = true;

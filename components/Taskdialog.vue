@@ -1,7 +1,6 @@
 <template>
   <Pdialog
-    v-model:visible="props.taskDialog"
-    @update:visible="closeTaskDialog"
+    v-if="props.taskDialog"
     style="width: 80%"
     header="Edit Task"
     :modal="true"
@@ -26,7 +25,6 @@
     </div>
     <div class="flex justify-content-between">
       <div class="field">
-        <!-- TODO: add min max value -->
         <label for="task-due-datetime">Due Datetime</label>
         <Pcalendar
           id="task-due-datetime"
@@ -118,7 +116,6 @@
         </template>
       </Pmultiselect>
     </div>
-    <!-- add delete button -->
     <template #footer>
       <div class="flex flex-column pt-3">
         <div v-if="props.isEditTask" class="align-self-start">
@@ -143,7 +140,7 @@
             label="Cancel"
             icon="pi pi-times"
             text
-            @click="closeTaskDialog"
+            @click="$emit('update:visible', false)"
           />
 
           <Pbutton
@@ -162,14 +159,18 @@
 </template>
 
 <script setup>
-const props = defineProps([
-  "taskDialog",
-  "selectedTask",
-  "groupedUsers",
-  "taskOptions",
-  "isEditTask",
-  "isAdmin",
-]);
+const props = defineProps({
+  taskDialog: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  selectedTask: {},
+  groupedUsers: {},
+  taskOptions: {},
+  isEditTask: {},
+  isAdmin: {},
+});
 
 // const taskDialogRef = toRef(props, "taskDialog");
 // watch(taskDialogRef, (value) => {

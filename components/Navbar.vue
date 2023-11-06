@@ -43,11 +43,11 @@
           <Pbutton type="button" icon="pi pi-comment" />
           <Pbutton type="button" icon="pi pi-inbox" />
         </div>
-        <Pbutton
+        <!-- <Pbutton
           type="button"
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
-        />
+        /> -->
         <Pbutton
           type="button"
           icon="pi pi-user"
