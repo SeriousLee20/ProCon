@@ -66,12 +66,14 @@ export interface Database {
           {
             foreignKeyName: "announcement_creator_id_fkey"
             columns: ["creator_id"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "announcement_project_id_fkey"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           }
@@ -103,6 +105,7 @@ export interface Database {
           {
             foreignKeyName: "filters_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           }
@@ -140,12 +143,14 @@ export interface Database {
           {
             foreignKeyName: "map_project_project_id_fkey"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "map_project_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           }
@@ -204,6 +209,7 @@ export interface Database {
           {
             foreignKeyName: "project_creator_id_fkey"
             columns: ["creator_id"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           }
@@ -262,12 +268,21 @@ export interface Database {
           {
             foreignKeyName: "task_creator_id_fkey"
             columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_modified_by_fkey"
+            columns: ["modified_by"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "task_project_id_fkey"
             columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project"
             referencedColumns: ["id"]
           }
@@ -511,6 +526,35 @@ export interface Database {
           status_severity: string
         }[]
       }
+      get_task_by_user: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creator_name: string
+          creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
+          owner_ids: string[]
+          status: string
+          status_code: number
+          due_date_time: string
+          urgent_date: string
+          importance: number
+          importance_desc: string
+          importance_rate: number
+          owner_names: string[]
+          status_icon: string
+          status_severity: string
+        }[]
+      }
       get_user: {
         Args: {
           user_id: string[]
@@ -713,6 +757,7 @@ export interface Database {
           id: string
           name: string
           owner: string | null
+          owner_id: string | null
           public: boolean | null
           updated_at: string | null
         }
@@ -724,6 +769,7 @@ export interface Database {
           id: string
           name: string
           owner?: string | null
+          owner_id?: string | null
           public?: boolean | null
           updated_at?: string | null
         }
@@ -735,17 +781,11 @@ export interface Database {
           id?: string
           name?: string
           owner?: string | null
+          owner_id?: string | null
           public?: boolean | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "buckets_owner_fkey"
-            columns: ["owner"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       migrations: {
         Row: {
@@ -777,6 +817,7 @@ export interface Database {
           metadata: Json | null
           name: string | null
           owner: string | null
+          owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
           version: string | null
@@ -789,6 +830,7 @@ export interface Database {
           metadata?: Json | null
           name?: string | null
           owner?: string | null
+          owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
           version?: string | null
@@ -801,6 +843,7 @@ export interface Database {
           metadata?: Json | null
           name?: string | null
           owner?: string | null
+          owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
           version?: string | null
@@ -809,13 +852,8 @@ export interface Database {
           {
             foreignKeyName: "objects_bucketId_fkey"
             columns: ["bucket_id"]
+            isOneToOne: false
             referencedRelation: "buckets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "objects_owner_fkey"
-            columns: ["owner"]
-            referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]

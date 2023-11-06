@@ -42,6 +42,7 @@ console.log("ov selected project", dstore.getSelectedProject);
 
 const { data: parameters } = await useFetch("/api/get_parameters");
 var { data: filters } = await useFetch("/api/get_filters");
+var { data: all_project_tasks } = await useFetch("/api/get_task_by_user");
 
 const getSortOptions = (listName) => {
   return parameters.value.response.filter(
@@ -56,6 +57,22 @@ const getFilter = (listName) => {
   console.log("sortoption", thisFilter);
   return { thisFilter };
 };
+
+const sortTasks = () => {
+  const taskList = all_project_tasks.value.response;
+  let taskGroupedByProject = taskList.reduce((groupedList, task) => {
+    const project = task.project_name;
+    (groupedList[project] = groupedList[project] || []).push(task);
+    return groupedList;
+  }, {});
+
+  let groupedTaskList = Object.keys(taskGroupedByProject).map((project) => ({
+    project,
+    tasks: taskGroupedByProject[project],
+  }));
+  return { groupedTaskList };
+};
+console.log("groupedtasklist", sortTasks().groupedTaskList);
 
 const showCompletedTask = ref(getFilter("overview").thisFilter.show_completed);
 const showMyTaskOnly = ref(getFilter("overview").thisFilter.show_my_task_only);
