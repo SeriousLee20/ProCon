@@ -9,7 +9,7 @@
       <div class="col flex justify-content-center align-content-center">
         <div>
           <Pdropdown
-            id="event-ddlist"
+            id="project-ddlist"
             v-model="selectedProject"
             :options="project"
             optionLabel="name"
@@ -22,7 +22,7 @@
             type="button"
             icon="pi pi-sliders-h"
             @click="toggle"
-            aria-label="edit_event"
+            aria-label="edit_project"
             aria-haspopup="true"
             aria-controls="edit_menu"
           />
@@ -43,11 +43,11 @@
           <Pbutton type="button" icon="pi pi-comment" />
           <Pbutton type="button" icon="pi pi-inbox" />
         </div>
-        <Pbutton
+        <!-- <Pbutton
           type="button"
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
-        />
+        /> -->
         <Pbutton
           type="button"
           icon="pi pi-user"
@@ -68,7 +68,9 @@ import { ref } from "vue";
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 // const { currentProject, setCurrentProject } = useCurrentProject();
-const dateToday = useDateFormat(useNow(), "MMM DD, YYYY");
+const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
+  locales: "en-US",
+});
 // const menu = ref();
 // const isShowButton = ref(false);
 // const menuItems = ref([]);
@@ -86,18 +88,18 @@ function configEditMenuList() {
   const editMenu = [];
   if (dstore.getSelectedProject?.role == "Admin") {
     editMenu.push({
-      label: "Edit Event",
-      command: () => switchPage("/eventManagement", "Edit Event"),
+      label: "Edit Project",
+      command: () => switchPage("/projectManagement", "Edit Project"),
     });
   }
   editMenu.push(
     {
-      label: "Create New Event",
-      command: () => switchPage("/createEvent", "Create Event"),
+      label: "Create New Project",
+      command: () => switchPage("/createProject", "Create Project"),
     },
     {
-      label: "Join Event",
-      command: () => switchPage("/joinEvent", "Join Event"),
+      label: "Join Project",
+      command: () => switchPage("/joinProject", "Join Project"),
     }
   );
   return { editMenu };
@@ -115,7 +117,7 @@ function onChangeSelectedProject(event) {
     navigateTo("/overview");
   } else {
     isShowButton.value = true;
-    navigateTo(`/event/${event.value}`);
+    navigateTo(`/project/${event.value}`);
   }
 
   // setCurrentProject(event.value);
@@ -125,7 +127,7 @@ function onChangeSelectedProject(event) {
   menuItems.value = configEditMenuList().editMenu;
   dstore.setCurrentPage(event.value);
 
-  console.log("changed event", event);
+  console.log("changed Project", event);
   console.log("updated selected project", dstore.getSelectedProject);
   console.log(
     "selectedproject value",
@@ -138,7 +140,7 @@ function onChangeSelectedProject(event) {
 
 function switchPage(routeName, pageName) {
   console.log(routeName, pageName);
-  if (pageName == "Edit Event") {
+  if (pageName == "Edit Project") {
     console.log("split route name", routeName.split("/"));
     const projectId = routeName.split("/")[2];
     console.log(projectId);
@@ -147,7 +149,7 @@ function switchPage(routeName, pageName) {
       ddplaceholder.value = "";
       project.value = dstore.getAllProjects;
       console.log(
-        "redirect to event management",
+        "redirect to project management",
         projectId,
         selectedProject.value,
         ddplaceholder.value,
@@ -158,7 +160,7 @@ function switchPage(routeName, pageName) {
       var finalRouteName = routeName + "/" + selectedProject?.value;
       navigateTo(finalRouteName);
     }
-  } else if (pageName != "Overview" && pageName != "Edit Event") {
+  } else if (pageName != "Overview" && pageName != "Edit Project") {
     ddplaceholder.value = pageName;
     dstore.setCurrentPage(pageName);
     selectedProject.value = null;
@@ -199,7 +201,7 @@ var selectedProject = ref(dstore.getSelectedProject?.id);
 
 export const switchPage = (routeName, pageName) => {
   console.log(routeName, pageName);
-  if (pageName == "Edit Event" || pageName == "Event") {
+  if (pageName == "Edit Project" || pageName == "Project") {
     console.log("split route name", routeName.split("/"));
     const projectId = routeName.split("/")[2];
     console.log(projectId);
@@ -208,7 +210,7 @@ export const switchPage = (routeName, pageName) => {
       ddplaceholder.value = "";
       project.value = dstore.getAllProjects;
       console.log(
-        "redirect to event management",
+        "redirect to project management",
         projectId,
         selectedProject.value,
         ddplaceholder.value,
@@ -219,7 +221,7 @@ export const switchPage = (routeName, pageName) => {
       var finalRouteName = routeName + "/" + selectedProject?.value;
       navigateTo(finalRouteName);
     }
-  } else if (pageName != "Overview" && pageName != "Edit Event") {
+  } else if (pageName != "Overview" && pageName != "Edit Project") {
     ddplaceholder.value = pageName;
     dstore.setCurrentPage(pageName);
     selectedProject.value = null;
@@ -242,14 +244,14 @@ export const switchPage = (routeName, pageName) => {
 //     navigateTo("/overview");
 //   } else {
 //     isShowButton.value = true;
-//     navigateTo(`/event/${event.value}`);
+//     navigateTo(`/project/${event.value}`);
 //   }
 
 //   dstore.setSelectedProject(event.value);
 //   menuItems.value = configEditMenuList().editMenu;
 //   dstore.setCurrentPage(event.value);
 
-//   console.log("changed event", event);
+//   console.log("changed project", event);
 //   console.log("updated selected project", dstore.getSelectedProject);
 //   console.log(
 //     "selectedproject value",
@@ -265,18 +267,18 @@ export const switchPage = (routeName, pageName) => {
 //   const editMenu = [];
 //   if (dstore.getSelectedProject?.role == "Admin") {
 //     editMenu.push({
-//       label: "Edit Event",
-//       command: () => switchPage("/eventManagement", "Edit Event"),
+//       label: "Edit Project",
+//       command: () => switchPage("/projectManagement", "Edit Project"),
 //     });
 //   }
 //   editMenu.push(
 //     {
-//       label: "Create New Event",
-//       command: () => switchPage("/createEvent", "Create Event"),
+//       label: "Create New Project",
+//       command: () => switchPage("/createProject", "Create Project"),
 //     },
 //     {
-//       label: "Join Event",
-//       command: () => switchPage("/joinEvent", "Join Event"),
+//       label: "Join Project",
+//       command: () => switchPage("/joinProject", "Join Project"),
 //     }
 //   );
 //   return { editMenu };
@@ -286,7 +288,7 @@ export const switchPage = (routeName, pageName) => {
 </script>
 
 <style lang="css" scoped>
-#event-ddlist {
+#project-ddlist {
   max-width: 80%;
 }
 </style>

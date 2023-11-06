@@ -68,7 +68,7 @@ export async function refreshDatastore(pageName, selectedProject) {
   console.log("refresh ds", data);
 
   const dstore = useDataStore();
-  const userData = data.value;
+  const userData = data.value.response;
 
   dstore.clearData();
 
@@ -93,17 +93,17 @@ export async function refreshDatastore(pageName, selectedProject) {
     userData.forEach((data) => {
       console.log(data);
       dstore.createProject({
-        id: data.event_id,
-        name: data.event_name,
+        id: data.project_id,
+        name: data.project_name,
         role: data.user_role,
-        description: data.event_desc,
-        creator_id: data.event_creator_id,
+        description: data.project_desc,
+        creator_id: data.project_creator_id,
         is_show_project_in_overview: data.is_show_in_overview,
       });
       // dstore.createAnnouncement({
       //   id: data.announcement_id,
       //   name: data.announcement_name,
-      //   project_id: data.event_id,
+      //   project_id: data.project_id,
       //   creator_id: data.announcement_creator_id,
       //   creation_date_time: data.announcement_creation_timestamp,
       //   description: data.announcement_desc,

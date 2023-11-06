@@ -1,0 +1,828 @@
+<template>
+  <form
+    @submit="addAnnouncement()"
+    v-if="isOpenAnnouncementModal"
+    class="fixed top-0 left-0 w-screen h-screen disabled-div bg-black-alpha-70 z-5 flex justify-content-center align-items-center"
+  >
+    <div
+      class="form-modal bg-white flex flex-column gap-6 px-4 py-5 align-items-center"
+    >
+      <div class="py-2"><h3>Add Announcement</h3></div>
+      <span class="p-float-label">
+        <Pinputtext
+          id="title"
+          v-model="announcementTitle"
+          type="text"
+          required
+        />
+        <label for="title">Title</label>
+      </span>
+      <span class="p-float-label">
+        <Ptextarea
+          id="description"
+          v-model="announcementDesc"
+          type="text"
+          required
+        />
+        <label for="description">Description</label>
+      </span>
+      <Pmultiselect
+        v-model="announcementReceivers"
+        :options="groupedUsers"
+        optionLabel="username"
+        optionGroupLabel="department"
+        filter
+        optionGroupChildren="users"
+        display="chip"
+        placeholder="Select members to notify"
+        class="w-full md:w-20rem"
+      >
+        <template #optiongroup="slotProps">
+          <div class="flex align-items-center">
+            <div>{{ slotProps.option.department }}</div>
+          </div>
+        </template>
+      </Pmultiselect>
+      <div class="flex gap-2 align-items-center">
+        <Pbutton type="submit">Add</Pbutton>
+        <Pbutton @click="closeAnnouncementModal()">Close</Pbutton>
+      </div>
+    </div>
+  </form>
+
+  <div>
+    <div class="h-screen grid p-4 pt-2">
+      <div class="col-8">
+        <div class="flex justify-content-between">
+          <div class="flex gap-5">
+            <Showcompleted
+              :showCompleted="taskShowCompleted"
+              :handler="toggleTaskShowCompleted"
+            />
+            <Showmytask
+              :showMyTaskOnly="mainShowMyTaskOnly"
+              :handler="toggleShowMyTaskOnly"
+            />
+          </div>
+
+          <div class="flex gap-5">
+            <Pcalendar
+              :pt="{ input: { style: 'box-shadow:none; border: none;' } }"
+              id="filter-task-duedate-range"
+              v-model="filterTaskDueDateRange"
+              selectionMode="range"
+              dateFormat="M dd, y"
+              placeholder="Filter Due Date(s)"
+              :hideOnRangeSelection="true"
+              class="min-w-max"
+              showButtonBar
+              @clear-click="getDefaultDueDateRange(true)"
+              @hide="
+                updateFilter(
+                  'due_date_range',
+                  filterTaskDueDateRange,
+                  'main_task'
+                )
+              "
+            />
+            <!-- sort by importance rate, status -->
+            <Sortoption
+              :sort-options="mainTaskSortOptions"
+              v-model="mainTaskSortOption"
+              :handler="updateFilter"
+              :filterName="'sort_option'"
+              :boardName="'main_task'"
+            />
+          </div>
+        </div>
+        <div class="flex pt-2">
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q4"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-task-dialog="toggleTaskDialog($event, true)"
+              />
+            </template>
+          </Pcard>
+          <div
+            class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
+          >
+            <div class="-rotate-90">IMPORTANT</div>
+          </div>
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q1"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-task-dialog="toggleTaskDialog($event, true)"
+              />
+            </template>
+          </Pcard>
+        </div>
+        <div class="flex">
+          <div
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
+          >
+            NOT URGENT
+          </div>
+          <div
+            class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
+            v-if="isAdmin"
+          >
+            <Pbutton
+              icon="pi pi-plus"
+              @click="toggleTaskDialog(null, false)"
+              rounded
+            />
+          </div>
+          <div
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
+          >
+            URGENT
+          </div>
+        </div>
+        <div class="flex">
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q3"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-task-dialog="toggleTaskDialog($event, true)"
+              />
+            </template>
+          </Pcard>
+          <div
+            class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
+          >
+            <div class="-rotate-90 w-21rem" style="white-space: nowrap">
+              NOT IMPORTANT
+            </div>
+          </div>
+          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+            <template #content>
+              <Tasklist
+                :taskList="mainTaskList.q2"
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-task-dialog="toggleTaskDialog($event, true)"
+              />
+            </template>
+          </Pcard>
+        </div>
+      </div>
+
+      <div class="col-4">
+        <!-- right panel -->
+        <div>
+          <!-- TODO:edit card styling -->
+          <Pcard
+            class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2 h-24rem"
+          >
+            <template #title>
+              <div class="grid justify-content-evenly">
+                <div
+                  class="col-4 flex align-items-center justify-content-start"
+                >
+                  <Showcompleted
+                    :showCompleted="myTaskShowCompleted"
+                    :handler="toggleMyTaskShowCompleted"
+                  />
+                </div>
+                <div class="col-3 text-center"><h5>My Tasks</h5></div>
+                <div class="col-3 flex justify-content-end align-items-center">
+                  <Sortoption
+                    :sort-options="myTaskSortOptions"
+                    v-model="myTaskSortOption"
+                    :handler="updateFilter"
+                    :filterName="'sort_option'"
+                    :boardName="'my_task'"
+                  />
+                </div>
+              </div>
+            </template>
+            <template #content>
+              <Tasklist
+                class="h-15rem overflow-scroll"
+                :taskList="myTaskList"
+                @open-task-dialog="toggleTaskDialog($event, true)"
+              />
+
+              <Taskdialog
+                v-model:visible="taskDialog"
+                :taskDialog="taskDialog"
+                :selectedTask="selectedTask"
+                :groupedUsers="groupedUsers"
+                :taskOptions="taskOptions"
+                :isEditTask="isEditTask"
+                :isAdmin="isAdmin"
+                @update-task="updateTask()"
+                @insert-task="insertTask()"
+                @close-task-dialog="toggleTaskDialog(null, false)"
+                @delete-task="deleteTask"
+              />
+            </template>
+          </Pcard>
+
+          <!-- TODO:change to Pcard -->
+          <Pcard
+            class="mainpage-card border-primary-200 border-2 bg-white w-full h-22rem"
+          >
+            <template #title>
+              <div class="grid justify-content-evenly">
+                <div class="col-3 col-offset-5 text-center">
+                  <h5>Announcements</h5>
+                </div>
+
+                <div class="col-3 flex justify-content-end align-self-center">
+                  <Pbutton
+                    v-if="isAdmin"
+                    @click="openAnnouncementModal()"
+                    icon="pi pi-plus"
+                    rounded
+                    outlined
+                    aria-label="Filter"
+                    size="small"
+                  />
+                </div>
+              </div>
+            </template>
+            <template #content>
+              <ClientOnly>
+                <div v-if="filteredAnnouncements.length > 0">
+                  <div
+                    class="px-2 py-2 overflow-y-scroll line-height-1 h-12rem"
+                  >
+                    <div
+                      v-for="announcement in filteredAnnouncements"
+                      :key="announcement.id"
+                    >
+                      <div
+                        class="w-full flex align-items-center justify-content-between"
+                      >
+                        <div class="flex gap-2 align-content-center">
+                          <p class="footnote-2">
+                            {{ announcement.name ?? "" }}
+                          </p>
+                          <i
+                            class="pi pi-info-circle text-base text-color-secondary"
+                            v-tooltip.top="
+                              announcement.description ??
+                              'No description provided'
+                            "
+                          ></i>
+                        </div>
+
+                        <p class="footnote">
+                          {{
+                            formatDate(announcement.creation_timestamp) ?? ""
+                          }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="flex align-items-center justify-content-center h-12rem"
+                  v-if="
+                    filteredAnnouncements.length === 0 || !filteredAnnouncements
+                  "
+                >
+                  <p class="footnote">No Announcements!</p>
+                </div>
+              </ClientOnly>
+            </template>
+          </Pcard>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { useDataStore } from "~/stores/datastore";
+import { useNow, useDateFormat } from "@vueuse/core";
+import { useToast } from "primevue/usetoast";
+import { ref, onMounted } from "vue";
+
+const { projectid } = useRoute().params;
+const { auth } = useSupabaseAuthClient();
+const dstore = useDataStore();
+const userId = dstore.getUserId;
+dstore.setSelectedProject(projectid);
+dstore.setCurrentPage("");
+
+const toast = useToast();
+const groupedUsers = ref([]);
+let announcements = [];
+// let filteredAnnouncements = [];
+let userOptions = [];
+
+const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
+const { data: parameters } = await useFetch("/api/get_parameters");
+var { data: filters } = await useFetch("/api/get_filters");
+var { data: tasksRes } = await useFetch("/api/get_task_by_project", {
+  method: "POST",
+  body: { project_id: projectid },
+  headers: { "cache-control": "no-cache" },
+});
+const { data: projectMemberRes } = await useFetch("/api/get_management_board", {
+  method: "POST",
+  body: { project_id: projectid },
+  headers: { "cache-control": "no-cache" },
+});
+const { data: projectAnnouncementRes } = await useFetch(
+  "/api/get_announcement",
+  {
+    method: "POST",
+    body: { project_id: projectid },
+    headers: { "cache-control": "no-cache" },
+  }
+);
+
+const getSortOptions = (listName) => {
+  return parameters.value.response.filter(
+    (param) => param.param_name == listName
+  )[0].param_list;
+};
+
+console.log("filters", filters);
+
+const getFilter = (listName) => {
+  const thisFilter = filters.value.response.filter(
+    (item) => item.board_name == listName
+  )[0]?.filter;
+  console.log("sortoption", thisFilter);
+  return { thisFilter };
+};
+
+const taskOptions = {
+  importance: getSortOptions("importance"),
+  status: getSortOptions("task_status"),
+};
+
+const myTaskSortOptions = getSortOptions("sort_option");
+const mainTaskSortOptions = getSortOptions("main_task_sort_option");
+const taskDialog = ref(false);
+const isEditTask = ref(false);
+const selectedTask = ref();
+const filterTaskDueDateRange = ref();
+const mainShowMyTaskOnly = ref(
+  getFilter("main_task").thisFilter.show_completed
+);
+const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
+const taskDueDatetime = ref();
+const taskUrgentDate = ref();
+const mainTaskList = ref({});
+const myTaskList = ref();
+const myTaskSortOption = ref(getFilter("my_task").thisFilter.sort_option);
+const myTaskShowCompleted = ref(getFilter("my_task").thisFilter.show_completed);
+const taskShowCompleted = ref(
+  getFilter("main_task").thisFilter?.show_completed
+);
+const projectMember = projectMemberRes.value.response;
+const isOpenAnnouncementModal = ref(false);
+const announcementTitle = ref(null);
+const announcementDesc = ref(null);
+const announcementReceivers = ref([]);
+const announcementReceiverArr = ref([]);
+
+console.log("mytask", tasksRes.value.response, myTaskList);
+console.log("param", parameters);
+console.log("filters", filters);
+console.log("task", tasksRes);
+console.log("current projectid", projectid);
+console.log("isAdmin", dstore.getSelectedProject, isAdmin);
+
+const groupMember = projectMember.reduce((result, item) => {
+  const department = item.user_department;
+
+  if (!result[department]) {
+    result[department] = [];
+  }
+
+  const itemWithoutDepartment = { ...item };
+  delete itemWithoutDepartment.user_department;
+
+  result[department].push(itemWithoutDepartment);
+
+  return result;
+}, {});
+
+const formattedData = Object.keys(groupMember).map((department) => ({
+  department,
+  users: groupMember[department],
+}));
+
+console.log("groupmember", groupMember, formattedData);
+console.log("groupedUsers", groupedUsers);
+console.log("projectmember", projectMember);
+
+if (Array.isArray(projectMember)) {
+  userOptions = projectMember.map((user) => ({
+    label: user.username,
+    value: user.user_id,
+  }));
+} else {
+  userOptions = {
+    label: projectMember.usernme,
+    value: projectMember.user_id,
+  };
+}
+
+groupedUsers.value = [...formattedData];
+
+console.log("useroption", userOptions);
+
+const toggleShowMyTaskOnly = () => {
+  mainShowMyTaskOnly.value = !mainShowMyTaskOnly.value;
+  updateFilter("show_my_task_only", mainShowMyTaskOnly.value, "main_task");
+};
+
+const toggleTaskShowCompleted = () => {
+  taskShowCompleted.value = !taskShowCompleted.value;
+  updateFilter("show_completed", taskShowCompleted.value, "main_task");
+};
+const toggleMyTaskShowCompleted = () => {
+  myTaskShowCompleted.value = !myTaskShowCompleted.value;
+  updateFilter("show_completed", myTaskShowCompleted.value, "my_task");
+};
+
+const getDefaultDueDateRange = (isClearClick) => {
+  let temp_list = tasksRes.value.response.sort((t1, t2) =>
+    t1.due_date_time > t2.due_date_time
+      ? 1
+      : t1.due_date_time < t2.due_date_time
+      ? -1
+      : 0
+  );
+
+  let dateRange = [
+    temp_list[0]?.due_date_time,
+    temp_list[temp_list.length - 1]?.due_date_time,
+  ];
+
+  filterTaskDueDateRange.value = [
+    dateRange[0] ? new Date(dateRange[0]) : null,
+    dateRange[1] ? new Date(dateRange[1]) : null,
+  ];
+
+  if (isClearClick) {
+    updateFilter("due_date_range", filterTaskDueDateRange, "main_task");
+  }
+  return { dateRange };
+};
+
+const sortList = (filteredList, listName, sortOptionName) => {
+  const today = new Date();
+  const filter = getFilter(listName).thisFilter;
+  const sortOption = getSortOptions(sortOptionName)?.filter(
+    (op) => op.id == filter.sort_option
+  )[0]?.col;
+
+  filteredList = filteredList.map((task) => ({
+    ...task,
+    urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
+    due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
+  }));
+
+  filteredList = filter.show_completed
+    ? filteredList
+    : filteredList.filter((item) => item.status != "Completed");
+
+  filteredList =
+    sortOption == "importance_rate"
+      ? filteredList.sort((t1, t2) =>
+          t1[sortOption] < t2[sortOption]
+            ? 1
+            : t1[sortOption] > t2[sortOption]
+            ? -1
+            : 0
+        )
+      : filteredList.sort((t1, t2) =>
+          t1[sortOption] > t2[sortOption]
+            ? 1
+            : t1[sortOption] < t2[sortOption]
+            ? -1
+            : 0
+        );
+
+  if (listName == "main_task") {
+    let dateRange = getDefaultDueDateRange().dateRange;
+    if (filter.due_date_range) {
+      let tempRange = filter.due_date_range;
+      dateRange =
+        tempRange[0] >= dateRange[0] && tempRange[1] <= dateRange[1]
+          ? [...tempRange]
+          : [...dateRange];
+    }
+    filterTaskDueDateRange.value = [
+      dateRange[0] ? new Date(dateRange[0]) : null,
+      dateRange[1] ? new Date(dateRange[1]) : null,
+    ];
+    console.log("filter", filteredList, dateRange);
+    filteredList = filteredList.filter(
+      (task) =>
+        (new Date(new Date(task?.due_date_time).toDateString()) >=
+          new Date(dateRange[0]) &&
+          new Date(new Date(task?.due_date_time).toDateString()) <=
+            new Date(dateRange[1])) ||
+        !task?.due_date_time
+    );
+
+    filteredList = filter.show_my_task_only
+      ? filteredList.filter((task) => task.owner_ids == userId)
+      : filteredList;
+
+    mainTaskList.value["q1"] = [];
+    mainTaskList.value["q2"] = [];
+    mainTaskList.value["q3"] = [];
+    mainTaskList.value["q4"] = [];
+    filteredList.forEach((task) => {
+      // urgent
+      if (task.urgent_date && new Date(task.urgent_date) <= today) {
+        if (task.importance == 1) {
+          mainTaskList.value.q1.push(task);
+        } else {
+          mainTaskList.value.q2.push(task);
+        }
+      } else {
+        // not urgent
+        if (task.importance == 1) {
+          mainTaskList.value.q4.push(task);
+        } else {
+          mainTaskList.value.q3.push(task);
+        }
+      }
+    });
+
+    console.log("maintasklist", mainTaskList.value);
+  }
+
+  return filteredList;
+};
+
+const getMainTaskList = () => {
+  const filteredList = sortList(
+    tasksRes.value.response,
+    "main_task",
+    "main_task_sort_option"
+  );
+  console.log("daterange", filterTaskDueDateRange.value);
+  console.log(filteredList);
+
+  return { filteredList };
+};
+getMainTaskList();
+
+const getMyTaskList = () => {
+  var filteredList = tasksRes.value.response.filter((task) =>
+    task.owner_ids?.includes(userId)
+  );
+
+  filteredList = sortList(filteredList, "my_task", "sort_option");
+  console.log("sort", filteredList);
+  return { filteredList };
+};
+myTaskList.value = getMyTaskList().filteredList;
+
+const toggleTaskDialog = (props, isToEditTask) => {
+  console.log("edit", props, taskDialog);
+  taskDialog.value = !taskDialog.value;
+  isEditTask.value = isToEditTask;
+  console.log(taskDialog.value, isToEditTask);
+  if (taskDialog.value) {
+    if (isToEditTask) {
+      selectedTask.value = props.data;
+      taskDueDatetime.value = props.data.due_date_time
+        ? new Date(props.data.due_date_time)
+        : null;
+      taskUrgentDate.value = props.data.urgent_date
+        ? new Date(props.data.urgent_date)
+        : null;
+    } else {
+      selectedTask.value = {
+        task_name: null,
+        task_desc: null,
+        status_code: 1,
+        importance: 2,
+        importance_rate: null,
+        owner_ids: null,
+        due_date_time: null,
+        urgent_date: null,
+      };
+    }
+    console.log("mytask props", props, selectedTask.value);
+  }
+};
+
+const updateFilter = async (filterName, filterValue, boardName) => {
+  let updatedFilter = {};
+  console.log(myTaskSortOption.value);
+  updatedFilter["board_name"] = boardName;
+  updatedFilter["filter"] = getFilter(boardName).thisFilter;
+  updatedFilter.filter[filterName] = filterValue;
+  const { data: updateFilterRes } = await useFetch("/api/update_filter", {
+    method: "POST",
+    body: updatedFilter,
+    headers: { "cache-control": "no-cache" },
+  });
+  filters = updateFilterRes;
+  switch (boardName) {
+    case "my_task":
+      myTaskList.value = getMyTaskList().filteredList;
+      break;
+
+    case "main_task":
+      getMainTaskList();
+      break;
+  }
+  console.log(myTaskList.value);
+  console.log("updatedfilter", updateFilterRes, updatedFilter);
+};
+
+const updateTask = async () => {
+  taskDialog.value = false;
+
+  const updatedTask = selectedTask.value;
+  updatedTask["project_id"] = projectid;
+  updatedTask["modified_at"] = new Date();
+  console.log(selectedTask.value, updatedTask);
+
+  const { data: updateTaskRes } = await useFetch("/api/update_task", {
+    method: "POST",
+    body: updatedTask,
+    headers: { "cache-control": "no-cache" },
+  });
+  console.log("upserttask", updateTaskRes);
+
+  if (updateTaskRes.value.success) {
+    tasksRes = updateTaskRes;
+    myTaskList.value = getMyTaskList().filteredList;
+    getMainTaskList();
+  }
+
+  //TODO:input validation
+};
+
+const insertTask = async () => {
+  console.trace("inserttask", selectedTask.value);
+
+  taskDialog.value = false;
+  let newTask = selectedTask.value;
+  newTask["modified_at"] = new Date();
+  newTask["project_id"] = projectid;
+
+  const { data: insertTaskRes } = await useFetch("/api/insert_task", {
+    method: "POST",
+    body: newTask,
+    headers: { "cache-control": "no-cache" },
+  });
+
+  console.log("insertaskres", insertTaskRes);
+
+  if (insertTaskRes.value.success) {
+    tasksRes = insertTaskRes;
+    myTaskList.value = getMyTaskList().filteredList;
+    getMainTaskList();
+  }
+};
+
+const deleteTask = async () => {
+  taskDialog.value = false;
+
+  const { data: deleteTask } = await useFetch("/api/delete_task", {
+    method: "POST",
+    body: {
+      task_id: selectedTask.value.task_id,
+      project_id: projectid,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  console.log("dlt task", deleteTask.value, selectedTask.value);
+  if (deleteTask.value.success) {
+    tasksRes = deleteTask;
+    myTaskList.value = getMyTaskList().filteredList;
+    getMainTaskList();
+  }
+};
+
+console.log(announcementReceivers);
+
+const formatDate = (dateString) => {
+  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
+    locales: "en-US",
+  });
+  return formattedDate.value;
+};
+
+const filteredAnnouncements = projectAnnouncementRes.value.response;
+async function addAnnouncement() {
+  console.log(announcementReceiverArr.value);
+  const { data: addAnnouncementRes } = await useFetch(
+    "/api/insert_announcement",
+    {
+      method: "POST",
+      body: {
+        name: announcementTitle.value,
+        description: announcementDesc.value,
+        project_id: projectid,
+        creation_timestamp: new Date(),
+        receiver_ids: announcementReceiverArr.value,
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
+
+  if (addAnnouncementRes.value.success) {
+    toast.add({
+      severity: "success",
+      summary: "Hurray!",
+      detail: "Profile Updated Successfully",
+      life: 50000,
+    });
+  }
+}
+
+function closeAnnouncementModal() {
+  isOpenAnnouncementModal.value = false;
+}
+
+function openAnnouncementModal() {
+  isOpenAnnouncementModal.value = true;
+}
+
+defineExpose({
+  editTaskDialog: taskDialog,
+  formatDate,
+});
+watchEffect(() => {
+  if (!useSupabaseUser().value) {
+    navigateTo("/login");
+  }
+  announcementReceiverArr.value = [];
+  if (announcementReceivers.value.length !== 0) {
+    for (const user of announcementReceivers.value) {
+      announcementReceiverArr.value.push(user.value);
+    }
+
+    console.log(
+      announcementReceiverArr.value,
+      typeof announcementReceiverArr.value
+    );
+  }
+});
+
+const logout = async () => {
+  await auth.signOut();
+  dstore.logout();
+};
+
+definePageMeta({
+  layout: "custom",
+  middleware: ["auth", "initiate"],
+});
+</script>
+
+<style lang="css" scoped>
+.show-completed-button {
+  font-size: 0.75rem;
+  border: none;
+}
+
+.no-shadow {
+  box-shadow: none;
+}
+
+.show-completed-cont {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h5 {
+  font-weight: 700;
+  font-size: 0.938rem;
+}
+
+.mainpage-card {
+  filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
+  border-radius: 30px;
+}
+
+.footnote-2 {
+  font-weight: 700;
+  font-size: 12px;
+  /* line-height: 15px; */
+}
+
+.footnote {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.form-modal {
+  min-width: 500px;
+  border-radius: 8px;
+}
+</style>

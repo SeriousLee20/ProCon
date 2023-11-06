@@ -1,46 +1,102 @@
 <template>
   <div>
-    <div
-      style="
-        flex: 1;
-        display: flex;
-        height: 100%;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
-      "
-    >
-      <iframe
-        style="pointer-events: none; border: none"
-        width="1000"
-        height="700"
-        src="https://embed.lottiefiles.com/animation/145811"
-      ></iframe>
+    <div>
+      <Showcompleted
+        :showCompleted="showCompletedTask"
+        :handler="toggleTaskShowCompleted"
+      />
+
+      <Showmytask
+        :showMyTaskOnly="showMyTaskOnly"
+        :handler="toggleShowMyTaskOnly"
+      />
+
+      <Sortoption
+        :sortOptions="overviewSortOptions"
+        v-model="overviewSortOption"
+        :handler="updateSortOption"
+        :filterName="'sort_option'"
+        :boardName="'overview'"
+      />
     </div>
-    <Pbutton label="logout" @click="logout" />
+    <div>
+      <!-- <Tasklist
+                :taskList=""
+                :pt="{ content: { class: 'bg-primary-100' } }"
+                @open-task-dialog="toggleTaskDialog($event, true)"
+              /> -->
+    </div>
   </div>
 </template>
 
 <script setup>
-import currentProject from "~/composables/useProject";
+// import currentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 dstore.setCurrentPage("Overview");
 dstore.setSelectedProject("-1");
-currentProject().setCurrentProject("-1");
+// currentProject().setCurrentProject("-1");
 console.log("ov selected project", dstore.getSelectedProject);
+
+const { data: parameters } = await useFetch("/api/get_parameters");
+var { data: filters } = await useFetch("/api/get_filters");
+
+const getSortOptions = (listName) => {
+  return parameters.value.response.filter(
+    (param) => param.param_name == listName
+  )[0].param_list;
+};
+
+const getFilter = (listName) => {
+  const thisFilter = filters.value.response.filter(
+    (item) => item.board_name == listName
+  )[0]?.filter;
+  console.log("sortoption", thisFilter);
+  return { thisFilter };
+};
+
+const showCompletedTask = ref(getFilter("overview").thisFilter.show_completed);
+const showMyTaskOnly = ref(getFilter("overview").thisFilter.show_my_task_only);
+const overviewSortOption = ref(getFilter("overview").thisFilter.sort_option);
+const overviewSortOptions = getSortOptions("sort_option");
+
+const toggleTaskShowCompleted = () => {
+  showCompletedTask.value = !showCompletedTask.value;
+  updateFilter("show_completed", showCompletedTask.value, "overview");
+};
+
+const toggleShowMyTaskOnly = () => {
+  showMyTaskOnly.value = !showMyTaskOnly.value;
+  updateFilter("show_my_task_only", showMyTaskOnly.value, "overview");
+};
+
+const updateSortOption = () => {
+  updateFilter("sort_option", overviewSortOption, "overview");
+};
+
+const updateFilter = async (filterName, filterValue, boardName) => {
+  let updatedFilter = {};
+
+  updatedFilter["board_name"] = boardName;
+  updatedFilter["filter"] = getFilter(boardName).thisFilter;
+  updatedFilter.filter[filterName] = filterValue;
+  const { data: updateFilterRes } = await useFetch("/api/update_filter", {
+    method: "POST",
+    body: updatedFilter,
+    headers: { "cache-control": "no-cache" },
+  });
+  filters = updateFilterRes;
+
+  console.log("updatedfilter", updateFilterRes, updatedFilter);
+};
+
 watchEffect(() => {
   if (!useSupabaseUser().value) {
     navigateTo("/login");
   }
 });
-
-const logout = async () => {
-  await auth.signOut();
-  dstore.logout();
-};
 
 definePageMeta({
   middleware: ["auth", "initiate"],

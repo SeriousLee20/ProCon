@@ -3,8 +3,9 @@ import { useDataStore } from "~/stores/datastore";
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const { data } = await useFetch("/api/get_full_data");
 
+  //TODO: add api to get project list separately, error when no project joined
   const dstore = useDataStore();
-  const userData = data.value;
+  const userData = data.value?.response;
 
   console.log("middleware", data);
   console.log("initiate: selectedproject", dstore.getSelectedProject);
@@ -34,11 +35,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     userData.forEach((data) => {
       // console.log(data);
       dstore.createProject({
-        id: data.event_id,
-        name: data.event_name,
+        id: data.project_id,
+        name: data.project_name,
         role: data.user_role,
-        description: data.event_desc,
-        creator_id: data.event_creator_id,
+        description: data.project_desc,
+        creator_id: data.project_creator_id,
         is_show_project_in_overview: data.is_show_in_overview,
       });
       // dstore.createAnnouncement({
