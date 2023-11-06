@@ -19,12 +19,13 @@
         :boardName="'overview'"
       />
     </div>
-    <div>
-      <!-- <Tasklist
-                :taskList=""
-                :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              /> -->
+    <div class="flex justify-content-between px-2">
+      <div v-for="list in overviewTaskLists" class="w-12">
+        <div class="border-primary-200 border-2 border-round bg-white">
+          {{ list.project }}
+        </div>
+        <Tasklist :taskList="list.tasks" />
+      </div>
     </div>
   </div>
 </template>
@@ -33,7 +34,6 @@
 // import currentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 
-const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 dstore.setCurrentPage("Overview");
 dstore.setSelectedProject("-1");
@@ -78,6 +78,7 @@ const showCompletedTask = ref(getFilter("overview").thisFilter.show_completed);
 const showMyTaskOnly = ref(getFilter("overview").thisFilter.show_my_task_only);
 const overviewSortOption = ref(getFilter("overview").thisFilter.sort_option);
 const overviewSortOptions = getSortOptions("sort_option");
+const overviewTaskLists = ref(sortTasks().groupedTaskList);
 
 const toggleTaskShowCompleted = () => {
   showCompletedTask.value = !showCompletedTask.value;
