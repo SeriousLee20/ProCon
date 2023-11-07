@@ -1,30 +1,19 @@
 <template>
   <div>
-    <div>
-      <Showcompleted
-        :showCompleted="showCompletedTask"
-        :handler="toggleTaskShowCompleted"
-      />
+    <div class="flex justify-content-end gap-4 vertical-align-middle py-2 w-full">
+      <Showcompleted :showCompleted="showCompletedTask" :handler="toggleTaskShowCompleted" />
 
-      <Showmytask
-        :showMyTaskOnly="showMyTaskOnly"
-        :handler="toggleShowMyTaskOnly"
-      />
+      <Showmytask :showMyTaskOnly="showMyTaskOnly" :handler="toggleShowMyTaskOnly" />
 
-      <Sortoption
-        :sortOptions="overviewSortOptions"
-        v-model="overviewSortOption"
-        :handler="updateSortOption"
-        :filterName="'sort_option'"
-        :boardName="'overview'"
-      />
+      <Sortoption :sortOptions="overviewSortOptions" v-model="overviewSortOption" :handler="updateSortOption"
+        :filterName="'sort_option'" :boardName="'overview'" />
     </div>
-    <div class="flex justify-content-between px-2">
-      <div v-for="list in overviewTaskLists" class="w-12">
-        <div class="border-primary-200 border-2 border-round bg-white">
+    <div class="flex justify-content-between p-2">
+      <div v-for="list in overviewTaskLists" class="w-12 px-2">
+        <div class="font-semibold text-lg bg-white pb-3">
           {{ list.project }}
         </div>
-        <Tasklist :taskList="list.tasks" />
+        <OverviewTasklist :taskList="list.tasks" :pt="{ content: { class: 'p-0' }, column: { class: 'border-none' } }" />
       </div>
     </div>
   </div>
