@@ -8,38 +8,18 @@
     <ClientOnly>
       <div class="col flex justify-content-center align-content-center">
         <div>
-          <Pdropdown
-            id="project-ddlist"
-            v-model="selectedProject"
-            :options="project"
-            optionLabel="name"
-            optionValue="id"
-            @change="onChangeSelectedProject($event)"
-            :placeholder="ddplaceholder"
-          >
+          <Pdropdown id="project-ddlist" v-model="selectedProject" :options="project" optionLabel="name" optionValue="id"
+            @change="onChangeSelectedProject($event)" :placeholder="ddplaceholder">
           </Pdropdown>
-          <Pbutton
-            type="button"
-            icon="pi pi-sliders-h"
-            @click="toggle"
-            aria-label="edit_project"
-            aria-haspopup="true"
-            aria-controls="edit_menu"
-          />
-          <Pmenu
-            ref="menu"
-            id="edit_menu"
-            :model="menuItems"
-            :popup="true"
-          ></Pmenu>
+          <Pbutton type="button" icon="pi pi-sliders-h" @click="toggle" aria-label="edit_project" aria-haspopup="true"
+            aria-controls="edit_menu" />
+
+          <Pmenu ref="menu" id="edit_menu" :model="menuItems" :popup="true"></Pmenu>
         </div>
       </div>
       <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
       <div class="col flex justify-content-end align-content-center gap-1">
-        <div
-          v-if="isShowButton"
-          class="flex justify-content-end align-content-center gap-1"
-        >
+        <div v-if="isShowButton" class="flex justify-content-end align-content-center gap-1">
           <Pbutton type="button" icon="pi pi-chart-bar" />
           <Pbutton type="button" icon="pi pi-comment" />
           <Pbutton type="button" icon="pi pi-inbox" />
@@ -49,11 +29,7 @@
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
-        <Pbutton
-          type="button"
-          icon="pi pi-user"
-          @click="switchPage('/profile', 'Profile')"
-        />
+        <Pbutton type="button" icon="pi pi-user" @click="switchPage('/profile', 'Profile')" />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
       </div>
     </ClientOnly>
@@ -88,20 +64,30 @@ const supabase = createClient(
 
 console.log(supabase);
 
+const worker = new Worker('/worker.js');
+console.log(worker)
+worker.postMessage("test sw");
+worker.addEventListener('message', (e) => {
+  if (e.data) {
+    console.log(e.data)
+    worker.terminate()
+  }
+}, false);
+
+Notification.requestPermission();
+
 const handleInserts = (payload) => {
   console.log("Change received!", payload);
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
+  new Notification("New Changes!", { body: "Tasks updated!" });
+
 };
+
 
 supabase
   .channel("task")
   .on(
     "postgres_changes",
-    { event: "INSERT", schema: "public", table: "task" },
+    { event: "*", schema: "public", table: "task" },
     handleInserts
   )
   .subscribe();
