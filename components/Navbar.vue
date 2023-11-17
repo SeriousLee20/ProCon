@@ -71,15 +71,6 @@ worker.postMessage("test sw");
 Notification.requestPermission();
 
 
-const test = async () => {
-  console.log("hello world");
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
-};
-
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
 console.log("selected project:", selectedProject.value);
