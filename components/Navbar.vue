@@ -67,37 +67,9 @@ console.log(supabase);
 const worker = new Worker('/worker.js');
 console.log(worker)
 worker.postMessage("test sw");
-worker.addEventListener('message', (e) => {
-  if (e.data) {
-    console.log(e.data)
-    worker.terminate()
-  }
-}, false);
 
 Notification.requestPermission();
 
-const handleInserts = (payload) => {
-  console.log("Change received!", payload);
-  new Notification("New Changes!", { body: "Tasks updated!" });
-
-};
-
-
-supabase
-  .channel("task")
-  .on(
-    "postgres_changes",
-    { event: "*", schema: "public", table: "task" },
-    handleInserts
-  )
-  .subscribe();
-
-// const mySubscription = supabase
-//   .from('*')
-//   .on('*', payload => {
-//     console.log('Change received!', payload)
-//   })
-//   .subscribe()
 
 const test = async () => {
   console.log("hello world");
