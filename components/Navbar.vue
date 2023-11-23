@@ -29,9 +29,28 @@
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
+        <Pbutton type="button" icon="pi pi-bell" @click="visible = true" />
         <Pbutton type="button" icon="pi pi-user" @click="switchPage('/profile', 'Profile')" />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
+
+        <Pdialog v-model:visible="visible" modal header="Connect ProCon to Telegram!" :style="{ width: '50rem' }"
+          :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+          <Pcarousel :value="products" :numVisible="1" :numScroll="1" orientation="vertical"
+            verticalViewPortHeight="360px" containerStyle="max-width: 30rem" contentClass="flex align-items-center">
+            <template #item="slotProps">
+              <div class=" m-2 text-center py-5 px-3">
+                <div class="mb-3">
+                  <h5>Step {{ slotProps.data.id }} : {{ slotProps.data.description }}</h5>
+                  <!-- <img :src="'https://primefaces.org/cdn/primevue/images/product/' + slotProps.data.image"
+                    :alt="slotProps.data.name" class="w-6 shadow-2" /> -->
+                </div>
+              </div>
+            </template>
+          </Pcarousel>
+        </Pdialog>
       </div>
+
+
     </ClientOnly>
   </div>
 </template>
@@ -40,8 +59,11 @@
 import { useDataStore } from "~/stores/datastore";
 import { useNow, useDateFormat } from "@vueuse/core";
 import useCurrentProject from "~/composables/useProject";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { createClient } from "@supabase/supabase-js";
+import { BotService } from "~/service/BotService"
+
+
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
@@ -68,8 +90,13 @@ const worker = new Worker('/worker.js');
 console.log(worker)
 worker.postMessage("test sw");
 
+onMounted(() => {
+  BotService.getProductsSmall().then((data) => (products.value = data));
+})
+const products = ref();
 Notification.requestPermission();
 
+const visible = ref(false);
 
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
