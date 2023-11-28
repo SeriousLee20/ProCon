@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
           n_receiver_ids: nData.receiver_ids,
           n_creation_timestamp: nData.creation_timestamp,
           n_project_id: nData.project_id,
+          n_user_id: id,
         }
       );
 
