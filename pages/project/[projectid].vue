@@ -100,6 +100,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q4"
                 :pt="{
                   content: { class: 'bg-primary-100' },
@@ -117,6 +118,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q1"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
@@ -150,6 +152,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q3"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
@@ -166,6 +169,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q2"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
@@ -254,41 +258,13 @@
               </div>
             </template>
             <template #content>
-              <Pdataview
-                :value="announcementList"
+              <Announcementlist
+                class="h-13rem overflow-scroll"
+                :announcement-list="announcementList"
                 :pt="{
                   column: { class: 'border-none' },
                 }"
-              >
-                <template #list="slotProps">
-                  <div
-                    class="w-full flex align-items-center justify-content-between"
-                  >
-                    <div class="flex gap-2 align-content-center">
-                      <p class="footnote-2">
-                        {{ slotProps.data.name ?? "" }}
-                      </p>
-                      <i
-                        class="pi pi-info-circle text-base text-color-secondary"
-                        v-tooltip.top="
-                          slotProps.data.description ??
-                          'No description provided'
-                        "
-                      ></i>
-                    </div>
-
-                    <p class="footnote">
-                      {{ formatDate(slotProps.data.creation_timestamp) ?? "" }}
-                    </p>
-                  </div>
-                </template>
-              </Pdataview>
-              <!-- <div
-                class="flex align-items-center justify-content-center h-12rem"
-                v-if="announcementList.length === 0 || !announcementList"
-              >
-                <p class="footnote">No Announcements!</p>
-              </div> -->
+              />
             </template>
           </Pcard>
         </div>
@@ -380,7 +356,7 @@ const isOpenAnnouncementModal = ref(false);
 const announcementTitle = ref(null);
 const announcementDesc = ref(null);
 const announcementReceivers = ref();
-const announcementReceiverArr = ref([]);
+var announcementList = ref(projectAnnouncementRes.value.response);
 
 console.log("mytask", tasksRes.value.response, myTaskList);
 console.log("param", parameters);
@@ -444,23 +420,26 @@ const toggleMyTaskShowCompleted = () => {
 };
 
 const getDefaultDueDateRange = (isClearClick) => {
-  let temp_list = tasksRes.value.response.sort((t1, t2) =>
-    t1.due_date_time > t2.due_date_time
-      ? 1
-      : t1.due_date_time < t2.due_date_time
-      ? -1
-      : 0
-  );
+  let temp_list = tasksRes.value.response;
+
+  let due_date_list = temp_list.reduce((result, task) => {
+    if (task.due_date_time) {
+      result.push(new Date(task.due_date_time));
+    }
+    return result;
+  }, []);
 
   let dateRange = [
-    temp_list[0]?.due_date_time,
-    temp_list[temp_list.length - 1]?.due_date_time,
+    new Date(Math.min.apply(null, due_date_list)),
+    new Date(Math.max.apply(null, due_date_list)),
   ];
 
   filterTaskDueDateRange.value = [
     dateRange[0] ? new Date(dateRange[0]) : null,
     dateRange[1] ? new Date(dateRange[1]) : null,
   ];
+
+  console.log("defaultdaterange fitler", due_date_list, dateRange);
 
   if (isClearClick) {
     updateFilter("due_date_range", filterTaskDueDateRange, "main_task");
@@ -475,16 +454,19 @@ const sortList = (filteredList, listName, sortOptionName) => {
     (op) => op.id == filter.sort_option
   )[0]?.col;
 
+  // convert date time field to date object
   filteredList = filteredList.map((task) => ({
     ...task,
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
   }));
 
+  // filter show completed
   filteredList = filter.show_completed
     ? filteredList
     : filteredList.filter((item) => item.status != "Completed");
 
+  // sort list
   filteredList =
     sortOption == "importance_rate"
       ? filteredList.sort((t1, t2) =>
@@ -504,18 +486,23 @@ const sortList = (filteredList, listName, sortOptionName) => {
 
   if (listName == "main_task") {
     let dateRange = getDefaultDueDateRange().dateRange;
+    console.log("default daterange", dateRange);
+    // assign due date range
     if (filter.due_date_range) {
+      // due date range from filter list
       let tempRange = filter.due_date_range;
       dateRange =
         tempRange[0] >= dateRange[0] && tempRange[1] <= dateRange[1]
           ? [...tempRange]
           : [...dateRange];
     }
+
     filterTaskDueDateRange.value = [
       dateRange[0] ? new Date(dateRange[0]) : null,
       dateRange[1] ? new Date(dateRange[1]) : null,
     ];
     console.log("filter", filteredList, dateRange);
+
     filteredList = filteredList.filter(
       (task) =>
         (new Date(new Date(task?.due_date_time).toDateString()) >=
@@ -601,7 +588,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
         task_desc: null,
         status_code: 1,
         importance: 2,
-        importance_rate: null,
+        importance_rate: 1,
         owner_ids: null,
         due_date_time: null,
         urgent_date: null,
@@ -657,7 +644,7 @@ const updateTask = async () => {
     getMainTaskList();
   }
 
-  //TODO:input validation
+  //TODO:input validation:required name, today<=urgent date<=duedate
 };
 
 const insertTask = async () => {
@@ -703,16 +690,6 @@ const deleteTask = async () => {
   }
 };
 
-console.log(announcementReceivers);
-
-const formatDate = (dateString) => {
-  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
-    locales: "en-US",
-  });
-  return formattedDate.value;
-};
-
-var announcementList = projectAnnouncementRes.value.response;
 async function addAnnouncement() {
   isOpenAnnouncementModal.value = false;
   console.log("announcementreceiver", announcementReceivers);
@@ -732,12 +709,12 @@ async function addAnnouncement() {
   );
 
   if (addAnnouncementRes.value.success) {
-    toast.add({
-      severity: "success",
-      summary: "Hurray!",
-      detail: "Profile Updated Successfully",
-      life: 50000,
-    });
+    // toast.add({
+    //   severity: "success",
+    //   summary: "Hurray!",
+    //   detail: "Profile Updated Successfully",
+    //   life: 50000,
+    // });
 
     projectAnnouncementRes = addAnnouncementRes;
     announcementList.value = projectAnnouncementRes.value.response;
@@ -796,14 +773,14 @@ h5 {
 }
 
 .footnote-2 {
-  font-weight: 700;
-  font-size: 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
   /* line-height: 15px; */
 }
 
 .footnote {
   font-weight: 400;
-  font-size: 12px;
+  font-size: 0.9rem;
 }
 
 .form-modal {

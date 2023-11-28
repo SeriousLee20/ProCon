@@ -156,6 +156,30 @@ export interface Database {
           }
         ]
       }
+      notification: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: number
+          target: string[] | null
+          title: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: number
+          target?: string[] | null
+          title: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: number
+          target?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       parameters: {
         Row: {
           created_at: string
@@ -589,8 +613,17 @@ export interface Database {
           n_creator_id: string
           n_creation_timestamp: string
           n_receiver_ids: string[]
+          n_user_id: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          creation_timestamp: string
+          creator_id: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          receiver_ids: string[]
+        }[]
       }
       insert_department: {
         Args: {
@@ -598,6 +631,14 @@ export interface Database {
           project_id: string
         }
         Returns: Record<string, unknown>
+      }
+      insert_notification: {
+        Args: {
+          p_title: string
+          p_content: string
+          p_target: string[]
+        }
+        Returns: undefined
       }
       insert_position: {
         Args: {
