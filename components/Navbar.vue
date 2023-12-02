@@ -22,7 +22,19 @@
         <div v-if="isShowButton" class="flex justify-content-end align-content-center gap-1">
           <Pbutton type="button" icon="pi pi-chart-bar" />
           <Pbutton type="button" icon="pi pi-comment" />
-          <Pbutton type="button" icon="pi pi-inbox" />
+          <Pbutton
+            type="button"
+            icon="pi pi-inbox"
+            @click="toggleNotificationPanel"
+            :pt="{ content: { class: 'w-20rem h-20rem' } }"
+          />
+          <Poverlay-panel
+            ref="notificationPanel"
+            appendTo="body"
+            style="width: 20rem; height: 20rem"
+          >
+            <footer>No Notifications</footer>
+          </Poverlay-panel>
         </div>
         <!-- <Pbutton
           type="button"
@@ -78,6 +90,7 @@ const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
 // var project = ref(dstore.getAllProjects);
 // var selectedProject = ref(dstore.getSelectedProject?.id);
 // const selectedProject = ref(currentProject);
+const notificationPanel = ref(false);
 
 const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
@@ -128,6 +141,10 @@ console.log(menuItems.value);
 
 const toggle = (event) => {
   menu.value.toggle(event);
+};
+
+const toggleNotificationPanel = (event) => {
+  notificationPanel.value.toggle(event);
 };
 
 function onChangeSelectedProject(event) {

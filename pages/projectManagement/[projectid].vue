@@ -5,7 +5,12 @@
     <Pcard>
       <template #title>
         <div class="flex justify-content-between">
-          <div>Management Board</div>
+          <div class="flex align-items-center">
+            Management Board
+            <footer class="pl-2">
+              Id: {{ projectid }} <span class="pi pi-copy"></span>
+            </footer>
+          </div>
           <div>
             <Pbutton
               type="button"

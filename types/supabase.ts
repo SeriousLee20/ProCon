@@ -613,8 +613,17 @@ export interface Database {
           n_creator_id: string
           n_creation_timestamp: string
           n_receiver_ids: string[]
+          n_user_id: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          creation_timestamp: string
+          creator_id: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          receiver_ids: string[]
+        }[]
       }
       insert_department: {
         Args: {

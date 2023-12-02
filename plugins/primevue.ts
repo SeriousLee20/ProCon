@@ -58,7 +58,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Peditor", Editor);
   nuxtApp.vueApp.component("Pcalendar", Calendar);
   nuxtApp.vueApp.component("Prating", Rating);
-  nuxtApp.vueApp.component("Poverlay", OverlayPanel);
+  nuxtApp.vueApp.component("Poverlay-panel", OverlayPanel);
   nuxtApp.vueApp.component("Pcarousel", Carousel);
 
   // Quill.register({}, true);
