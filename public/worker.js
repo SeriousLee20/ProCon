@@ -7,14 +7,14 @@ const supabase = self.supabase.createClient(
 );
 
 const handleInserts = (payload) => {
-  console.log("Change received!", payload);
+  console.log("Change received!", payload.new);
 
-  new Notification("New Changes!", { body: "Tasks updated!" });
-  doPostRequest();
+  new Notification(payload.new.title, { body: payload.new.content });
+  doPostRequest(payload.new.content);
 };
 
-async function doPostRequest() {
-  const text = "Tasks Updated! Please check your Procon projects now! :D";
+async function doPostRequest(content) {
+  const text = content;
   const chatID = -4016432921;
   const token = "6703014884:AAFDX_jNeiyLV2chV_T9Y_MLWxwVRIaMe54";
   let res = await axios.post(
@@ -25,10 +25,10 @@ async function doPostRequest() {
 }
 
 supabase
-  .channel("task")
+  .channel("notification")
   .on(
     "postgres_changes",
-    { event: "*", schema: "public", table: "task" },
+    { event: "INSERT", schema: "public", table: "notification" },
     handleInserts
   )
   .subscribe();

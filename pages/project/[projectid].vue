@@ -569,6 +569,14 @@ const insertTask = async () => {
     headers: { "cache-control": "no-cache" },
   });
 
+  const { data: announcementNotificationRes } = await useFetch("/api/insert_notification", {
+    method: "POST", body: {
+      title: 'Task added!',
+      content: 'Task added for project ' + projectid,
+      target: selectedTask.value.owner_ids,
+    }, headers: { "cache-control": "no-cache" },
+  })
+
   console.log("insertaskres", insertTaskRes);
 
   if (insertTaskRes.value.success) {

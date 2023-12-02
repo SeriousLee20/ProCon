@@ -19,9 +19,9 @@ export default defineEventHandler(async (event) => {
       const { data: queryResponse, error: queryError } = await client.rpc(
         "insert_notification",
         {
-          n_title: nData.title,
-          n_content: nData.content,
-          n_target: nData.target,
+          p_title: nData.title,
+          p_content: nData.content,
+          p_target: nData.target,
         }
       );
 

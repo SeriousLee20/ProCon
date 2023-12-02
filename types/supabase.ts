@@ -156,6 +156,30 @@ export interface Database {
           }
         ]
       }
+      notification: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: number
+          target: string[] | null
+          title: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: number
+          target?: string[] | null
+          title: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: number
+          target?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       parameters: {
         Row: {
           created_at: string
@@ -598,6 +622,14 @@ export interface Database {
           project_id: string
         }
         Returns: Record<string, unknown>
+      }
+      insert_notification: {
+        Args: {
+          p_title: string
+          p_content: string
+          p_target: string[]
+        }
+        Returns: undefined
       }
       insert_position: {
         Args: {
