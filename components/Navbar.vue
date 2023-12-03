@@ -40,7 +40,11 @@
           v-if="isShowButton"
           class="flex justify-content-end align-content-center gap-1"
         >
-          <Pbutton type="button" icon="pi pi-chart-bar" />
+          <Pbutton
+            type="button"
+            icon="pi pi-chart-bar"
+            @click="switchPage('ganttchart', 'Gantt Chart')"
+          />
           <Pbutton type="button" icon="pi pi-comment" />
           <Pbutton
             type="button"
@@ -177,7 +181,7 @@ function onChangeSelectedProject(event) {
     navigateTo("/overview");
   } else {
     isShowButton.value = true;
-    navigateTo(`/project/${event.value}`);
+    navigateTo(`/${event.value}/task`);
   }
 
   // setCurrentProject(event.value);
