@@ -5300,10 +5300,10 @@ primeicons@^6.0.1:
   resolved "https://registry.npmjs.org/primeicons/-/primeicons-6.0.1.tgz"
   integrity sha512-KDeO94CbWI4pKsPnYpA1FPjo79EsY9I+M8ywoPBSf9XMXoe/0crjbUK7jcQEDHuc0ZMRIZsxH3TYLv4TUtHmAA==
 
-primevue@^3.37.0:
-  version "3.37.0"
-  resolved "https://registry.yarnpkg.com/primevue/-/primevue-3.37.0.tgz#8788f6a4aba29613ba66d7c710445453273936d3"
-  integrity sha512-azwnnQS4+HHJHrh07P0cz+8Nvqo6C08znwvPDyiILwVPkwIrTtgNVmYQtQ9HjLgwax+lC7scMetJpdKcNQU//g==
+primevue@^3.42.0:
+  version "3.42.0"
+  resolved "https://registry.yarnpkg.com/primevue/-/primevue-3.42.0.tgz#17b44f6c85c48b44cacd43a76142a59ebf8bad4f"
+  integrity sha512-vY/nHBInl/k2MFfgx+5dGI3tH1P6OmO2Oj6eOLwtHk000yopPxLBUP/enALoElriy5EaPzfv02upOrsQqd+nJA==
 
 proc-log@^3.0.0:
   version "3.0.0"

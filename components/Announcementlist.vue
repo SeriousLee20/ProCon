@@ -1,21 +1,22 @@
 <template>
   <Pdataview :value="announcementList" :pt="pt">
     <template #list="slotProps">
-      <div class="w-full flex align-items-center justify-content-between">
+      <div
+        v-for="(item, index) in slotProps.items"
+        class="w-full flex align-items-center justify-content-between"
+      >
         <div class="flex gap-2 align-content-center">
           <p class="footnote-2">
-            {{ slotProps.data.name ?? "" }}
+            {{ item.name ?? "" }}
           </p>
           <i
             class="footnote flex pi pi-info-circle text-base text-color-secondary align-items-center"
-            v-tooltip.right="
-              slotProps.data.description ?? 'No description provided'
-            "
+            v-tooltip.right="item.description ?? 'No description provided'"
           ></i>
         </div>
 
         <p class="footnote">
-          {{ formatDate(slotProps.data.creation_timestamp) ?? "" }}
+          {{ formatDate(item.creation_timestamp) ?? "" }}
         </p>
       </div>
     </template>
