@@ -1,11 +1,6 @@
 <template>
-  <Pdialog
-    v-model:visible="isOpenAnnouncementModal"
-    header="Add Announcement"
-    :modal="true"
-    class="p-fluid"
-    style="width: 80%"
-  >
+  <Pdialog v-model:visible="isOpenAnnouncementModal" header="Add Announcement" :modal="true" class="p-fluid"
+    style="width: 80%">
     <div class="field">
       <label for="title">Title</label>
       <Pinputtext id="title" v-model="announcementTitle" type="text" required />
@@ -13,27 +8,13 @@
 
     <div class="field">
       <label for="description">Description</label>
-      <Ptextarea
-        id="description"
-        v-model="announcementDesc"
-        type="text"
-        required
-      />
+      <Ptextarea id="description" v-model="announcementDesc" type="text" required />
     </div>
 
     <div class="field">
-      <Pmultiselect
-        v-model="announcementReceivers"
-        :options="groupedUsers"
-        optionLabel="username"
-        optionValue="user_id"
-        optionGroupLabel="department"
-        filter
-        optionGroupChildren="users"
-        display="chip"
-        placeholder="Select members to notify"
-        class="w-full md:w-20rem"
-      >
+      <Pmultiselect v-model="announcementReceivers" :options="groupedUsers" optionLabel="username" optionValue="user_id"
+        optionGroupLabel="department" filter optionGroupChildren="users" display="chip"
+        placeholder="Select members to notify" class="w-full md:w-20rem">
         <template #optiongroup="slotProps">
           <div class="flex align-items-center">
             <div>{{ slotProps.option.department }}</div>
@@ -55,41 +36,21 @@
       <div class="col-8">
         <div class="flex justify-content-center">
           <div class="flex gap-5 w-full flex justify-content-between">
-            <Pcalendar
-              :pt="{ input: { style: 'box-shadow:none; border: none;' } }"
-              id="filter-task-duedate-range"
-              v-model="filterTaskDueDateRange"
-              selectionMode="range"
-              dateFormat="M dd, y"
-              placeholder="Filter Due Date(s)"
-              :hideOnRangeSelection="true"
-              class="min-w-max"
-              showButtonBar
-              @clear-click="getDefaultDueDateRange(true)"
+            <Pcalendar :pt="{ input: { style: 'box-shadow:none; border: none;' } }" id="filter-task-duedate-range"
+              v-model="filterTaskDueDateRange" selectionMode="range" dateFormat="M dd, y" placeholder="Filter Due Date(s)"
+              :hideOnRangeSelection="true" class="min-w-max" showButtonBar @clear-click="getDefaultDueDateRange(true)"
               @hide="
                 updateFilter(
                   'due_date_range',
                   filterTaskDueDateRange,
                   'main_task'
                 )
-              "
-            />
+                " />
             <!-- sort by importance rate, status -->
-            <Sortoption
-              :sort-options="mainTaskSortOptions"
-              v-model="mainTaskSortOption"
-              :handler="updateFilter"
-              :filterName="'sort_option'"
-              :boardName="'main_task'"
-            />
-            <Showcompleted
-              :showCompleted="taskShowCompleted"
-              :handler="toggleTaskShowCompleted"
-            />
-            <Showmytask
-              :showMyTaskOnly="mainShowMyTaskOnly"
-              :handler="toggleShowMyTaskOnly"
-            />
+            <Sortoption :sort-options="mainTaskSortOptions" v-model="mainTaskSortOption" :handler="updateFilter"
+              :filterName="'sort_option'" :boardName="'main_task'" />
+            <Showcompleted :showCompleted="taskShowCompleted" :handler="toggleTaskShowCompleted" />
+            <Showmytask :showMyTaskOnly="mainShowMyTaskOnly" :handler="toggleShowMyTaskOnly" />
           </div>
 
           <!-- <div class="flex gap-5">
@@ -99,81 +60,50 @@
         <div class="flex">
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
-              <Tasklist
-                class="h-17rem overflow-scroll"
-                :taskList="mainTaskList.q4"
-                :pt="{
-                  content: { class: 'bg-primary-100' },
-                  column: { class: 'border-none' },
-                }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              />
+              <Tasklist class="h-17rem overflow-scroll" :taskList="mainTaskList.q4" :pt="{
+                content: { class: 'bg-primary-100' },
+                column: { class: 'border-none' },
+              }" @open-task-dialog="toggleTaskDialog($event, true)" />
             </template>
           </Pcard>
-          <div
-            class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
-          >
+          <div class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center">
             <div class="-rotate-90">IMPORTANT</div>
           </div>
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
-              <Tasklist
-                class="h-17rem overflow-scroll"
-                :taskList="mainTaskList.q1"
-                :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              />
+              <Tasklist class="h-17rem overflow-scroll" :taskList="mainTaskList.q1"
+                :pt="{ content: { class: 'bg-primary-100' } }" @open-task-dialog="toggleTaskDialog($event, true)" />
             </template>
           </Pcard>
         </div>
         <div class="flex">
-          <div
-            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
-          >
+          <div class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto">
             NOT URGENT
           </div>
-          <div
-            class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
-            v-if="isAdmin"
-          >
-            <Pbutton
-              icon="pi pi-plus"
-              @click="toggleTaskDialog(null, false)"
-              rounded
-            />
+          <div class="col-1 bg-secondary w-2rem h-2rem flex justify-content-center align-items-center flex-auto"
+            v-if="isAdmin">
+            <Pbutton icon="pi pi-plus" @click="toggleTaskDialog(null, false)" rounded />
           </div>
-          <div
-            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
-          >
+          <div class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto">
             URGENT
           </div>
         </div>
         <div class="flex">
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
-              <Tasklist
-                class="h-17rem overflow-scroll"
-                :taskList="mainTaskList.q3"
-                :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              />
+              <Tasklist class="h-17rem overflow-scroll" :taskList="mainTaskList.q3"
+                :pt="{ content: { class: 'bg-primary-100' } }" @open-task-dialog="toggleTaskDialog($event, true)" />
             </template>
           </Pcard>
-          <div
-            class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
-          >
+          <div class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center">
             <div class="-rotate-90 w-21rem" style="white-space: nowrap">
               NOT IMPORTANT
             </div>
           </div>
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
-              <Tasklist
-                class="h-17rem overflow-scroll"
-                :taskList="mainTaskList.q2"
-                :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              />
+              <Tasklist class="h-17rem overflow-scroll" :taskList="mainTaskList.q2"
+                :pt="{ content: { class: 'bg-primary-100' } }" @open-task-dialog="toggleTaskDialog($event, true)" />
             </template>
           </Pcard>
         </div>
@@ -183,61 +113,35 @@
         <!-- right panel -->
         <div>
           <!-- TODO:edit card styling -->
-          <Pcard
-            class="border-round border-primary-200 border-2 bg-white w-full mb-2 h-24rem"
-          >
+          <Pcard class="border-round border-primary-200 border-2 bg-white w-full mb-2 h-24rem">
             <template #title>
               <div class="text-center">
                 <h5>My Tasks</h5>
               </div>
               <div class="grid justify-content-between -mt-5">
-                <div
-                  class="col-4 flex align-items-center justify-content-start"
-                >
-                  <Showcompleted
-                    :showCompleted="myTaskShowCompleted"
-                    :handler="toggleMyTaskShowCompleted"
-                  />
+                <div class="col-4 flex align-items-center justify-content-start">
+                  <Showcompleted :showCompleted="myTaskShowCompleted" :handler="toggleMyTaskShowCompleted" />
                 </div>
 
                 <div class="col-4 flex justify-content-end align-items-center">
-                  <Sortoption
-                    :sort-options="myTaskSortOptions"
-                    v-model="myTaskSortOption"
-                    :handler="updateFilter"
-                    :filterName="'sort_option'"
-                    :boardName="'my_task'"
-                  />
+                  <Sortoption :sort-options="myTaskSortOptions" v-model="myTaskSortOption" :handler="updateFilter"
+                    :filterName="'sort_option'" :boardName="'my_task'" />
                 </div>
               </div>
             </template>
             <template #content>
-              <Tasklist
-                class="h-15rem overflow-scroll"
-                :taskList="myTaskList"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              />
+              <Tasklist class="h-15rem overflow-scroll" :taskList="myTaskList"
+                @open-task-dialog="toggleTaskDialog($event, true)" />
 
-              <Taskdialog
-                v-model:visible="taskDialog"
-                :taskDialog="taskDialog"
-                :selectedTask="selectedTask"
-                :groupedUsers="groupedUsers"
-                :taskOptions="taskOptions"
-                :isEditTask="isEditTask"
-                :isAdmin="isAdmin"
-                @update-task="updateTask()"
-                @insert-task="insertTask()"
-                @close-task-dialog="toggleTaskDialog(null, false)"
-                @delete-task="deleteTask"
-              />
+              <Taskdialog v-model:visible="taskDialog" :taskDialog="taskDialog" :selectedTask="selectedTask"
+                :groupedUsers="groupedUsers" :taskOptions="taskOptions" :isEditTask="isEditTask" :isAdmin="isAdmin"
+                @update-task="updateTask()" @insert-task="insertTask()" @close-task-dialog="toggleTaskDialog(null, false)"
+                @delete-task="deleteTask" />
             </template>
           </Pcard>
 
           <!-- TODO:change to Pcard -->
-          <Pcard
-            class="border-round border-primary-200 border-2 bg-white w-full h-22rem"
-          >
+          <Pcard class="border-round border-primary-200 border-2 bg-white w-full h-22rem">
             <template #title>
               <div class="grid justify-content-evenly">
                 <div class="col-4 col-offset-4 text-center">
@@ -245,26 +149,15 @@
                 </div>
 
                 <div class="col-4 flex justify-content-end align-self-center">
-                  <Pbutton
-                    v-if="isAdmin"
-                    @click="openAnnouncementModal()"
-                    icon="pi pi-plus"
-                    rounded
-                    outlined
-                    aria-label="Filter"
-                    size="small"
-                  />
+                  <Pbutton v-if="isAdmin" @click="openAnnouncementModal()" icon="pi pi-plus" rounded outlined
+                    aria-label="Filter" size="small" />
                 </div>
               </div>
             </template>
             <template #content>
-              <Announcementlist
-                class="h-13rem overflow-scroll"
-                :announcement-list="announcementList"
-                :pt="{
-                  column: { class: 'border-none' },
-                }"
-              />
+              <Announcementlist class="h-13rem overflow-scroll" :announcement-list="announcementList" :pt="{
+                column: { class: 'border-none' },
+              }" />
             </template>
           </Pcard>
         </div>
@@ -469,19 +362,19 @@ const sortList = (filteredList, listName, sortOptionName) => {
   filteredList =
     sortOption == "importance_rate"
       ? filteredList.sort((t1, t2) =>
-          t1[sortOption] < t2[sortOption]
-            ? 1
-            : t1[sortOption] > t2[sortOption]
+        t1[sortOption] < t2[sortOption]
+          ? 1
+          : t1[sortOption] > t2[sortOption]
             ? -1
             : 0
-        )
+      )
       : filteredList.sort((t1, t2) =>
-          t1[sortOption] > t2[sortOption]
-            ? 1
-            : t1[sortOption] < t2[sortOption]
+        t1[sortOption] > t2[sortOption]
+          ? 1
+          : t1[sortOption] < t2[sortOption]
             ? -1
             : 0
-        );
+      );
 
   if (listName == "main_task") {
     let dateRange = getDefaultDueDateRange().dateRange;
@@ -507,7 +400,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
         (new Date(new Date(task?.due_date_time).toDateString()) >=
           new Date(dateRange[0]) &&
           new Date(new Date(task?.due_date_time).toDateString()) <=
-            new Date(dateRange[1])) ||
+          new Date(dateRange[1])) ||
         !task?.due_date_time
     );
 
@@ -659,6 +552,21 @@ const insertTask = async () => {
     body: newTask,
     headers: { "cache-control": "no-cache" },
   });
+  let content = selectedTask.value.task_desc;
+
+  const regex = /<[^>]*>/g;
+
+  if (content)
+    content = content.replace(regex, '');
+
+  const { data: announcementNotificationRes } = await useFetch("/api/insert_notification", {
+    method: "POST", body: {
+      title: 'New Task Added! ' + selectedTask.value.task_name,
+      content: 'New task: ' + selectedTask.value.task_name + (selectedTask.value.task_desc ? (' - ' + content) : ''),
+      target: selectedTask.value.owner_ids,
+    }, headers: { "cache-control": "no-cache" },
+  })
+
 
   console.log("insertaskres", insertTaskRes);
 
@@ -714,6 +622,13 @@ async function addAnnouncement() {
     //   detail: "Profile Updated Successfully",
     //   life: 50000,
     // });
+    const { data: announcementNotificationRes } = await useFetch("/api/insert_notification", {
+      method: "POST", body: {
+        title: 'New Announcement Added! ' + announcementTitle.value,
+        content: 'New announcement: ' + announcementTitle.value + (announcementDesc.value ? (' - ' + announcementDesc.value) : ''),
+        target: announcementReceivers.value,
+      }, headers: { "cache-control": "no-cache" },
+    })
 
     projectAnnouncementRes = addAnnouncementRes;
     announcementList.value = projectAnnouncementRes.value.response;

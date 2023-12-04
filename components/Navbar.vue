@@ -8,55 +8,22 @@
     <ClientOnly>
       <div class="col flex justify-content-center align-content-center">
         <div>
-          <Pdropdown
-            id="project-ddlist"
-            v-model="selectedProject"
-            :options="project"
-            optionLabel="name"
-            optionValue="id"
-            @change="onChangeSelectedProject($event)"
-            :placeholder="ddplaceholder"
-          >
+          <Pdropdown id="project-ddlist" v-model="selectedProject" :options="project" optionLabel="name" optionValue="id"
+            @change="onChangeSelectedProject($event)" :placeholder="ddplaceholder">
           </Pdropdown>
-          <Pbutton
-            type="button"
-            icon="pi pi-sliders-h"
-            @click="toggle"
-            aria-label="edit_project"
-            aria-haspopup="true"
-            aria-controls="edit_menu"
-          />
-          <Pmenu
-            ref="menu"
-            id="edit_menu"
-            :model="menuItems"
-            :popup="true"
-          ></Pmenu>
+          <Pbutton type="button" icon="pi pi-sliders-h" @click="toggle" aria-label="edit_project" aria-haspopup="true"
+            aria-controls="edit_menu" />
+          <Pmenu ref="menu" id="edit_menu" :model="menuItems" :popup="true"></Pmenu>
         </div>
       </div>
       <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
       <div class="col flex justify-content-end align-content-center gap-1">
-        <div
-          v-if="isShowButton"
-          class="flex justify-content-end align-content-center gap-1"
-        >
-          <Pbutton
-            type="button"
-            icon="pi pi-chart-bar"
-            @click="switchPage('ganttchart', 'Gantt Chart')"
-          />
+        <div v-if="isShowButton" class="flex justify-content-end align-content-center gap-1">
+          <Pbutton type="button" icon="pi pi-chart-bar" @click="switchPage('ganttchart', 'Gantt Chart')" />
           <Pbutton type="button" icon="pi pi-comment" />
-          <Pbutton
-            type="button"
-            icon="pi pi-inbox"
-            @click="toggleNotificationPanel"
-            :pt="{ content: { class: 'w-20rem h-20rem' } }"
-          />
-          <Poverlay-panel
-            ref="notificationPanel"
-            appendTo="body"
-            style="width: 20rem; height: 20rem"
-          >
+          <Pbutton type="button" icon="pi pi-inbox" @click="toggleNotificationPanel"
+            :pt="{ content: { class: 'w-20rem h-20rem' } }" />
+          <Poverlay-panel ref="notificationPanel" appendTo="body" style="width: 20rem; height: 20rem">
             <footer>No Notifications</footer>
           </Poverlay-panel>
         </div>
@@ -65,11 +32,7 @@
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
-        <Pbutton
-          type="button"
-          icon="pi pi-user"
-          @click="switchPage('/profile', 'Profile')"
-        />
+        <Pbutton type="button" icon="pi pi-user" @click="switchPage('/profile', 'Profile')" />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
       </div>
     </ClientOnly>
@@ -103,41 +66,23 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
 
-console.log(supabase);
 
-const handleInserts = (payload) => {
-  console.log("Change received!", payload);
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
-};
 
-supabase
-  .channel("task")
-  .on(
-    "postgres_changes",
-    { event: "INSERT", schema: "public", table: "task" },
-    handleInserts
-  )
-  .subscribe();
+const getUserData = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  console.log(user);
+  worker.postMessage(user.id);
+}
+getUserData()
 
-// const mySubscription = supabase
-//   .from('*')
-//   .on('*', payload => {
-//     console.log('Change received!', payload)
-//   })
-//   .subscribe()
 
-const test = async () => {
-  console.log("hello world");
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
-};
+
+
+const worker = new Worker('/worker.js');
+
+console.log(worker)
+
+
 
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
