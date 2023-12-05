@@ -1,53 +1,108 @@
 <template>
-  <ClientOnly>
-    <g-gantt-chart
-      chart-start="2021-07-12 12:00"
-      chart-end="2021-07-14 12:00"
-      precision="hour"
-      bar-start="myBeginDate"
-      bar-end="myEndDate"
-    >
-      <g-gantt-row label="My row 1" :bars="row1BarList" />
-      <g-gantt-row label="My row 2" :bars="row2BarList" />
-    </g-gantt-chart>
-  </ClientOnly>
+  <PChart
+    type="bar"
+    :data="chartData"
+    :options="chartOptions"
+    class="h-30rem"
+  />
 </template>
 
 <script setup>
-const chartStart = ref();
-const chartEnd = ref();
-// TODO:group bar by department
-// TODO: get color from status
-const row1BarList = ref([
-  {
-    myBeginDate: "2021-07-13 13:00",
-    myEndDate: "2021-07-13 19:00",
-    ganttBarConfig: {
-      // each bar must have a nested ganttBarConfig object ...
-      id: "unique-id-1", // ... and a unique "id" property
-      label: "Lorem ipsum dolor",
-      immobile: true,
-    },
-  },
-]);
+import "chartjs-adapter-date-fns";
+import "chartjs-adapter-dayjs-4";
+import { enUS } from "date-fns/locale";
+import dayjs, { OpUnitType } from "dayjs";
 
-const row2BarList = ref([
-  {
-    myBeginDate: "2021-07-13 00:00",
-    myEndDate: "2021-07-14 02:00",
-    ganttBarConfig: {
-      id: "another-unique-id-2",
-      //   hasHandles: true,
-      label: "Hey, look at me",
-      //   style: {
-      //     // arbitrary CSS styling for your bar
-      //     background: "#e09b69",
-      //     borderRadius: "20px",
-      //     color: "black",
-      //   },
+onMounted(() => {
+  chartData.value = setChartData();
+  chartOptions.value = setChartOptions();
+});
+
+const chartData = ref();
+const chartOptions = ref();
+
+const setChartData = () => {
+  const documentStyle = getComputedStyle(document.documentElement);
+
+  return {
+    labels: ["Dept1", "Dept2"],
+    datasets: [
+      {
+        label: "My First dataset",
+        backgroundColor: documentStyle.getPropertyValue("--blue-500"),
+        borderColor: documentStyle.getPropertyValue("--blue-500"),
+        data: ["12-1-2023", "13-1-2023"],
+      },
+      {
+        label: "My Second dataset",
+        backgroundColor: documentStyle.getPropertyValue("--pink-500"),
+        borderColor: documentStyle.getPropertyValue("--pink-500"),
+        data: ["12-1-2023", "13-1-2023"],
+      },
+    ],
+  };
+};
+
+const setChartOptions = () => {
+  const documentStyle = getComputedStyle(document.documentElement);
+  const textColor = documentStyle.getPropertyValue("--text-color");
+  const textColorSecondary = documentStyle.getPropertyValue(
+    "--text-color-secondary"
+  );
+  const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+
+  return {
+    indexAxis: "y",
+    maintainAspectRatio: false,
+    aspectRatio: 0.8,
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          color: textColor,
+        },
+      },
     },
-  },
-]);
+    scales: {
+      x: {
+        position: "top",
+        stacked: true,
+        // type: "time",
+        // time: {
+        //   unit: "day",
+        //   // displayFormats: {
+        //   //   day: "MMM D",
+        //   // },
+        // },
+        // adapters: {
+        //   date: {
+        //     local: enUS,
+        //   },
+        // },
+        ticks: {
+          color: textColorSecondary,
+          font: {
+            weight: 500,
+          },
+        },
+        grid: {
+          display: false,
+          drawBorder: false,
+        },
+      },
+
+      y: {
+        ticks: {
+          color: textColorSecondary,
+        },
+        grid: {
+          color: surfaceBorder,
+          drawBorder: false,
+        },
+      },
+    },
+  };
+};
 
 definePageMeta({
   layout: "custom",
@@ -55,4 +110,8 @@ definePageMeta({
 });
 </script>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.g-gantt-chart {
+  overflow: scroll;
+}
+</style>
