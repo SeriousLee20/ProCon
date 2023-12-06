@@ -59,7 +59,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Prating", Rating);
   nuxtApp.vueApp.component("Poverlay-panel", OverlayPanel);
 
-  // Quill.register({}, true);
+  // if (process.client) {
+  //   Quill.register(Editor, true);
+  // }
 
   //other components that you need
 

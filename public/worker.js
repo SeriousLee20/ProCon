@@ -1,11 +1,11 @@
 importScripts("https://cdn.jsdelivr.net/npm/@supabase/supabase-js");
 importScripts("https://unpkg.com/axios/dist/axios.min.js");
+// import { serverSupabaseClient } from "../src/runtime/server/services/serverSupabaseClient";
 
 const supabase = self.supabase.createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
-
 let userId = "";
 
 self.addEventListener(

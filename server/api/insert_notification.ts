@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
     const id = user?.id.toString();
 
     if (nData) {
+      // TODO:add projectid
+      // TODO: add get noti api based on user & project
       const { data: queryResponse, error: queryError } = await client.rpc(
         "insert_notification",
         {
