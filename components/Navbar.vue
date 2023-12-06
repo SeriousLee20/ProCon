@@ -34,14 +34,31 @@
           ></Pmenu>
         </div>
       </div>
+      <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
       <div class="col flex justify-content-end align-content-center gap-1">
         <div
           v-if="isShowButton"
           class="flex justify-content-end align-content-center gap-1"
         >
-          <Pbutton type="button" icon="pi pi-chart-bar" />
+          <Pbutton
+            type="button"
+            icon="pi pi-chart-bar"
+            @click="switchPage('ganttchart', 'Gantt Chart')"
+          />
           <Pbutton type="button" icon="pi pi-comment" />
-          <Pbutton type="button" icon="pi pi-inbox" />
+          <Pbutton
+            type="button"
+            icon="pi pi-inbox"
+            @click="toggleNotificationPanel"
+            :pt="{ content: { class: 'w-20rem h-20rem' } }"
+          />
+          <Poverlay-panel
+            ref="notificationPanel"
+            appendTo="body"
+            style="width: 20rem; height: 20rem"
+          >
+            <footer>No Notifications</footer>
+          </Poverlay-panel>
         </div>
         <!-- <Pbutton
           type="button"
@@ -64,6 +81,7 @@ import { useDataStore } from "~/stores/datastore";
 import { useNow, useDateFormat } from "@vueuse/core";
 import useCurrentProject from "~/composables/useProject";
 import { ref } from "vue";
+import { createClient } from "@supabase/supabase-js";
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
@@ -78,6 +96,48 @@ const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
 // var project = ref(dstore.getAllProjects);
 // var selectedProject = ref(dstore.getSelectedProject?.id);
 // const selectedProject = ref(currentProject);
+const notificationPanel = ref(false);
+
+const supabase = createClient(
+  "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
+);
+
+console.log(supabase);
+
+const handleInserts = (payload) => {
+  console.log("Change received!", payload);
+  Notification.requestPermission().then((perm) => {
+    if (perm === "granted") {
+      new Notification("New Changes!", { body: "Tasks updated!" });
+    }
+  });
+};
+
+supabase
+  .channel("task")
+  .on(
+    "postgres_changes",
+    { event: "INSERT", schema: "public", table: "task" },
+    handleInserts
+  )
+  .subscribe();
+
+// const mySubscription = supabase
+//   .from('*')
+//   .on('*', payload => {
+//     console.log('Change received!', payload)
+//   })
+//   .subscribe()
+
+const test = async () => {
+  console.log("hello world");
+  Notification.requestPermission().then((perm) => {
+    if (perm === "granted") {
+      new Notification("New Changes!", { body: "Tasks updated!" });
+    }
+  });
+};
 
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
@@ -111,13 +171,17 @@ const toggle = (event) => {
   menu.value.toggle(event);
 };
 
+const toggleNotificationPanel = (event) => {
+  notificationPanel.value.toggle(event);
+};
+
 function onChangeSelectedProject(event) {
   if (event.value == "-1") {
     isShowButton.value = false;
     navigateTo("/overview");
   } else {
     isShowButton.value = true;
-    navigateTo(`/project/${event.value}`);
+    navigateTo(`/${event.value}/task`);
   }
 
   // setCurrentProject(event.value);

@@ -1,35 +1,32 @@
 <template>
-  <form
-    @submit="addAnnouncement()"
-    v-if="isOpenAnnouncementModal"
-    class="fixed top-0 left-0 w-screen h-screen disabled-div bg-black-alpha-70 z-5 flex justify-content-center align-items-center"
+  <Pdialog
+    v-model:visible="isOpenAnnouncementModal"
+    header="Add Announcement"
+    :modal="true"
+    class="p-fluid"
+    style="width: 80%"
   >
-    <div
-      class="form-modal bg-white flex flex-column gap-6 px-4 py-5 align-items-center"
-    >
-      <div class="py-2"><h3>Add Announcement</h3></div>
-      <span class="p-float-label">
-        <Pinputtext
-          id="title"
-          v-model="announcementTitle"
-          type="text"
-          required
-        />
-        <label for="title">Title</label>
-      </span>
-      <span class="p-float-label">
-        <Ptextarea
-          id="description"
-          v-model="announcementDesc"
-          type="text"
-          required
-        />
-        <label for="description">Description</label>
-      </span>
+    <div class="field">
+      <label for="title">Title</label>
+      <Pinputtext id="title" v-model="announcementTitle" type="text" required />
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <Ptextarea
+        id="description"
+        v-model="announcementDesc"
+        type="text"
+        required
+      />
+    </div>
+
+    <div class="field">
       <Pmultiselect
         v-model="announcementReceivers"
         :options="groupedUsers"
         optionLabel="username"
+        optionValue="user_id"
         optionGroupLabel="department"
         filter
         optionGroupChildren="users"
@@ -43,29 +40,21 @@
           </div>
         </template>
       </Pmultiselect>
-      <div class="flex gap-2 align-items-center">
-        <Pbutton type="submit">Add</Pbutton>
+    </div>
+
+    <template #footer>
+      <div class="flex gap-2 align-items-center w-full justify-content-endw">
+        <Pbutton @click="addAnnouncement">Add</Pbutton>
         <Pbutton @click="closeAnnouncementModal()">Close</Pbutton>
       </div>
-    </div>
-  </form>
+    </template>
+  </Pdialog>
 
   <div>
     <div class="h-screen grid p-4 pt-2">
       <div class="col-8">
-        <div class="flex justify-content-between">
-          <div class="flex gap-5">
-            <Showcompleted
-              :showCompleted="taskShowCompleted"
-              :handler="toggleTaskShowCompleted"
-            />
-            <Showmytask
-              :showMyTaskOnly="mainShowMyTaskOnly"
-              :handler="toggleShowMyTaskOnly"
-            />
-          </div>
-
-          <div class="flex gap-5">
+        <div class="flex justify-content-center">
+          <div class="flex gap-5 w-full flex justify-content-between">
             <Pcalendar
               :pt="{ input: { style: 'box-shadow:none; border: none;' } }"
               id="filter-task-duedate-range"
@@ -93,14 +82,30 @@
               :filterName="'sort_option'"
               :boardName="'main_task'"
             />
+            <Showcompleted
+              :showCompleted="taskShowCompleted"
+              :handler="toggleTaskShowCompleted"
+            />
+            <Showmytask
+              :showMyTaskOnly="mainShowMyTaskOnly"
+              :handler="toggleShowMyTaskOnly"
+            />
           </div>
+
+          <!-- <div class="flex gap-5">
+
+          </div> -->
         </div>
-        <div class="flex pt-2">
+        <div class="flex">
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q4"
-                :pt="{ content: { class: 'bg-primary-100' } }"
+                :pt="{
+                  content: { class: 'bg-primary-100' },
+                  column: { class: 'border-none' },
+                }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
@@ -113,6 +118,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q1"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
@@ -146,6 +152,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q3"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
@@ -162,6 +169,7 @@
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
+                class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q2"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
@@ -176,10 +184,13 @@
         <div>
           <!-- TODO:edit card styling -->
           <Pcard
-            class="mainpage-card border-primary-200 border-2 bg-white w-full mb-2 h-24rem"
+            class="border-round border-primary-200 border-2 bg-white w-full mb-2 h-24rem"
           >
             <template #title>
-              <div class="grid justify-content-evenly">
+              <div class="text-center">
+                <h5>My Tasks</h5>
+              </div>
+              <div class="grid justify-content-between -mt-5">
                 <div
                   class="col-4 flex align-items-center justify-content-start"
                 >
@@ -188,8 +199,8 @@
                     :handler="toggleMyTaskShowCompleted"
                   />
                 </div>
-                <div class="col-3 text-center"><h5>My Tasks</h5></div>
-                <div class="col-3 flex justify-content-end align-items-center">
+
+                <div class="col-4 flex justify-content-end align-items-center">
                   <Sortoption
                     :sort-options="myTaskSortOptions"
                     v-model="myTaskSortOption"
@@ -225,15 +236,15 @@
 
           <!-- TODO:change to Pcard -->
           <Pcard
-            class="mainpage-card border-primary-200 border-2 bg-white w-full h-22rem"
+            class="border-round border-primary-200 border-2 bg-white w-full h-22rem"
           >
             <template #title>
               <div class="grid justify-content-evenly">
-                <div class="col-3 col-offset-5 text-center">
+                <div class="col-4 col-offset-4 text-center">
                   <h5>Announcements</h5>
                 </div>
 
-                <div class="col-3 flex justify-content-end align-self-center">
+                <div class="col-4 flex justify-content-end align-self-center">
                   <Pbutton
                     v-if="isAdmin"
                     @click="openAnnouncementModal()"
@@ -247,49 +258,13 @@
               </div>
             </template>
             <template #content>
-              <ClientOnly>
-                <div v-if="filteredAnnouncements.length > 0">
-                  <div
-                    class="px-2 py-2 overflow-y-scroll line-height-1 h-12rem"
-                  >
-                    <div
-                      v-for="announcement in filteredAnnouncements"
-                      :key="announcement.id"
-                    >
-                      <div
-                        class="w-full flex align-items-center justify-content-between"
-                      >
-                        <div class="flex gap-2 align-content-center">
-                          <p class="footnote-2">
-                            {{ announcement.name ?? "" }}
-                          </p>
-                          <i
-                            class="pi pi-info-circle text-base text-color-secondary"
-                            v-tooltip.top="
-                              announcement.description ??
-                              'No description provided'
-                            "
-                          ></i>
-                        </div>
-
-                        <p class="footnote">
-                          {{
-                            formatDate(announcement.creation_timestamp) ?? ""
-                          }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="flex align-items-center justify-content-center h-12rem"
-                  v-if="
-                    filteredAnnouncements.length === 0 || !filteredAnnouncements
-                  "
-                >
-                  <p class="footnote">No Announcements!</p>
-                </div>
-              </ClientOnly>
+              <Announcementlist
+                class="h-13rem overflow-scroll"
+                :announcement-list="announcementList"
+                :pt="{
+                  column: { class: 'border-none' },
+                }"
+              />
             </template>
           </Pcard>
         </div>
@@ -300,7 +275,6 @@
 
 <script setup>
 import { useDataStore } from "~/stores/datastore";
-import { useNow, useDateFormat } from "@vueuse/core";
 import { useToast } from "primevue/usetoast";
 import { ref, onMounted } from "vue";
 
@@ -330,14 +304,11 @@ const { data: projectMemberRes } = await useFetch("/api/get_management_board", {
   body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },
 });
-const { data: projectAnnouncementRes } = await useFetch(
-  "/api/get_announcement",
-  {
-    method: "POST",
-    body: { project_id: projectid },
-    headers: { "cache-control": "no-cache" },
-  }
-);
+var { data: projectAnnouncementRes } = await useFetch("/api/get_announcement", {
+  method: "POST",
+  body: { project_id: projectid },
+  headers: { "cache-control": "no-cache" },
+});
 
 const getSortOptions = (listName) => {
   return parameters.value.response.filter(
@@ -383,8 +354,8 @@ const projectMember = projectMemberRes.value.response;
 const isOpenAnnouncementModal = ref(false);
 const announcementTitle = ref(null);
 const announcementDesc = ref(null);
-const announcementReceivers = ref([]);
-const announcementReceiverArr = ref([]);
+const announcementReceivers = ref();
+var announcementList = ref(projectAnnouncementRes.value.response);
 
 console.log("mytask", tasksRes.value.response, myTaskList);
 console.log("param", parameters);
@@ -448,23 +419,26 @@ const toggleMyTaskShowCompleted = () => {
 };
 
 const getDefaultDueDateRange = (isClearClick) => {
-  let temp_list = tasksRes.value.response.sort((t1, t2) =>
-    t1.due_date_time > t2.due_date_time
-      ? 1
-      : t1.due_date_time < t2.due_date_time
-      ? -1
-      : 0
-  );
+  let temp_list = tasksRes.value.response;
+
+  let due_date_list = temp_list.reduce((result, task) => {
+    if (task.due_date_time) {
+      result.push(new Date(task.due_date_time));
+    }
+    return result;
+  }, []);
 
   let dateRange = [
-    temp_list[0]?.due_date_time,
-    temp_list[temp_list.length - 1]?.due_date_time,
+    new Date(Math.min.apply(null, due_date_list)),
+    new Date(Math.max.apply(null, due_date_list)),
   ];
 
   filterTaskDueDateRange.value = [
     dateRange[0] ? new Date(dateRange[0]) : null,
     dateRange[1] ? new Date(dateRange[1]) : null,
   ];
+
+  console.log("defaultdaterange fitler", due_date_list, dateRange);
 
   if (isClearClick) {
     updateFilter("due_date_range", filterTaskDueDateRange, "main_task");
@@ -479,16 +453,19 @@ const sortList = (filteredList, listName, sortOptionName) => {
     (op) => op.id == filter.sort_option
   )[0]?.col;
 
+  // convert date time field to date object
   filteredList = filteredList.map((task) => ({
     ...task,
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
   }));
 
+  // filter show completed
   filteredList = filter.show_completed
     ? filteredList
     : filteredList.filter((item) => item.status != "Completed");
 
+  // sort list
   filteredList =
     sortOption == "importance_rate"
       ? filteredList.sort((t1, t2) =>
@@ -508,18 +485,23 @@ const sortList = (filteredList, listName, sortOptionName) => {
 
   if (listName == "main_task") {
     let dateRange = getDefaultDueDateRange().dateRange;
+    console.log("default daterange", dateRange);
+    // assign due date range
     if (filter.due_date_range) {
+      // due date range from filter list
       let tempRange = filter.due_date_range;
       dateRange =
         tempRange[0] >= dateRange[0] && tempRange[1] <= dateRange[1]
           ? [...tempRange]
           : [...dateRange];
     }
+
     filterTaskDueDateRange.value = [
       dateRange[0] ? new Date(dateRange[0]) : null,
       dateRange[1] ? new Date(dateRange[1]) : null,
     ];
     console.log("filter", filteredList, dateRange);
+
     filteredList = filteredList.filter(
       (task) =>
         (new Date(new Date(task?.due_date_time).toDateString()) >=
@@ -605,7 +587,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
         task_desc: null,
         status_code: 1,
         importance: 2,
-        importance_rate: null,
+        importance_rate: 1,
         owner_ids: null,
         due_date_time: null,
         urgent_date: null,
@@ -661,7 +643,7 @@ const updateTask = async () => {
     getMainTaskList();
   }
 
-  //TODO:input validation
+  //TODO:input validation:required name, today<=urgent date<=duedate
 };
 
 const insertTask = async () => {
@@ -707,18 +689,9 @@ const deleteTask = async () => {
   }
 };
 
-console.log(announcementReceivers);
-
-const formatDate = (dateString) => {
-  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
-    locales: "en-US",
-  });
-  return formattedDate.value;
-};
-
-const filteredAnnouncements = projectAnnouncementRes.value.response;
 async function addAnnouncement() {
-  console.log(announcementReceiverArr.value);
+  isOpenAnnouncementModal.value = false;
+  console.log("announcementreceiver", announcementReceivers);
   const { data: addAnnouncementRes } = await useFetch(
     "/api/insert_announcement",
     {
@@ -728,19 +701,23 @@ async function addAnnouncement() {
         description: announcementDesc.value,
         project_id: projectid,
         creation_timestamp: new Date(),
-        receiver_ids: announcementReceiverArr.value,
+        receiver_ids: announcementReceivers.value,
       },
       headers: { "cache-control": "no-cache" },
     }
   );
 
   if (addAnnouncementRes.value.success) {
-    toast.add({
-      severity: "success",
-      summary: "Hurray!",
-      detail: "Profile Updated Successfully",
-      life: 50000,
-    });
+    // toast.add({
+    //   severity: "success",
+    //   summary: "Hurray!",
+    //   detail: "Profile Updated Successfully",
+    //   life: 50000,
+    // });
+
+    projectAnnouncementRes = addAnnouncementRes;
+    announcementList.value = projectAnnouncementRes.value.response;
+    console.log("announcementlist", announcementList.value);
   }
 }
 
@@ -754,22 +731,11 @@ function openAnnouncementModal() {
 
 defineExpose({
   editTaskDialog: taskDialog,
-  formatDate,
 });
+
 watchEffect(() => {
   if (!useSupabaseUser().value) {
     navigateTo("/login");
-  }
-  announcementReceiverArr.value = [];
-  if (announcementReceivers.value.length !== 0) {
-    for (const user of announcementReceivers.value) {
-      announcementReceiverArr.value.push(user.value);
-    }
-
-    console.log(
-      announcementReceiverArr.value,
-      typeof announcementReceiverArr.value
-    );
   }
 });
 
@@ -805,20 +771,15 @@ h5 {
   font-size: 0.938rem;
 }
 
-.mainpage-card {
-  filter: drop-shadow(4px 6px 4px rgba(39, 35, 67, 0.25));
-  border-radius: 30px;
-}
-
 .footnote-2 {
-  font-weight: 700;
-  font-size: 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
   /* line-height: 15px; */
 }
 
 .footnote {
   font-weight: 400;
-  font-size: 12px;
+  font-size: 0.9rem;
 }
 
 .form-modal {

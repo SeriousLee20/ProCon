@@ -29,6 +29,8 @@ import Editor from "primevue/editor";
 import Quill from "quill";
 import Calendar from "primevue/calendar";
 import Rating from "primevue/rating";
+import OverlayPanel from "primevue/overlaypanel";
+import Chart from "primevue/chart";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -56,6 +58,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Peditor", Editor);
   nuxtApp.vueApp.component("Pcalendar", Calendar);
   nuxtApp.vueApp.component("Prating", Rating);
+  nuxtApp.vueApp.component("Poverlay-panel", OverlayPanel);
+  nuxtApp.vueApp.component("PChart", Chart);
 
   // Quill.register({}, true);
 

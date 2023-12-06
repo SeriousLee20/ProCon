@@ -1,7 +1,6 @@
 import { Database } from "../../types/supabase";
 import { serverSupabaseUser } from "../../src/runtime/server/services/serverSupabaseUser";
 import { serverSupabaseClient } from "../../src/runtime/server/services/serverSupabaseClient";
-import { useDataStore } from "../../stores/datastore";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
@@ -26,6 +25,7 @@ export default defineEventHandler(async (event) => {
           n_receiver_ids: nData.receiver_ids,
           n_creation_timestamp: nData.creation_timestamp,
           n_project_id: nData.project_id,
+          n_user_id: id,
         }
       );
 

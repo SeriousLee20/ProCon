@@ -4,11 +4,12 @@
       <template #list="slotProps">
         <div
           v-for="(item, index) in slotProps.items"
-          class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
+          :key="index"
+          class="col-12 cursor-pointer hover:bg-primary-100 border-round border-none mb-2 shadow-2 px-3 pb-3"
           @click="openTaskDialog(slotProps)"
         >
           <div class="">
-            <p class="footnote-2 mb-0">
+            <p class="mb-0 font-semibold font-lg pb-4">
               {{ item.task_name }}
             </p>
 
@@ -68,10 +69,4 @@ const openTaskDialog = (props) => {
 };
 </script>
 
-<style lang="css" scoped>
-.footnote-2 {
-  font-weight: 600;
-  font-size: 0.8rem;
-  /* line-height: 15px; */
-}
-</style>
+<style lang="scss" scoped></style>

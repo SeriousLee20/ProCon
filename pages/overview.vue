@@ -1,30 +1,20 @@
 <template>
   <div>
-    <div>
-      <Showcompleted
-        :showCompleted="showCompletedTask"
-        :handler="toggleTaskShowCompleted"
-      />
+    <div class="flex justify-content-end gap-4 vertical-align-middle py-2 w-full">
+      <Showcompleted :showCompleted="showCompletedTask" :handler="toggleTaskShowCompleted" />
 
-      <Showmytask
-        :showMyTaskOnly="showMyTaskOnly"
-        :handler="toggleShowMyTaskOnly"
-      />
+      <Showmytask :showMyTaskOnly="showMyTaskOnly" :handler="toggleShowMyTaskOnly" />
 
-      <Sortoption
-        :sortOptions="overviewSortOptions"
-        v-model="overviewSortOption"
-        :handler="updateSortOption"
-        :filterName="'sort_option'"
-        :boardName="'overview'"
-      />
+      <Sortoption :sortOptions="overviewSortOptions" v-model="overviewSortOption" :handler="updateSortOption"
+        :filterName="'sort_option'" :boardName="'overview'" />
     </div>
-    <div>
-      <!-- <Tasklist
-                :taskList=""
-                :pt="{ content: { class: 'bg-primary-100' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
-              /> -->
+    <div class="flex justify-content-between p-2">
+      <div v-for="list in overviewTaskLists" class="w-12 px-2">
+        <div class="font-semibold text-lg bg-white pb-3">
+          {{ list.project }}
+        </div>
+        <OverviewTasklist :taskList="list.tasks" :pt="{ content: { class: 'p-0' }, column: { class: 'border-none' } }" />
+      </div>
     </div>
   </div>
 </template>
@@ -33,7 +23,6 @@
 // import currentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 
-const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 dstore.setCurrentPage("Overview");
 dstore.setSelectedProject("-1");
@@ -42,6 +31,7 @@ console.log("ov selected project", dstore.getSelectedProject);
 
 const { data: parameters } = await useFetch("/api/get_parameters");
 var { data: filters } = await useFetch("/api/get_filters");
+var { data: all_project_tasks } = await useFetch("/api/get_task_by_user");
 
 const getSortOptions = (listName) => {
   return parameters.value.response.filter(
@@ -57,10 +47,27 @@ const getFilter = (listName) => {
   return { thisFilter };
 };
 
+const sortTasks = () => {
+  const taskList = all_project_tasks.value.response;
+  let taskGroupedByProject = taskList.reduce((groupedList, task) => {
+    const project = task.project_name;
+    (groupedList[project] = groupedList[project] || []).push(task);
+    return groupedList;
+  }, {});
+
+  let groupedTaskList = Object.keys(taskGroupedByProject).map((project) => ({
+    project,
+    tasks: taskGroupedByProject[project],
+  }));
+  return { groupedTaskList };
+};
+console.log("groupedtasklist", sortTasks().groupedTaskList);
+
 const showCompletedTask = ref(getFilter("overview").thisFilter.show_completed);
 const showMyTaskOnly = ref(getFilter("overview").thisFilter.show_my_task_only);
 const overviewSortOption = ref(getFilter("overview").thisFilter.sort_option);
 const overviewSortOptions = getSortOptions("sort_option");
+const overviewTaskLists = ref(sortTasks().groupedTaskList);
 
 const toggleTaskShowCompleted = () => {
   showCompletedTask.value = !showCompletedTask.value;

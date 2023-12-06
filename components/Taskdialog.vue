@@ -94,7 +94,6 @@
         </Prating>
       </div>
     </div>
-    <!-- TODO:add task owner dropdown -->
     <div>
       <Pmultiselect
         v-model="props.selectedTask.owner_ids"
@@ -117,8 +116,8 @@
       </Pmultiselect>
     </div>
     <template #footer>
-      <div class="flex flex-column pt-3">
-        <div v-if="props.isEditTask" class="align-self-start">
+      <div class="w-full flex justify-content-between align-items-end">
+        <div class="w-full text-left footnote" v-if="props.isEditTask">
           <div>
             Created by {{ props.selectedTask.creator_name }} at
             {{ formatDate(props.selectedTask.creation_timestamp) }}
@@ -128,7 +127,7 @@
             {{ formatDate(props.selectedTask.modified_at) }}
           </div>
         </div>
-        <div class="align-self-end">
+        <div class="w-full text-right pt-3">
           <Pbutton
             label="Save"
             icon="pi pi-check"
@@ -153,6 +152,7 @@
           />
         </div>
       </div>
+
       <!-- TODO:add delete button, with confirm dialog -->
     </template>
   </Pdialog>
@@ -213,4 +213,9 @@ const deleteTask = () => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="css" scoped>
+.footnote {
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+</style>
