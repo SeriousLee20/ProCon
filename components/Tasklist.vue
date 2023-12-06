@@ -3,40 +3,41 @@
     <Pdataview :value="props.taskList" :pt="props.pt">
       <template #list="slotProps">
         <div
+          v-for="(item, index) in slotProps.items"
           class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
           @click="openTaskDialog(slotProps)"
         >
           <div class="">
             <p class="footnote-2 mb-0">
-              {{ slotProps.data.task_name }}
+              {{ item.task_name }}
             </p>
 
             <div class="flex gap-1">
               <Ptag
-                v-if="slotProps.data.status"
-                :value="slotProps.data.status"
+                v-if="item.status"
+                :value="item.status"
                 rounded
-                :icon="slotProps.data.status_icon"
-                :severity="slotProps.data.status_severity"
+                :icon="item.status_icon"
+                :severity="item.status_severity"
                 class="max-h-1rem"
               />
               <Ptag
-                v-if="slotProps.data.due_date_time"
-                :value="formatDate(slotProps.data.due_date_time)"
+                v-if="item.due_date_time"
+                :value="formatDate(item.due_date_time)"
                 rounded
                 icon="pi pi-stopwatch"
                 class="max-h-1rem"
               />
               <Ptag
-                v-if="slotProps.data.importance_desc"
-                :value="slotProps.data.importance_desc"
+                v-if="item.importance_desc"
+                :value="item.importance_desc"
                 rounded
                 icon="pi pi-exclamation-triangle"
                 class="max-h-1rem"
               />
               <Ptag
-                v-if="slotProps.data.importance_rate"
-                :value="slotProps.data.importance_rate"
+                v-if="item.importance_rate"
+                :value="item.importance_rate"
                 rounded
                 icon="pi pi-flag"
                 class="max-h-1rem"
