@@ -117,7 +117,7 @@
     </div>
     <template #footer>
       <div class="w-full flex justify-content-between align-items-end">
-        <div class="w-full text-left footnote" v-if="props.isEditTask">
+        <div class="w-full text-left footnote text-xs" v-if="props.isEditTask">
           <div>
             Created by {{ props.selectedTask.creator_name }} at
             {{ formatDate(props.selectedTask.creation_timestamp) }}
@@ -142,6 +142,7 @@
             @click="$emit('update:visible', false)"
           />
 
+          <!-- TODO: confirm delete dialog -->
           <Pbutton
             v-if="props.isEditTask"
             label="Delete"

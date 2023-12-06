@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
   // devtools: { enabled: true }
 
+  plugins: [
+    "~/plugins/event-bus.ts",
+    { src: "~/plugins/primevue.ts", ssr: false },
+  ],
   modules: [
     "@nuxtjs/supabase",
     "@vueuse/nuxt",

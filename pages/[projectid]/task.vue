@@ -285,6 +285,8 @@ const userId = dstore.getUserId;
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("");
 
+const emit = defineEmits(["refresh-notification"]);
+const { $emit } = useNuxtApp();
 const toast = useToast();
 const groupedUsers = ref([]);
 let announcements = [];
@@ -574,12 +576,12 @@ const toggleTaskDialog = (props, isToEditTask) => {
   console.log(taskDialog.value, isToEditTask);
   if (taskDialog.value) {
     if (isToEditTask) {
-      selectedTask.value = props.data;
-      taskDueDatetime.value = props.data.due_date_time
-        ? new Date(props.data.due_date_time)
+      selectedTask.value = props.items[0];
+      taskDueDatetime.value = props.items[0].due_date_time
+        ? new Date(props.items[0].due_date_time)
         : null;
-      taskUrgentDate.value = props.data.urgent_date
-        ? new Date(props.data.urgent_date)
+      taskUrgentDate.value = props.items[0].urgent_date
+        ? new Date(props.items[0].urgent_date)
         : null;
     } else {
       selectedTask.value = {
@@ -641,9 +643,39 @@ const updateTask = async () => {
     tasksRes = updateTaskRes;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
+    sendNotification("update_task");
   }
 
   //TODO:input validation:required name, today<=urgent date<=duedate
+};
+
+const sendNotification = async (action, title, content, target) => {
+  console.log(action);
+
+  const { data: announcementNotificationRes } = await useFetch(
+    "/api/insert_notification",
+    {
+      method: "POST",
+      body: {
+        title: title,
+        content: content,
+        target: target,
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
+
+  if (announcementNotificationRes.value.success) {
+    console.log("refresh noti", announcementNotificationRes.value.response);
+    // emit("refresh-notification", announcementNotificationRes.value.response);
+    $emit("refresh-notification", announcementNotificationRes.value.response);
+    return true;
+  }
+};
+
+const formatNotification = (content) => {
+  const regex = /<[^>]*>/g;
+  if (content) return (content = content.replace(regex, ""));
 };
 
 const insertTask = async () => {
@@ -666,6 +698,16 @@ const insertTask = async () => {
     tasksRes = insertTaskRes;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
+    sendNotification(
+      "insert_task",
+      "New Task Added! " + selectedTask.value.task_name,
+      "New task: " +
+        selectedTask.value.task_name +
+        (selectedTask.value.task_desc
+          ? " - " + formatNotification(selectedTask.value.task_desc)
+          : ""),
+      selectedTask.value.owner_ids
+    );
   }
 };
 
@@ -714,6 +756,21 @@ async function addAnnouncement() {
     //   detail: "Profile Updated Successfully",
     //   life: 50000,
     // });
+    const { data: announcementNotificationRes } = await useFetch(
+      "/api/insert_notification",
+      {
+        method: "POST",
+        body: {
+          title: "New Announcement Added! " + announcementTitle.value,
+          content:
+            "New announcement: " +
+            announcementTitle.value +
+            (announcementDesc.value ? " - " + announcementDesc.value : ""),
+          target: announcementReceivers.value,
+        },
+        headers: { "cache-control": "no-cache" },
+      }
+    );
 
     projectAnnouncementRes = addAnnouncementRes;
     announcementList.value = projectAnnouncementRes.value.response;

@@ -50,6 +50,7 @@
             type="button"
             icon="pi pi-inbox"
             @click="toggleNotificationPanel"
+            @refresh-notification="refreshNotification($event)"
             :pt="{ content: { class: 'w-20rem h-20rem' } }"
           />
           <Poverlay-panel
@@ -97,47 +98,26 @@ const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
 // var selectedProject = ref(dstore.getSelectedProject?.id);
 // const selectedProject = ref(currentProject);
 const notificationPanel = ref(false);
+// TODO: add notification list
+// TODO: add chat member list
+const { $listen } = useNuxtApp();
 
 const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
 
-console.log(supabase);
-
-const handleInserts = (payload) => {
-  console.log("Change received!", payload);
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
+const getUserData = async () => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  console.log(user);
+  worker.postMessage(user.id);
 };
+getUserData();
 
-supabase
-  .channel("task")
-  .on(
-    "postgres_changes",
-    { event: "INSERT", schema: "public", table: "task" },
-    handleInserts
-  )
-  .subscribe();
-
-// const mySubscription = supabase
-//   .from('*')
-//   .on('*', payload => {
-//     console.log('Change received!', payload)
-//   })
-//   .subscribe()
-
-const test = async () => {
-  console.log("hello world");
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
-};
+const worker = new Worker("/worker.js");
+console.log(worker);
 
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
@@ -174,6 +154,15 @@ const toggle = (event) => {
 const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };
+
+onNuxtReady(() => {
+  $listen("refresh-notification", (notifications) => {
+    // TODO: insert new noti
+    console.log("refresh noti", notifications);
+  });
+});
+
+const refreshNotification = (event) => {};
 
 function onChangeSelectedProject(event) {
   if (event.value == "-1") {

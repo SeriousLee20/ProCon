@@ -61,7 +61,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Poverlay-panel", OverlayPanel);
   nuxtApp.vueApp.component("PChart", Chart);
 
-  // Quill.register({}, true);
+  // if (process.client) {
+  //   Quill.register(Editor, true);
+  // }
 
   //other components that you need
 
