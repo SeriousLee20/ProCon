@@ -19,6 +19,7 @@
     "supabase": "^1.68.6"
   },
   "dependencies": {
+    "@babel/parser": "^7.23.5",
     "@element-plus/nuxt": "^1.0.5",
     "@infectoone/vue-ganttastic": "^2.2.0",
     "@nuxtjs/supabase": "^0.3.7",
