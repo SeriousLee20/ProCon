@@ -1,6 +1,12 @@
 <template>
-  <Pbutton class="no-shadow" :icon="setShowMyTaskIcon(showMyTaskOnly)" @click="handler" label="My Task Only" size="medium"
-    text />
+  <Pbutton
+    class="no-shadow font-normal"
+    :icon="setShowMyTaskIcon(showMyTaskOnly)"
+    @click="handler"
+    label="My Task Only"
+    size="medium"
+    text
+  />
 </template>
 
 <script setup>

@@ -25,13 +25,8 @@
     "@nuxtjs/supabase": "^0.3.7",
     "@pinia/nuxt": "^0.4.11",
     "@supabase/supabase-js": "^2.25.0",
-<<<<<<< HEAD
-    "@syncfusion/ej2-vue-gantt": "^23.2.5",
-    "@syncfusion/ej2-vue-grids": "^23.2.6",
-=======
     "@syncfusion/ej2-vue-gantt": "^23.2.7",
     "@syncfusion/ej2-vue-grids": "^23.2.7",
->>>>>>> dev/web-worker-v2
     "@types/lodash": "^4.14.202",
     "@types/lodash-es": "^4.17.12",
     "@vee-validate/nuxt": "^4.9.6",

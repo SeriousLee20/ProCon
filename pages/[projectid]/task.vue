@@ -56,6 +56,7 @@
         <div class="flex justify-content-center">
           <div class="flex gap-5 w-full flex justify-content-between">
             <Pcalendar
+              :disabled="disableDateFilter"
               :pt="{ input: { style: 'box-shadow:none; border: none;' } }"
               id="filter-task-duedate-range"
               v-model="filterTaskDueDateRange"
@@ -105,6 +106,7 @@
                 :pt="{
                   content: { class: 'bg-primary-100' },
                   column: { class: 'border-none' },
+                  emptyMessage: { content: 'No Task' },
                 }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
@@ -339,13 +341,14 @@ const taskDialog = ref(false);
 const isEditTask = ref(false);
 const selectedTask = ref();
 const filterTaskDueDateRange = ref();
+const disableDateFilter = ref(false);
 const mainShowMyTaskOnly = ref(
   getFilter("main_task").thisFilter.show_completed
 );
 const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
 const taskDueDatetime = ref();
 const taskUrgentDate = ref();
-const mainTaskList = ref({});
+const mainTaskList = ref({ q1: [], q2: [], q3: [], q4: [] });
 const myTaskList = ref();
 const myTaskSortOption = ref(getFilter("my_task").thisFilter.sort_option);
 const myTaskShowCompleted = ref(getFilter("my_task").thisFilter.show_completed);
@@ -422,25 +425,36 @@ const toggleMyTaskShowCompleted = () => {
 
 const getDefaultDueDateRange = (isClearClick) => {
   let temp_list = tasksRes.value.response;
+  let dateRange = new Array(2).fill(null);
+
+  console.log("initial daterange", dateRange);
 
   let due_date_list = temp_list.reduce((result, task) => {
-    if (task.due_date_time) {
-      result.push(new Date(task.due_date_time));
+    if (task.due_date) {
+      result.push(new Date(task.due_date));
     }
     return result;
   }, []);
 
-  let dateRange = [
+  if (due_date_list.length == 0) {
+    filterTaskDueDateRange.value = [...dateRange];
+    disableDateFilter.value = true;
+    return { dateRange };
+  }
+
+  dateRange = [
     new Date(Math.min.apply(null, due_date_list)),
     new Date(Math.max.apply(null, due_date_list)),
   ];
 
+  // toDateString: get date only, ignore time
   filterTaskDueDateRange.value = [
-    dateRange[0] ? new Date(dateRange[0]) : null,
-    dateRange[1] ? new Date(dateRange[1]) : null,
+    dateRange[0] ? dateRange[0] : null,
+    dateRange[1] ? dateRange[1] : null,
   ];
 
-  console.log("defaultdaterange fitler", due_date_list, dateRange);
+  disableDateFilter.value = false;
+  console.log("defaultdaterange filter", due_date_list, dateRange);
 
   if (isClearClick) {
     updateFilter("due_date_range", filterTaskDueDateRange, "main_task");
@@ -460,6 +474,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     ...task,
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
+    due_date: task?.due_date ? new Date(task?.due_date) : null,
   }));
 
   // filter show completed
@@ -489,9 +504,13 @@ const sortList = (filteredList, listName, sortOptionName) => {
     let dateRange = getDefaultDueDateRange().dateRange;
     console.log("default daterange", dateRange);
     // assign due date range
-    if (filter.due_date_range) {
+    if (filter.due_date_range && dateRange[0] && dateRange[1]) {
       // due date range from filter list
-      let tempRange = filter.due_date_range;
+      let tempRange = [
+        new Date(filter.due_date_range[0]),
+        new Date(filter.due_date_range[1]),
+      ];
+      console.log("update range", tempRange);
       dateRange =
         tempRange[0] >= dateRange[0] && tempRange[1] <= dateRange[1]
           ? [...tempRange]
@@ -499,45 +518,44 @@ const sortList = (filteredList, listName, sortOptionName) => {
     }
 
     filterTaskDueDateRange.value = [
-      dateRange[0] ? new Date(dateRange[0]) : null,
-      dateRange[1] ? new Date(dateRange[1]) : null,
+      dateRange[0] ? dateRange[0] : null,
+      dateRange[1] ? dateRange[1] : null,
     ];
     console.log("filter", filteredList, dateRange);
 
-    filteredList = filteredList.filter(
-      (task) =>
-        (new Date(new Date(task?.due_date_time).toDateString()) >=
-          new Date(dateRange[0]) &&
-          new Date(new Date(task?.due_date_time).toDateString()) <=
-            new Date(dateRange[1])) ||
-        !task?.due_date_time
-    );
+    // TODO: show task w/o due date?
+    filteredList = filteredList.filter((task) => {
+      return (
+        !task?.due_date ||
+        (task?.due_date >= dateRange[0] && task?.due_date <= dateRange[1])
+      );
+    });
+    console.log("filterlist2", filteredList);
 
     filteredList = filter.show_my_task_only
       ? filteredList.filter((task) => task.owner_ids == userId)
       : filteredList;
 
-    mainTaskList.value["q1"] = [];
-    mainTaskList.value["q2"] = [];
-    mainTaskList.value["q3"] = [];
-    mainTaskList.value["q4"] = [];
+    console.log(mainTaskList.value);
+    let tempTaskList = { q1: [], q2: [], q3: [], q4: [] };
     filteredList.forEach((task) => {
       // urgent
-      if (task.urgent_date && new Date(task.urgent_date) <= today) {
+      if (task.urgent_date && task.urgent_date <= today) {
         if (task.importance == 1) {
-          mainTaskList.value.q1.push(task);
+          tempTaskList.q1.push(task);
         } else {
-          mainTaskList.value.q2.push(task);
+          tempTaskList.q2.push(task);
         }
       } else {
         // not urgent
         if (task.importance == 1) {
-          mainTaskList.value.q4.push(task);
+          tempTaskList.q4.push(task);
         } else {
-          mainTaskList.value.q3.push(task);
+          tempTaskList.q3.push(task);
         }
       }
     });
+    mainTaskList.value = tempTaskList;
 
     console.log("maintasklist", mainTaskList.value);
   }
@@ -630,6 +648,9 @@ const updateTask = async () => {
   const updatedTask = selectedTask.value;
   updatedTask["project_id"] = projectid;
   updatedTask["modified_at"] = new Date();
+  updatedTask["due_date"] = updatedTask.due_date_time
+    ? new Date(new Date(updateTask.due_date_time).toDateString())
+    : null;
   console.log(selectedTask.value, updatedTask);
 
   const { data: updateTaskRes } = await useFetch("/api/update_task", {
@@ -660,6 +681,7 @@ const sendNotification = async (action, title, content, target) => {
         title: title,
         content: content,
         target: target,
+        project_id: projectid,
       },
       headers: { "cache-control": "no-cache" },
     }
@@ -685,7 +707,9 @@ const insertTask = async () => {
   let newTask = selectedTask.value;
   newTask["modified_at"] = new Date();
   newTask["project_id"] = projectid;
-
+  newTask["due_date"] = newTask.due_date_time
+    ? new Date(new Date(newTask.due_date_time).toDateString())
+    : null;
   const { data: insertTaskRes } = await useFetch("/api/insert_task", {
     method: "POST",
     body: newTask,
@@ -706,7 +730,7 @@ const insertTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : []
     );
   }
 };

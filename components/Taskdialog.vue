@@ -13,6 +13,7 @@
         id="task-name"
         v-model="props.selectedTask.task_name"
         :disabled="!props.isAdmin"
+        required
       />
     </div>
     <div class="field overflow-scroll h-25rem">
