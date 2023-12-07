@@ -7,11 +7,11 @@
       <template #list="slotProps">
         <div
           v-for="(item, index) in slotProps.items"
-          class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
+          class="col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-1 border-round border-none"
           @click="openTaskDialog(slotProps)"
         >
           <div class="">
-            <p class="footnote-2 mb-0">
+            <p class="footnote-2 mb-0 vertical-align-middle">
               {{ item.task_name }}
             </p>
 

@@ -5,9 +5,9 @@
         {{ dateToday }}
       </div>
     </div>
-    <ClientOnly>
-      <div class="col flex justify-content-center align-content-center">
-        <div>
+    <div class="col flex justify-content-center align-content-center">
+      <div>
+        <ClientOnly>
           <Pdropdown
             id="project-ddlist"
             v-model="selectedProject"
@@ -18,62 +18,82 @@
             :placeholder="ddplaceholder"
           >
           </Pdropdown>
-          <Pbutton
-            type="button"
-            icon="pi pi-sliders-h"
-            @click="toggle"
-            aria-label="edit_project"
-            aria-haspopup="true"
-            aria-controls="edit_menu"
-          />
-          <Pmenu
-            ref="menu"
-            id="edit_menu"
-            :model="menuItems"
-            :popup="true"
-          ></Pmenu>
-        </div>
+        </ClientOnly>
+        <Pbutton
+          type="button"
+          icon="pi pi-sliders-h"
+          @click="toggle"
+          aria-label="edit_project"
+          aria-haspopup="true"
+          aria-controls="edit_menu"
+        />
+        <Pmenu
+          ref="menu"
+          id="edit_menu"
+          :model="menuItems"
+          :popup="true"
+        ></Pmenu>
       </div>
-      <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
-      <div class="col flex justify-content-end align-content-center gap-1">
-        <div
-          v-if="isShowButton"
-          class="flex justify-content-end align-content-center gap-1"
+    </div>
+    <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
+    <div class="col flex justify-content-end align-content-center gap-1">
+      <div
+        v-if="isShowButton"
+        class="flex justify-content-end align-content-center gap-1"
+      >
+        <Pbutton
+          type="button"
+          icon="pi pi-chart-bar"
+          @click="switchPage('ganttchart', 'Gantt Chart')"
+        />
+        <Pbutton type="button" icon="pi pi-comment" />
+        <Pbutton
+          type="button"
+          icon="pi pi-inbox"
+          @click="toggleNotificationPanel"
+          @refresh-notification="refreshNotification($event)"
+          :pt="{ content: { class: 'w-20rem h-20rem' } }"
+        />
+        <Poverlay-panel
+          ref="notificationPanel"
+          appendTo="body"
+          style="width: 24rem; height: 20rem"
         >
-          <Pbutton
-            type="button"
-            icon="pi pi-chart-bar"
-            @click="switchPage('ganttchart', 'Gantt Chart')"
-          />
-          <Pbutton type="button" icon="pi pi-comment" />
-          <Pbutton
-            type="button"
-            icon="pi pi-inbox"
-            @click="toggleNotificationPanel"
-            @refresh-notification="refreshNotification($event)"
-            :pt="{ content: { class: 'w-20rem h-20rem' } }"
-          />
-          <Poverlay-panel
-            ref="notificationPanel"
-            appendTo="body"
-            style="width: 20rem; height: 20rem"
-          >
-            <footer>No Notifications</footer>
-          </Poverlay-panel>
-        </div>
-        <!-- <Pbutton
+          <Pdataview :value="notificationList" optionValue="notification_id">
+            <template #empty>
+              <div>No Notifications</div>
+            </template>
+            <template #list="slotProps">
+              <div
+                v-for="(item, index) in slotProps.items"
+                class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
+              >
+                <div>
+                  <div class="font-bold text-sm">{{ item.title }}</div>
+                  <div class="font-light text-xs text-overflow-ellipsis">
+                    {{ item.content }}
+                  </div>
+                </div>
+                <div class="font-light text-xs min-w-max">
+                  {{ formatDate(item.created_at) }}
+                </div>
+              </div>
+            </template>
+          </Pdataview>
+        </Poverlay-panel>
+      </div>
+      <!-- <Pbutton
           type="button"
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
-        <Pbutton
-          type="button"
-          icon="pi pi-user"
-          @click="switchPage('/profile', 'Profile')"
-        />
-        <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
-      </div>
-    </ClientOnly>
+      <Pbutton
+        type="button"
+        icon="pi pi-user"
+        @click="switchPage('/profile', 'Profile')"
+      />
+      <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
+    </div>
   </div>
 </template>
 
@@ -86,18 +106,21 @@ import { createClient } from "@supabase/supabase-js";
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
+var ddplaceholder = ref(dstore.getCurrentPage);
+var project = ref(dstore.getAllProjects);
+var selectedProject = ref(dstore.getSelectedProject?.id);
 // const { currentProject, setCurrentProject } = useCurrentProject();
+
 const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
   locales: "en-US",
 });
 const menu = ref();
-const isShowButton = ref(false);
+const isShowButton = ref(selectedProject.value ? true : false);
 const menuItems = ref([]);
-var ddplaceholder = ref(dstore.getCurrentPage);
-var project = ref(dstore.getAllProjects);
-var selectedProject = ref(dstore.getSelectedProject?.id);
+
 // const selectedProject = ref(currentProject);
 const notificationPanel = ref(false);
+const notificationList = ref();
 // TODO: add notification list
 // TODO: add chat member list
 const { $listen } = useNuxtApp();
@@ -122,6 +145,13 @@ console.log(worker);
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
 console.log("selected project:", selectedProject.value);
+
+const formatDate = (dateString) => {
+  const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
+    locales: "en-US",
+  });
+  return formattedDate.value;
+};
 
 function configEditMenuList() {
   console.log("1", dstore.getSelectedProject);
@@ -164,9 +194,21 @@ onNuxtReady(() => {
   $listen("switch-page", (action) => {
     switchPage(action.routeName, action.pageName);
   });
+
+  if (selectedProject.value) getNotification();
 });
 
 const refreshNotification = (event) => {};
+
+const getNotification = async () => {
+  var { data: notificationRes } = await useFetch("/api/get_notification", {
+    method: "POST",
+    body: { project_id: selectedProject.value },
+    headers: { "cache-control": "no-cache" },
+  });
+  notificationList.value = notificationRes.value.response;
+  console.log("noti", notificationRes, notificationList.value);
+};
 
 function onChangeSelectedProject(event) {
   if (event.value == "-1") {
@@ -175,6 +217,8 @@ function onChangeSelectedProject(event) {
   } else {
     isShowButton.value = true;
     navigateTo(`/${event.value}/task`);
+
+    getNotification();
   }
 
   // setCurrentProject(event.value);
@@ -197,7 +241,7 @@ function onChangeSelectedProject(event) {
 
 const switchPage = (routeName, pageName) => {
   console.log(routeName, pageName);
-  if (pageName == "Management" || pageName == "Task") {
+  if (pageName == "Task") {
     console.log("split route name", routeName.split("/"));
     const projectId = routeName.split("/")[0];
     console.log(projectId);
@@ -213,10 +257,9 @@ const switchPage = (routeName, pageName) => {
         project.value
       );
       navigateTo(routeName);
-    } else {
-      var finalRouteName = routeName + "/" + selectedProject?.value;
-      navigateTo(finalRouteName);
     }
+  } else if (pageName == "Management") {
+    navigateTo(routeName);
   } else if (pageName != "Overview" && pageName != "Management") {
     ddplaceholder.value = pageName;
     dstore.setCurrentPage(pageName);
@@ -230,7 +273,7 @@ const switchPage = (routeName, pageName) => {
     dstore.setCurrentPage("");
     navigateTo(routeName);
   }
-  isShowButton.value = false;
+  isShowButton.value = selectedProject.value ? true : false;
   console.log(selectedProject.value, ddplaceholder.value);
 };
 

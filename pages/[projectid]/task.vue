@@ -724,7 +724,7 @@ const insertTask = async () => {
     getMainTaskList();
     sendNotification(
       "insert_task",
-      "New Task Added! " + selectedTask.value.task_name,
+      `${dstore.selectedProject.name}: New Task`,
       "New task: " +
         selectedTask.value.task_name +
         (selectedTask.value.task_desc
