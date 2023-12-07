@@ -36,8 +36,8 @@
 import { useToast } from "primevue/usetoast";
 import { useDataStore } from "~/stores/datastore";
 import { refreshDatastore } from "./index.vue";
-import { switchPage } from "~/components/Navbar.vue";
 
+const { $emit } = useNuxtApp();
 const loading = ref(false);
 const projectCode = ref("");
 const toast = useToast();
@@ -118,7 +118,10 @@ const joinProject = async () => {
             loading.value = false;
             // navigateTo(`/project/${newProject.id}`);
             // dstore.setSelectedProject(createdProject.id);
-            switchPage(`/project/${newProject.id}`, "project");
+            $emit("switch-page", {
+              routeName: `${newProject.id}/task`,
+              pageName: "Task",
+            });
           }
         } else {
           toast.add({

@@ -90,12 +90,12 @@ const dstore = useDataStore();
 const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
   locales: "en-US",
 });
-// const menu = ref();
-// const isShowButton = ref(false);
-// const menuItems = ref([]);
-// var ddplaceholder = ref(dstore.getCurrentPage);
-// var project = ref(dstore.getAllProjects);
-// var selectedProject = ref(dstore.getSelectedProject?.id);
+const menu = ref();
+const isShowButton = ref(false);
+const menuItems = ref([]);
+var ddplaceholder = ref(dstore.getCurrentPage);
+var project = ref(dstore.getAllProjects);
+var selectedProject = ref(dstore.getSelectedProject?.id);
 // const selectedProject = ref(currentProject);
 const notificationPanel = ref(false);
 // TODO: add notification list
@@ -128,8 +128,8 @@ function configEditMenuList() {
   const editMenu = [];
   if (dstore.getSelectedProject?.role == "Admin") {
     editMenu.push({
-      label: "Edit Project",
-      command: () => switchPage("/projectManagement", "Edit Project"),
+      label: "Management",
+      command: () => switchPage("management", "Management"),
     });
   }
   editMenu.push(
@@ -159,6 +159,10 @@ onNuxtReady(() => {
   $listen("refresh-notification", (notifications) => {
     // TODO: insert new noti
     console.log("refresh noti", notifications);
+  });
+
+  $listen("switch-page", (action) => {
+    switchPage(action.routeName, action.pageName);
   });
 });
 
@@ -191,11 +195,11 @@ function onChangeSelectedProject(event) {
   console.log("placeholder", ddplaceholder.value);
 }
 
-function switchPage(routeName, pageName) {
+const switchPage = (routeName, pageName) => {
   console.log(routeName, pageName);
-  if (pageName == "Edit Project") {
+  if (pageName == "Management" || pageName == "Task") {
     console.log("split route name", routeName.split("/"));
-    const projectId = routeName.split("/")[2];
+    const projectId = routeName.split("/")[0];
     console.log(projectId);
     if (projectId) {
       selectedProject.value = projectId;
@@ -213,7 +217,7 @@ function switchPage(routeName, pageName) {
       var finalRouteName = routeName + "/" + selectedProject?.value;
       navigateTo(finalRouteName);
     }
-  } else if (pageName != "Overview" && pageName != "Edit Project") {
+  } else if (pageName != "Overview" && pageName != "Management") {
     ddplaceholder.value = pageName;
     dstore.setCurrentPage(pageName);
     selectedProject.value = null;
@@ -228,7 +232,7 @@ function switchPage(routeName, pageName) {
   }
   isShowButton.value = false;
   console.log(selectedProject.value, ddplaceholder.value);
-}
+};
 
 watchEffect(() => {
   if (!useSupabaseUser().value) {
@@ -244,52 +248,52 @@ const logout = async () => {
 
 <script>
 //TODO: avoid pinia error when refresh create
-const dstore = useDataStore();
-const menu = ref();
-const isShowButton = ref(false);
-const menuItems = ref([]);
-var ddplaceholder = ref(dstore.getCurrentPage);
-var project = ref(dstore.getAllProjects);
-var selectedProject = ref(dstore.getSelectedProject?.id);
+// const dstore = useDataStore();
+// const menu = ref();
+// const isShowButton = ref(false);
+// const menuItems = ref([]);
+// var ddplaceholder = ref(dstore.getCurrentPage);
+// var project = ref(dstore.getAllProjects);
+// var selectedProject = ref(dstore.getSelectedProject?.id);
 
-export const switchPage = (routeName, pageName) => {
-  console.log(routeName, pageName);
-  if (pageName == "Edit Project" || pageName == "Project") {
-    console.log("split route name", routeName.split("/"));
-    const projectId = routeName.split("/")[2];
-    console.log(projectId);
-    if (projectId) {
-      selectedProject.value = projectId;
-      ddplaceholder.value = "";
-      project.value = dstore.getAllProjects;
-      console.log(
-        "redirect to project management",
-        projectId,
-        selectedProject.value,
-        ddplaceholder.value,
-        project.value
-      );
-      navigateTo(routeName);
-    } else {
-      var finalRouteName = routeName + "/" + selectedProject?.value;
-      navigateTo(finalRouteName);
-    }
-  } else if (pageName != "Overview" && pageName != "Edit Project") {
-    ddplaceholder.value = pageName;
-    dstore.setCurrentPage(pageName);
-    selectedProject.value = null;
-    dstore.setSelectedProject("");
-    navigateTo(routeName);
-  } else {
-    selectedProject.value = "-1";
-    dstore.setSelectedProject("-1");
-    ddplaceholder.value = "";
-    dstore.setCurrentPage("");
-    navigateTo(routeName);
-  }
-  isShowButton.value = false;
-  console.log(selectedProject.value, ddplaceholder.value);
-};
+// export const switchPage = (routeName, pageName) => {
+//   console.log(routeName, pageName);
+//   if (pageName == "Edit Project" || pageName == "Project") {
+//     console.log("split route name", routeName.split("/"));
+//     const projectId = routeName.split("/")[2];
+//     console.log(projectId);
+//     if (projectId) {
+//       selectedProject.value = projectId;
+//       ddplaceholder.value = "";
+//       project.value = dstore.getAllProjects;
+//       console.log(
+//         "redirect to project management",
+//         projectId,
+//         selectedProject.value,
+//         ddplaceholder.value,
+//         project.value
+//       );
+//       navigateTo(routeName);
+//     } else {
+//       var finalRouteName = routeName + "/" + selectedProject?.value;
+//       navigateTo(finalRouteName);
+//     }
+//   } else if (pageName != "Overview" && pageName != "Edit Project") {
+//     ddplaceholder.value = pageName;
+//     dstore.setCurrentPage(pageName);
+//     selectedProject.value = null;
+//     dstore.setSelectedProject("");
+//     navigateTo(routeName);
+//   } else {
+//     selectedProject.value = "-1";
+//     dstore.setSelectedProject("-1");
+//     ddplaceholder.value = "";
+//     dstore.setCurrentPage("");
+//     navigateTo(routeName);
+//   }
+//   isShowButton.value = false;
+//   console.log(selectedProject.value, ddplaceholder.value);
+// };
 
 // export const onChangeSelectedProject = (event) => {
 //   if (event.value == "-1") {
