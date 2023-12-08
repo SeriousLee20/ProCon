@@ -46,7 +46,65 @@
           icon="pi pi-chart-bar"
           @click="switchPage('ganttchart', 'Gantt Chart')"
         />
-        <Pbutton type="button" icon="pi pi-comment" />
+        <Pbutton type="button" icon="pi pi-comment" @click="toggleChatPanel" />
+        <Poverlay-panel
+          ref="chatPanel"
+          appendTo="body"
+          style="width: 24rem; height: 20rem"
+        >
+          <Pdataview
+            :value="chatlist"
+            optionValue="chatroom_id"
+            class="h-17rem overflow-scroll"
+            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
+          >
+            <template #header>
+              <div class="text-xl bg-primary-100 border-round pl-1">Chat</div>
+            </template>
+            <template #empty>
+              <div>Start a chat.</div>
+            </template>
+            <template #list="slotProps">
+              <div
+                v-for="(item, index) in slotProps.items"
+                class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none w-full"
+              >
+                <div v-if="item.group_id">
+                  <div class="flex justify-content-between">
+                    <div class="font-bold text-sm">
+                      {{ item.group_info.group_name }}
+                    </div>
+                    <div class="font-light text-xs min-w-max">
+                      {{ formatDate(item.last_update_time) }}
+                    </div>
+                  </div>
+                  <div
+                    v-if="item.chatlog[0]"
+                    class="flex justify-content-between font-normal text-xs"
+                  >
+                    <div class="pr-1">{{ item.chatlog[0].sender_name }}:</div>
+                    <div class="text-overflow-clip">
+                      {{ item.chatlog[0].text_content }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <div class="flex justify-content-between">
+                    <div class="font-bold text-sm">
+                      {{ item.chat_target[0]?.name }}
+                    </div>
+                    <div class="font-light text-xs min-w-max">
+                      {{ formatDate(item.last_update_time) }}
+                    </div>
+                  </div>
+                  <div class="font-normal text-xs text-overflow-ellipse">
+                    {{ item.chatlog[0]?.text_content }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </Pdataview>
+        </Poverlay-panel>
         <Pbutton
           type="button"
           icon="pi pi-inbox"
@@ -59,7 +117,17 @@
           appendTo="body"
           style="width: 24rem; height: 20rem"
         >
-          <Pdataview :value="notificationList" optionValue="notification_id">
+          <Pdataview
+            :value="notificationList"
+            optionValue="notification_id"
+            class="h-17rem overflow-scroll"
+            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
+          >
+            <template #header>
+              <div class="text-xl bg-primary-100 border-round pl-1">
+                Notification
+              </div>
+            </template>
             <template #empty>
               <div>No Notifications</div>
             </template>
@@ -121,6 +189,8 @@ const menuItems = ref([]);
 // const selectedProject = ref(currentProject);
 const notificationPanel = ref(false);
 const notificationList = ref();
+const chatPanel = ref(false);
+const chatlist = ref();
 // TODO: add notification list
 // TODO: add chat member list
 const { $listen } = useNuxtApp();
@@ -181,22 +251,24 @@ const toggle = (event) => {
   menu.value.toggle(event);
 };
 
+const toggleChatPanel = (event) => {
+  chatPanel.value.toggle(event);
+};
+
+const getChatList = async () => {
+  var { data: chatlistRes } = await useFetch("/api/get_chatlist", {
+    method: "POST",
+    body: { project_id: selectedProject.value },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  chatlist.value = chatlistRes.value.response;
+  console.log("chat", chatlistRes, chatlist.value);
+};
+
 const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };
-
-onNuxtReady(() => {
-  $listen("refresh-notification", (notifications) => {
-    // TODO: insert new noti
-    console.log("refresh noti", notifications);
-  });
-
-  $listen("switch-page", (action) => {
-    switchPage(action.routeName, action.pageName);
-  });
-
-  if (selectedProject.value) getNotification();
-});
 
 const refreshNotification = (event) => {};
 
@@ -276,6 +348,22 @@ const switchPage = (routeName, pageName) => {
   isShowButton.value = selectedProject.value ? true : false;
   console.log(selectedProject.value, ddplaceholder.value);
 };
+
+onNuxtReady(() => {
+  $listen("refresh-notification", (notifications) => {
+    // TODO: insert new noti
+    console.log("refresh noti", notifications);
+  });
+
+  $listen("switch-page", (action) => {
+    switchPage(action.routeName, action.pageName);
+  });
+
+  if (selectedProject.value) {
+    getNotification();
+    getChatList();
+  }
+});
 
 watchEffect(() => {
   if (!useSupabaseUser().value) {

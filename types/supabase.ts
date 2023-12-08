@@ -79,6 +79,85 @@ export interface Database {
           }
         ]
       }
+      chat_group: {
+        Row: {
+          created_at: string
+          group_description: string | null
+          group_id: string
+          group_name: string
+          profile_photo_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_description?: string | null
+          group_id?: string
+          group_name: string
+          profile_photo_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_description?: string | null
+          group_id?: string
+          group_name?: string
+          profile_photo_url?: string | null
+        }
+        Relationships: []
+      }
+      chat_log: {
+        Row: {
+          chat_log_id: string
+          created_at: string
+          media_content_url: string | null
+          project_id: string
+          receiver_ids: string[]
+          sender_id: string
+          text_content: string
+          user_group_id: string | null
+        }
+        Insert: {
+          chat_log_id?: string
+          created_at?: string
+          media_content_url?: string | null
+          project_id: string
+          receiver_ids: string[]
+          sender_id: string
+          text_content: string
+          user_group_id?: string | null
+        }
+        Update: {
+          chat_log_id?: string
+          created_at?: string
+          media_content_url?: string | null
+          project_id?: string
+          receiver_ids?: string[]
+          sender_id?: string
+          text_content?: string
+          user_group_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_log_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_log_user_group_id_fkey"
+            columns: ["user_group_id"]
+            isOneToOne: false
+            referencedRelation: "user_chatgroup"
+            referencedColumns: ["user_group_id"]
+          }
+        ]
+      }
       filters: {
         Row: {
           board_name: string
@@ -160,7 +239,7 @@ export interface Database {
         Row: {
           content: string | null
           created_at: string
-          id: number
+          notification_id: string
           project_id: string | null
           target: string[] | null
           title: string
@@ -168,7 +247,7 @@ export interface Database {
         Insert: {
           content?: string | null
           created_at?: string
-          id?: number
+          notification_id?: string
           project_id?: string | null
           target?: string[] | null
           title: string
@@ -176,7 +255,7 @@ export interface Database {
         Update: {
           content?: string | null
           created_at?: string
-          id?: number
+          notification_id?: string
           project_id?: string | null
           target?: string[] | null
           title?: string
@@ -383,6 +462,52 @@ export interface Database {
         }
         Relationships: []
       }
+      user_chatgroup: {
+        Row: {
+          created_at: string
+          group_id: string
+          project_id: string
+          user_group_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          project_id: string
+          user_group_id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          project_id?: string
+          user_group_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_chatgroup_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_group"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "user_chatgroup_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_chatgroup_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -425,7 +550,7 @@ export interface Database {
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]
@@ -462,6 +587,19 @@ export interface Database {
           n_project_id: string
         }
         Returns: Record<string, unknown>
+      }
+      get_chatlist: {
+        Args: {
+          n_user_id: string
+          n_project_id: string
+        }
+        Returns: {
+          user_id: string
+          username: string
+          department: string
+          individual_chat: Json
+          group_chat: Json
+        }[]
       }
       get_department: {
         Args: {
@@ -523,6 +661,7 @@ export interface Database {
           n_user_id: string
         }
         Returns: {
+          notification_id: string
           created_at: string
           title: string
           content: string
@@ -572,7 +711,7 @@ export interface Database {
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]
@@ -711,7 +850,7 @@ export interface Database {
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]
@@ -788,7 +927,7 @@ export interface Database {
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]

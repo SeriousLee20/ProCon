@@ -2,7 +2,7 @@
   <Pdialog
     v-if="props.taskDialog"
     style="width: 80%"
-    header="Edit Task"
+    :header="header"
     :modal="true"
     class="p-fluid"
   >
@@ -179,6 +179,7 @@ const props = defineProps({
 //   props.taskDialog = value;
 // });
 const isEditTask = props.isEditTask;
+const header = props.isEditTask ? "Edit Task" : "Add Task";
 console.log("dialog", isEditTask, props.taskDialog);
 
 const formatDate = (dateString) => {

@@ -87,6 +87,7 @@ const validate = () => {
   console.log("is invalid name", invalidName.value);
 };
 
+// TODO: generate default filter in sql
 const createProject = async () => {
   loading.value = true;
   console.log("create new project", projectName.value);

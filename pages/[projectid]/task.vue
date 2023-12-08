@@ -649,7 +649,7 @@ const updateTask = async () => {
   updatedTask["project_id"] = projectid;
   updatedTask["modified_at"] = new Date();
   updatedTask["due_date"] = updatedTask.due_date_time
-    ? new Date(new Date(updateTask.due_date_time).toDateString())
+    ? new Date(new Date(updatedTask.due_date_time).toDateString())
     : null;
   console.log(selectedTask.value, updatedTask);
 
@@ -664,7 +664,16 @@ const updateTask = async () => {
     tasksRes = updateTaskRes;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
-    sendNotification("update_task");
+    sendNotification(
+      "update_task",
+      `${dstore.selectedProject.name}: Task Updates`,
+      "Task Updates: " +
+        selectedTask.value.task_name +
+        (selectedTask.value.task_desc
+          ? " - " + formatNotification(selectedTask.value.task_desc)
+          : ""),
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : []
+    );
   }
 
   //TODO:input validation:required name, today<=urgent date<=duedate

@@ -47,6 +47,7 @@ const { data: all_project } = await useFetch("/api/get_all_project");
 
 console.log(all_project);
 
+// TODO: generate default filter in sql script
 const joinProject = async () => {
   console.log(projectCode.value);
   if (!projectCode.value) {
