@@ -36,8 +36,8 @@
 import { useToast } from "primevue/usetoast";
 import { useDataStore } from "~/stores/datastore";
 import { refreshDatastore } from "./index.vue";
-import { switchPage } from "~/components/Navbar.vue";
 
+const { $emit } = useNuxtApp();
 const loading = ref(false);
 const projectCode = ref("");
 const toast = useToast();
@@ -47,6 +47,7 @@ const { data: all_project } = await useFetch("/api/get_all_project");
 
 console.log(all_project);
 
+// TODO: generate default filter in sql script
 const joinProject = async () => {
   console.log(projectCode.value);
   if (!projectCode.value) {
@@ -118,7 +119,10 @@ const joinProject = async () => {
             loading.value = false;
             // navigateTo(`/project/${newProject.id}`);
             // dstore.setSelectedProject(createdProject.id);
-            switchPage(`/project/${newProject.id}`, "project");
+            $emit("switch-page", {
+              routeName: `${newProject.id}/task`,
+              pageName: "Task",
+            });
           }
         } else {
           toast.add({

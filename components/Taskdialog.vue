@@ -2,7 +2,7 @@
   <Pdialog
     v-if="props.taskDialog"
     style="width: 80%"
-    header="Edit Task"
+    :header="header"
     :modal="true"
     class="p-fluid"
   >
@@ -13,6 +13,7 @@
         id="task-name"
         v-model="props.selectedTask.task_name"
         :disabled="!props.isAdmin"
+        required
       />
     </div>
     <div class="field overflow-scroll h-25rem">
@@ -117,7 +118,7 @@
     </div>
     <template #footer>
       <div class="w-full flex justify-content-between align-items-end">
-        <div class="w-full text-left footnote" v-if="props.isEditTask">
+        <div class="w-full text-left footnote text-xs" v-if="props.isEditTask">
           <div>
             Created by {{ props.selectedTask.creator_name }} at
             {{ formatDate(props.selectedTask.creation_timestamp) }}
@@ -142,6 +143,7 @@
             @click="$emit('update:visible', false)"
           />
 
+          <!-- TODO: confirm delete dialog -->
           <Pbutton
             v-if="props.isEditTask"
             label="Delete"
@@ -177,6 +179,7 @@ const props = defineProps({
 //   props.taskDialog = value;
 // });
 const isEditTask = props.isEditTask;
+const header = props.isEditTask ? "Edit Task" : "Add Task";
 console.log("dialog", isEditTask, props.taskDialog);
 
 const formatDate = (dateString) => {
