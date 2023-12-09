@@ -106,41 +106,35 @@ export interface Database {
       chat_log: {
         Row: {
           chat_log_id: string
+          chatroom_id: string | null
           created_at: string
           media_content_url: string | null
-          project_id: string
-          receiver_ids: string[]
           sender_id: string
           text_content: string
-          user_group_id: string | null
         }
         Insert: {
           chat_log_id?: string
+          chatroom_id?: string | null
           created_at?: string
           media_content_url?: string | null
-          project_id: string
-          receiver_ids: string[]
           sender_id: string
           text_content: string
-          user_group_id?: string | null
         }
         Update: {
           chat_log_id?: string
+          chatroom_id?: string | null
           created_at?: string
           media_content_url?: string | null
-          project_id?: string
-          receiver_ids?: string[]
           sender_id?: string
           text_content?: string
-          user_group_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "chat_log_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "chat_log_chatroom_id_fkey"
+            columns: ["chatroom_id"]
             isOneToOne: false
-            referencedRelation: "project"
-            referencedColumns: ["id"]
+            referencedRelation: "chatroom"
+            referencedColumns: ["chatroom_id"]
           },
           {
             foreignKeyName: "chat_log_sender_id_fkey"
@@ -148,13 +142,48 @@ export interface Database {
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
+          }
+        ]
+      }
+      chatroom: {
+        Row: {
+          chatroom_id: string
+          created_at: string
+          group_id: string | null
+          last_update_time: string | null
+          project_id: string | null
+          user_ids: string[] | null
+        }
+        Insert: {
+          chatroom_id?: string
+          created_at?: string
+          group_id?: string | null
+          last_update_time?: string | null
+          project_id?: string | null
+          user_ids?: string[] | null
+        }
+        Update: {
+          chatroom_id?: string
+          created_at?: string
+          group_id?: string | null
+          last_update_time?: string | null
+          project_id?: string | null
+          user_ids?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatroom_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_group"
+            referencedColumns: ["group_id"]
           },
           {
-            foreignKeyName: "chat_log_user_group_id_fkey"
-            columns: ["user_group_id"]
+            foreignKeyName: "chatroom_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "user_chatgroup"
-            referencedColumns: ["user_group_id"]
+            referencedRelation: "project"
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -164,6 +193,7 @@ export interface Database {
           filter: Json | null
           id: number
           modified_at: string
+          project_id: string | null
           user_id: string
         }
         Insert: {
@@ -171,6 +201,7 @@ export interface Database {
           filter?: Json | null
           id?: number
           modified_at?: string
+          project_id?: string | null
           user_id: string
         }
         Update: {
@@ -178,9 +209,17 @@ export interface Database {
           filter?: Json | null
           id?: number
           modified_at?: string
+          project_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "filters_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "filters_user_id_fkey"
             columns: ["user_id"]
@@ -594,11 +633,15 @@ export interface Database {
           n_project_id: string
         }
         Returns: {
-          user_id: string
-          username: string
-          department: string
-          individual_chat: Json
-          group_chat: Json
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          chat_target: Json
         }[]
       }
       get_department: {
@@ -956,7 +999,21 @@ export interface Database {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      chatlog_type: {
+        chat_log_id: string
+        text_content: string
+        media_content_url: string
+        created_at: string
+        sender_id: string
+        sender_name: string
+      }
+      group_member_type: {
+        user_id: string
+        name: string
+        role: string
+        position: string
+        department: string
+      }
     }
   }
   storage: {
