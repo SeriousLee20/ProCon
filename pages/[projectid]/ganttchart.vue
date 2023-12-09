@@ -1,19 +1,20 @@
 <template>
-  <div id="app" style="width: 100%">
-    <h2>National Blood Donation Program</h2>
+  <div id="app" class="px-8 flex-column flex-wrap align-items-center justify-content-center w-full pt-8">
+    <h2 class="text-center">National Blood Donation Program</h2>
     <BarChart v-bind="barChartProps" />
   </div>
 </template>
 
-<script>
+<script >
 import 'chartjs-adapter-date-fns';
 import { de } from 'date-fns/locale';
 import { defineComponent, ref, onMounted } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import { BarChart, useBarChart } from 'vue-chart-3';
-
+const value = ref(null);
 
 Chart.register(...registerables);
+console.log(value)
 
 
 let dto = {};
@@ -200,7 +201,7 @@ export default defineComponent({
               },
             },
             min: '2023-09-01',
-            max: '2023-10-31'
+            max: '2023-09-31'
           }
         },
         plugins: {
@@ -264,14 +265,5 @@ definePageMeta({
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-  border-width: 3px;
-  border-color: grey;
-}
+#app {}
 </style>
