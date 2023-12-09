@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showList">
+  <div>
     <Pdataview :value="props.taskList" :pt="props.pt">
       <template #empty>
         <div></div>

@@ -848,8 +848,14 @@ export interface Database {
           n_content: string
           n_target: string[]
           n_project_id: string
+          n_user_id: string
         }
-        Returns: undefined
+        Returns: {
+          notification_id: string
+          created_at: string
+          title: string
+          content: string
+        }[]
       }
       insert_position: {
         Args: {

@@ -343,7 +343,7 @@ const selectedTask = ref();
 const filterTaskDueDateRange = ref();
 const disableDateFilter = ref(false);
 const mainShowMyTaskOnly = ref(
-  getFilter("main_task").thisFilter.show_completed
+  getFilter("main_task").thisFilter.show_my_task_only
 );
 const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
 const taskDueDatetime = ref();

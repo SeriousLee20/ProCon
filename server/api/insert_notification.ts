@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
           n_content: nData.content,
           n_target: nData.target,
           n_project_id: nData.project_id,
+          n_user_id: id,
         }
       );
 
