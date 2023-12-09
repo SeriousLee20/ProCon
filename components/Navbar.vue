@@ -339,6 +339,7 @@ const switchPage = (routeName, pageName) => {
   } else if (pageName == "Management") {
     navigateTo(routeName);
   } else if (pageName != "Overview" && pageName != "Management") {
+    // pagename = Create project/Join Project
     ddplaceholder.value = pageName;
     dstore.setCurrentPage(pageName);
     selectedProject.value = null;
@@ -352,6 +353,7 @@ const switchPage = (routeName, pageName) => {
     navigateTo(routeName);
   }
   isShowButton.value = selectedProject.value ? true : false;
+  menuItems.value = configEditMenuList().editMenu;
   console.log(selectedProject.value, ddplaceholder.value);
 };
 
