@@ -1,21 +1,23 @@
 <template>
-  <div id="app" class="px-8 flex-column flex-wrap align-items-center justify-content-center w-full pt-8">
+  <div
+    id="app"
+    class="px-8 flex-column flex-wrap align-items-center justify-content-center w-full mt-20"
+  >
     <h2 class="text-center">National Blood Donation Program</h2>
     <BarChart v-bind="barChartProps" />
   </div>
 </template>
 
-<script >
-import 'chartjs-adapter-date-fns';
-import { de } from 'date-fns/locale';
-import { defineComponent, ref, onMounted } from 'vue';
-import { Chart, registerables } from 'chart.js';
-import { BarChart, useBarChart } from 'vue-chart-3';
+<script>
+import "chartjs-adapter-date-fns";
+import { de } from "date-fns/locale";
+import { defineComponent, ref, onMounted } from "vue";
+import { Chart, registerables } from "chart.js";
+import { BarChart, useBarChart } from "vue-chart-3";
 const value = ref(null);
 
 Chart.register(...registerables);
-console.log(value)
-
+console.log(value);
 
 let dto = {};
 dto["project_id"] = "4ce23978-13ee-4e50-81dd-fbddf0bb84c6";
@@ -132,23 +134,77 @@ export default defineComponent({
       },
     };
 
-    const assignedTasks = {
-      id: "assignedTasks",
-      afterDatasetsDraw(chart, args, pluginOptions) {
+    const moveChart = {
+      id: "moveChart",
+      afterEvent(chart, args) {
         const {
           ctx,
-          data,
-          chartArea: { top, bottom, left, right },
-          scales: { x, y },
+          canvas,
+          chartArea: { top, bottom, left, right, width, height },
         } = chart;
-        ctx.fillStyle = "black";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
-        chartData.value.datasets[0].data.forEach((datapoint, index) => {
-          ctx.fillText(datapoint.name, 10, y.getPixelForValue(index));
+        canvas.addEventListener("mousemove", (event) => {
+          const x = args.event.x;
+          const y = args.event.y;
+
+          if (
+            x >= left - 20 &&
+            x <= left + 20 &&
+            y >= bottom - 20 &&
+            y <= bottom + 20
+          ) {
+            canvas.style.cursor = "pointer";
+          } else if (
+            x >= right - 20 &&
+            x <= right + 20 &&
+            y >= bottom - 20 &&
+            y <= bottom + 20
+          ) {
+            canvas.style.cursor = "pointer";
+          } else {
+            canvas.style.cursor = "default";
+          }
         });
-        ctx.fillText("Names", 10, top - 15);
-        ctx.restore();
+      },
+      afterDraw(chart, args, pluginOptions) {
+        const {
+          ctx,
+          chartArea: { top, bottom, left, right, width, height },
+        } = chart;
+        ctx.save();
+
+        class CircleChevron {
+          // constructor(x1,y1){
+
+          // }
+
+          draw(ctx, x1, pixel) {
+            const angle = Math.PI / 180;
+            const radius = 20;
+            ctx.beginPath();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "rgba(255,26,104,0.7)";
+            ctx.fillStyle = "rgba(255, 255, 255, 1)";
+            ctx.arc(x1, bottom, radius, angle * 0, angle * 360, false);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "rgba(255,26,104)";
+            ctx.moveTo(x1 + pixel, bottom - 7.5);
+            ctx.lineTo(x1 - pixel, bottom);
+            ctx.lineTo(x1 + pixel, bottom + 7.5);
+            ctx.stroke();
+            ctx.closePath();
+          }
+        }
+
+        let drawCircleLeft = new CircleChevron();
+        drawCircleLeft.draw(ctx, left, 5);
+
+        let drawCircleRight = new CircleChevron();
+        drawCircleRight.draw(ctx, right, -5);
       },
     };
 
@@ -170,7 +226,7 @@ export default defineComponent({
               x.getPixelForValue(tick.value),
               top,
               x.getPixelForValue(new Date(tick.value).setHours(24)) -
-              x.getPixelForValue(tick.value),
+                x.getPixelForValue(tick.value),
               height
             );
           }
@@ -186,7 +242,7 @@ export default defineComponent({
             bottom: 25,
           },
         },
-        indexAxis: 'y',
+        indexAxis: "y",
         responsive: true,
         scales: {
           x: {
@@ -200,9 +256,9 @@ export default defineComponent({
                 local: de,
               },
             },
-            min: '2023-09-01',
-            max: '2023-09-31'
-          }
+            min: "2023-09-01",
+            max: "2023-10-01",
+          },
         },
         plugins: {
           legend: {
@@ -234,29 +290,86 @@ export default defineComponent({
               },
             },
           },
-        }
-
+        },
       },
-      plugins: [todayLine, weekend],
+      plugins: [todayLine, weekend, moveChart],
     });
 
     onMounted(() => {
       if (barChartRef.value) {
         barChartRef.value.chartInstance.destroy();
         barChartRef.value.renderChart();
-      }
-      else {
-
+      } else {
         barChartRef.value.renderChart();
       }
-
+      console.log(barChartRef.value.chartInstance.ctx);
+      barChartRef.value.chartInstance.ctx.onclick = moveScroll(
+        barChartRef.value.chartInstance
+      );
     });
-
-
 
     return { barChartProps, barChartRef };
   },
 });
+
+function moveScroll(chart) {
+  chart.canvas.addEventListener("click", (event) => {
+    const rect = chart.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    if (
+      x >= chart.chartArea.left - 20 &&
+      x <= chart.chartArea.left + 20 &&
+      y >= chart.chartArea.bottom - 20 &&
+      y <= chart.chartArea.bottom + 20
+    ) {
+      const currentMinDate = new Date(chart.options.scales.x.min);
+      const currentMaxDate = new Date(chart.options.scales.x.max);
+      let newMinDate = addMonths(currentMinDate, -1);
+      let newMaxDate = addMonths(currentMaxDate, -1);
+      console.log(newMinDate, newMaxDate);
+      chart.options.scales.x.min = newMinDate;
+      chart.options.scales.x.max = newMaxDate;
+      chart.update();
+    } else if (
+      x >= chart.chartArea.right - 20 &&
+      x <= chart.chartArea.right + 20 &&
+      y >= chart.chartArea.bottom - 20 &&
+      y <= chart.chartArea.bottom + 20
+    ) {
+      const currentMinDate = new Date(chart.options.scales.x.min);
+      const currentMaxDate = new Date(chart.options.scales.x.max);
+      let newMinDate = addMonths(currentMinDate, 1);
+      let newMaxDate = addMonths(currentMaxDate, 1);
+      console.log(newMinDate, newMaxDate);
+      chart.options.scales.x.min = newMinDate;
+      chart.options.scales.x.max = newMaxDate;
+      chart.update();
+    }
+  });
+}
+
+function addMonths(date, months) {
+  var d = date.getDate();
+  date.setMonth(date.getMonth() + +months);
+  if (date.getDate() != d) {
+    date.setDate(0);
+  }
+  return formatDate(date);
+}
+
+function formatDate(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+}
 
 definePageMeta({
   // layout: "custom",
@@ -265,5 +378,6 @@ definePageMeta({
 </script>
 
 <style>
-#app {}
+#app {
+}
 </style>

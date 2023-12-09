@@ -800,6 +800,7 @@ async function addAnnouncement() {
             announcementTitle.value +
             (announcementDesc.value ? " - " + announcementDesc.value : ""),
           target: announcementReceivers.value,
+          project_id: projectid,
         },
         headers: { "cache-control": "no-cache" },
       }
