@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
           // n_creator_id: nData?.creator_id,
           n_owner_ids: nData?.owner_ids,
           n_due_date_time: nData?.due_date_time,
+          n_due_date: nData?.due_date,
           n_urgent_date: nData?.urgent_date,
           n_project_id: nData?.project_id,
           n_importance: nData?.importance,
