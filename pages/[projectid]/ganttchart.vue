@@ -6,15 +6,15 @@
 </template>
 
 <script>
-import "chartjs-adapter-date-fns";
-import { de } from "date-fns/locale";
-import { defineComponent, ref, onMounted } from "vue";
-import { Chart, registerables } from "chart.js";
-import zoomPlugin from "chartjs-plugin-zoom";
-import { BarChart, useBarChart } from "vue-chart-3";
+import 'chartjs-adapter-date-fns';
+import { de } from 'date-fns/locale';
+import { defineComponent, ref, onMounted } from 'vue';
+import { Chart, registerables } from 'chart.js';
+import { BarChart, useBarChart } from 'vue-chart-3';
+
 
 Chart.register(...registerables);
-Chart.register(zoomPlugin);
+
 
 let dto = {};
 dto["project_id"] = "4ce23978-13ee-4e50-81dd-fbddf0bb84c6";
@@ -169,7 +169,7 @@ export default defineComponent({
               x.getPixelForValue(tick.value),
               top,
               x.getPixelForValue(new Date(tick.value).setHours(24)) -
-                x.getPixelForValue(tick.value),
+              x.getPixelForValue(tick.value),
               height
             );
           }
@@ -185,7 +185,8 @@ export default defineComponent({
             bottom: 25,
           },
         },
-        indexAxis: "y",
+        indexAxis: 'y',
+        responsive: true,
         scales: {
           x: {
             position: "top",
@@ -198,9 +199,9 @@ export default defineComponent({
                 local: de,
               },
             },
-            min: "2023-09-01",
-            max: "2023-09-30",
-          },
+            min: '2023-09-01',
+            max: '2023-10-31'
+          }
         },
         plugins: {
           legend: {
@@ -232,23 +233,25 @@ export default defineComponent({
               },
             },
           },
-          zoom: {
-            pan: {
-              enabled: true,
-              mode: "x",
-            },
-          },
-        },
+        }
+
       },
       plugins: [todayLine, weekend],
     });
 
     onMounted(() => {
-      // barChartRef.value.canvasRef.addEventListener('wheel', (e) => {
-      //   scroller(e, barChartRef);
-      // });
-      barChartRef.value.renderChart();
+      if (barChartRef.value) {
+        barChartRef.value.chartInstance.destroy();
+        barChartRef.value.renderChart();
+      }
+      else {
+
+        barChartRef.value.renderChart();
+      }
+
     });
+
+
 
     return { barChartProps, barChartRef };
   },
