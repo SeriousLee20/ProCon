@@ -160,25 +160,36 @@ export interface Database {
         Row: {
           content: string | null
           created_at: string
-          id: number
+          notification_id: string
+          project_id: string | null
           target: string[] | null
           title: string
         }
         Insert: {
           content?: string | null
           created_at?: string
-          id?: number
+          notification_id?: string
+          project_id?: string | null
           target?: string[] | null
           title: string
         }
         Update: {
           content?: string | null
           created_at?: string
-          id?: number
+          notification_id?: string
+          project_id?: string | null
           target?: string[] | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       parameters: {
         Row: {
@@ -244,6 +255,7 @@ export interface Database {
           creation_timestamp: string | null
           creator_id: string
           description: string | null
+          due_date: string | null
           due_date_time: string | null
           id: string
           importance: number | null
@@ -260,6 +272,7 @@ export interface Database {
           creation_timestamp?: string | null
           creator_id: string
           description?: string | null
+          due_date?: string | null
           due_date_time?: string | null
           id?: string
           importance?: number | null
@@ -276,6 +289,7 @@ export interface Database {
           creation_timestamp?: string | null
           creator_id?: string
           description?: string | null
+          due_date?: string | null
           due_date_time?: string | null
           id?: string
           importance?: number | null
@@ -406,6 +420,7 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
@@ -502,6 +517,18 @@ export interface Database {
           user_department: string
         }[]
       }
+      get_notification: {
+        Args: {
+          n_project_id: string
+          n_user_id: string
+        }
+        Returns: {
+          notification_id: string
+          created_at: string
+          title: string
+          content: string
+        }[]
+      }
       get_parameter_bridge: {
         Args: {
           ref1: unknown
@@ -541,11 +568,12 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]
@@ -570,6 +598,7 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
@@ -634,9 +663,10 @@ export interface Database {
       }
       insert_notification: {
         Args: {
-          p_title: string
-          p_content: string
-          p_target: string[]
+          n_title: string
+          n_content: string
+          n_target: string[]
+          n_project_id: string
         }
         Returns: undefined
       }
@@ -655,6 +685,7 @@ export interface Database {
           n_owner_ids: string[]
           n_status_code: number
           n_due_date_time: string
+          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -676,6 +707,7 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
@@ -730,6 +762,7 @@ export interface Database {
           n_owner_ids: string[]
           n_status_code: number
           n_due_date_time: string
+          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -751,6 +784,7 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
@@ -967,3 +1001,83 @@ export interface Database {
     }
   }
 }
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
+      Database["public"]["Views"])
+  ? (Database["public"]["Tables"] &
+      Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof Database["public"]["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
+  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+  : never
