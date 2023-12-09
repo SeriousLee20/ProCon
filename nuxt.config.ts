@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // devtools: { enabled: true }
-
+  plugins: [{ src: "~/plugins/chartjs.client.ts", mode: "client" }],
   modules: [
     "@nuxtjs/supabase",
     "@vueuse/nuxt",

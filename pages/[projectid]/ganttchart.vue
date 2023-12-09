@@ -10,12 +10,10 @@ import 'chartjs-adapter-date-fns';
 import { de } from 'date-fns/locale';
 import { defineComponent, ref, onMounted } from 'vue';
 import { Chart, registerables } from 'chart.js';
-import zoomPlugin from 'chartjs-plugin-zoom';
 import { BarChart, useBarChart } from 'vue-chart-3';
 
 
 Chart.register(...registerables);
-Chart.register(zoomPlugin);
 
 
 let dto = {};
@@ -147,6 +145,7 @@ export default defineComponent({
           }
         },
         indexAxis: 'y',
+        responsive: true,
         scales: {
           x: {
             position: 'top',
@@ -160,7 +159,7 @@ export default defineComponent({
               },
             },
             min: '2023-09-01',
-            max: '2023-09-30'
+            max: '2023-10-31'
           }
         },
         plugins: {
@@ -193,12 +192,6 @@ export default defineComponent({
               }
             }
           },
-          zoom: {
-            pan: {
-              enabled: true,
-              mode: 'x',
-            },
-          }
         }
 
       },
@@ -206,12 +199,18 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      // barChartRef.value.canvasRef.addEventListener('wheel', (e) => {
-      //   scroller(e, barChartRef);
-      // });
-      barChartRef.value.renderChart();
+      if (barChartRef.value) {
+        barChartRef.value.chartInstance.destroy();
+        barChartRef.value.renderChart();
+      }
+      else {
+
+        barChartRef.value.renderChart();
+      }
 
     });
+
+
 
     return { barChartProps, barChartRef };
   },
