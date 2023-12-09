@@ -3,7 +3,7 @@
     id="app"
     class="px-8 flex-column flex-wrap align-items-center justify-content-center w-full mt-20"
   >
-    <h2 class="text-center">National Blood Donation Program</h2>
+    <!-- <h2 class="text-center">National Blood Donation Program</h2> -->
     <BarChart v-bind="barChartProps" />
   </div>
 </template>
@@ -372,7 +372,7 @@ function formatDate(date) {
 }
 
 definePageMeta({
-  // layout: "custom",
+  layout: "custom",
   middleware: ["auth", "initiate"],
 });
 </script>
