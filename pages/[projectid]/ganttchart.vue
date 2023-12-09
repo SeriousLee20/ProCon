@@ -255,7 +255,7 @@ export default defineComponent({
 });
 
 definePageMeta({
-  // layout: "custom",
+  layout: "custom",
   middleware: ["auth", "initiate"],
 });
 </script>
