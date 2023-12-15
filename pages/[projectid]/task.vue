@@ -683,24 +683,21 @@ const updateTask = async () => {
 const sendNotification = async (action, title, content, target) => {
   console.log(action);
 
-  const { data: announcementNotificationRes } = await useFetch(
-    "/api/insert_notification",
-    {
-      method: "POST",
-      body: {
-        title: title,
-        content: content,
-        target: target,
-        project_id: projectid,
-      },
-      headers: { "cache-control": "no-cache" },
-    }
-  );
+  const { data: notificationRes } = await useFetch("/api/insert_notification", {
+    method: "POST",
+    body: {
+      title: title,
+      content: content,
+      target: target,
+      project_id: projectid,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
 
-  if (announcementNotificationRes.value.success) {
-    console.log("refresh noti", announcementNotificationRes.value.response);
+  if (notificationRes.value.success) {
+    console.log("refresh noti", notificationRes.value.response);
     // emit("refresh-notification", announcementNotificationRes.value.response);
-    $emit("refresh-notification", announcementNotificationRes.value.response);
+    $emit("refresh-notification", notificationRes.value.response);
     return true;
   }
 };

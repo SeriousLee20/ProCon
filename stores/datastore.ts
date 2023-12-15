@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+// TODO: add tasklist & overview function
 export const useDataStore = defineStore("data", {
   state: () => ({
     user: null as User | null,
@@ -62,9 +62,10 @@ export const useDataStore = defineStore("data", {
       })[0].role;
     },
     getUserRoleByProject(projectId: string) {
+      console.log("ds get user role byproject", projectId, this.projects);
       return this.projects?.filter((project) => {
         return project.id == projectId;
-      })[0].role;
+      })[0]?.role;
     },
     getFullData() {
       return [

@@ -35,7 +35,6 @@
           dateFormat="M dd, yy"
           showButtonBar
           :overlayVisible="true"
-          :minDate="new Date()"
           :selectOtherMonths="true"
           :disabled="!props.isAdmin"
         ></Pcalendar>

@@ -594,6 +594,19 @@ export interface Database {
           status_severity: string
         }[]
       }
+      delete_task_from_ov: {
+        Args: {
+          n_task_id: string
+          n_project_id: string
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          grouped_members: Json
+          task_list: Json
+        }[]
+      }
       get_all_project: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1009,6 +1022,29 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+        }[]
+      }
+      update_task_from_ov: {
+        Args: {
+          n_task_id: string
+          n_name: string
+          n_description: string
+          n_owner_ids: string[]
+          n_status_code: number
+          n_due_date_time: string
+          n_due_date: string
+          n_urgent_date: string
+          n_importance: number
+          n_importance_rate: number
+          n_modified_at: string
+          n_modified_by: string
+          n_project_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          grouped_members: Json
+          task_list: Json
         }[]
       }
       update_user: {

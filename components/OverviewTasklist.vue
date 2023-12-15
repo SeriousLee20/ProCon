@@ -18,8 +18,8 @@
 
             <div class="flex gap-1">
               <Ptag
-                v-if="item.status"
-                :value="item.status"
+                v-if="item.status_name"
+                :value="item.status_name"
                 rounded
                 :icon="item.status_icon"
                 :severity="item.status_severity"
