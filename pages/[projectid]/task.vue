@@ -533,7 +533,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     console.log("filterlist2", filteredList);
 
     filteredList = filter.show_my_task_only
-      ? filteredList.filter((task) => task.owner_ids == userId)
+      ? filteredList.filter((task) => task.owner_ids?.includes(userId))
       : filteredList;
 
     console.log(mainTaskList.value);
@@ -589,18 +589,18 @@ myTaskList.value = getMyTaskList().filteredList;
 
 const toggleTaskDialog = (props, isToEditTask) => {
   console.log("edit", props, taskDialog);
-  taskDialog.value = !taskDialog.value;
   isEditTask.value = isToEditTask;
+
   console.log(taskDialog.value, isToEditTask);
-  if (taskDialog.value) {
+  if (!taskDialog.value) {
     if (isToEditTask) {
-      selectedTask.value = props.items[0];
-      taskDueDatetime.value = props.items[0].due_date_time
-        ? new Date(props.items[0].due_date_time)
-        : null;
-      taskUrgentDate.value = props.items[0].urgent_date
-        ? new Date(props.items[0].urgent_date)
-        : null;
+      selectedTask.value = { ...props };
+      // taskDueDatetime.value = props.items[0].due_date_time
+      //   ? new Date(props.items[0].due_date_time)
+      //   : null;
+      // taskUrgentDate.value = props.items[0].urgent_date
+      //   ? new Date(props.items[0].urgent_date)
+      //   : null;
     } else {
       selectedTask.value = {
         task_name: null,
@@ -615,6 +615,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
     }
     console.log("mytask props", props, selectedTask.value);
   }
+  taskDialog.value = !taskDialog.value;
 };
 
 const updateFilter = async (filterName, filterValue, boardName) => {

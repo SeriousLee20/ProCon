@@ -46,7 +46,6 @@
           id="task-urgent-date"
           v-model="props.selectedTask.urgent_date"
           dateFormat="M dd, yy"
-          :minDate="new Date()"
           :maxDate="props.selectedTask.due_date_time"
           :selectOtherMonths="true"
           :disabled="!props.isAdmin"
@@ -140,7 +139,7 @@
             label="Cancel"
             icon="pi pi-times"
             text
-            @click="$emit('update:visible', false)"
+            @click="closeTaskDialog"
           />
 
           <!-- TODO: confirm delete dialog -->

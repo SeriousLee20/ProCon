@@ -1,12 +1,15 @@
 <template>
   <div v-if="showList">
     <Pdataview :value="props.taskList" :pt="props.pt">
+      <template #empty>
+        <div></div>
+      </template>
       <template #list="slotProps">
         <div
           v-for="(item, index) in slotProps.items"
           :key="index"
           class="col-12 cursor-pointer hover:bg-primary-100 border-round border-none mb-2 shadow-2 px-3 pb-3"
-          @click="openTaskDialog(slotProps)"
+          @click="openTaskDialog(item)"
         >
           <div class="">
             <p class="mb-0 font-semibold font-lg pb-4">
@@ -63,9 +66,10 @@ const formatDate = (dateString) => {
   return formattedDate.value;
 };
 
-const emit = defineEmits(["open-task-dialog"]);
+const emit = defineEmits(["open-ov-task-dialog"]);
 const openTaskDialog = (props) => {
-  emit("open-task-dialog", props);
+  console.log("opentaskdialog");
+  emit("open-ov-task-dialog", props);
 };
 </script>
 

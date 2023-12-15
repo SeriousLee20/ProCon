@@ -61,6 +61,11 @@ export const useDataStore = defineStore("data", {
         return project.id == this.selectedProject?.id;
       })[0].role;
     },
+    getUserRoleByProject(projectId: string) {
+      return this.projects?.filter((project) => {
+        return project.id == projectId;
+      })[0].role;
+    },
     getFullData() {
       return [
         this.user,

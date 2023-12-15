@@ -698,6 +698,17 @@ export interface Database {
           user_department: string
         }[]
       }
+      get_management_boards: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          grouped_members: Json
+          task_list: Json
+        }[]
+      }
       get_notification: {
         Args: {
           n_project_id: string
@@ -787,6 +798,25 @@ export interface Database {
           owner_names: string[]
           status_icon: string
           status_severity: string
+        }[]
+      }
+      get_task_by_user2: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          task_list: Json
+        }[]
+      }
+      get_task1: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          projects: Json
+          tasks: Json
         }[]
       }
       get_user: {
