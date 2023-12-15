@@ -16,15 +16,27 @@
         required
       />
     </div>
-    <div class="field overflow-scroll h-25rem">
+    <div class="field overflow-scroll h-20rem">
       <label for="task-desc">Description</label>
       <Peditor
         id="task-desc"
         v-model="props.selectedTask.task_desc"
-        class="h-20rem"
+        class="h-15rem"
       ></Peditor>
     </div>
+
     <div class="flex justify-content-between">
+      <div class="field">
+        <label for="task-start-date">Start Date</label>
+        <Pcalendar
+          id="task-start-date"
+          v-model="props.selectedTask.start_date"
+          dateFormat="M dd, yy"
+          :selectOtherMonths="true"
+          :disabled="!props.isAdmin"
+          showButtonBar
+        ></Pcalendar>
+      </div>
       <div class="field">
         <label for="task-due-datetime">Due Datetime</label>
         <Pcalendar
@@ -34,6 +46,7 @@
           hourFormat="24"
           dateFormat="M dd, yy"
           showButtonBar
+          :min="props.selectedTask.start_date"
           :overlayVisible="true"
           :selectOtherMonths="true"
           :disabled="!props.isAdmin"

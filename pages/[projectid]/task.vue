@@ -475,6 +475,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
     due_date: task?.due_date ? new Date(task?.due_date) : null,
+    start_date: task?.start_date ? new Date(task?.start_date) : null,
   }));
 
   // filter show completed
@@ -609,6 +610,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
         importance: 2,
         importance_rate: 1,
         owner_ids: null,
+        start_date: null,
         due_date_time: null,
         urgent_date: null,
       };
