@@ -127,7 +127,7 @@ const createProject = async () => {
           summary: "Yay!",
           detail:
             "The project is created. Edit the details in management page.",
-          lifetime: 1000,
+          lifetime: 3000,
         });
 
         const doneRefresh = await refreshDatastore("", createdProject.id);
@@ -148,7 +148,7 @@ const createProject = async () => {
           severity: "danger",
           summary: "Oops",
           detail: "Error in creating project. Please try again later.",
-          lifetime: 1000,
+          lifetime: 3000,
         });
       }
     }

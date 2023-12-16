@@ -139,6 +139,8 @@
             {{ formatDate(props.selectedTask.modified_at) }}
           </div>
         </div>
+        <Pconfirmpopup />
+
         <div class="w-full text-right pt-3">
           <Pbutton
             label="Save"
@@ -172,6 +174,9 @@
 </template>
 
 <script setup>
+import { useConfirm } from "primevue/useconfirm";
+
+const confirm = useConfirm();
 const props = defineProps({
   taskDialog: {
     type: Boolean,
@@ -223,7 +228,18 @@ const saveTaskUpdate = () => {
 
 const deleteTask = () => {
   console.log("dlt", props.selectedTask);
-  emit("delete-task", props.selectedTask);
+  confirm.require({
+    target: event.currentTarget,
+    message: "Delete this task?",
+    icon: "pi pi-info-circle",
+    acceptClass: "p-button-danger",
+    accept: async () => {
+      console.log("confirm dlt task");
+      emit("delete-task", props.selectedTask);
+    },
+    reject: () => {},
+  });
+  // emit("delete-task", props.selectedTask);
 };
 </script>
 

@@ -55,7 +55,7 @@ const joinProject = async () => {
       severity: "error",
       summary: "Empty Code",
       detail: "Please paste your code.",
-      lifetime: 100,
+      lifetime: 3000,
     });
   } else {
     const projectExist = all_project.value.response.find(
@@ -72,7 +72,7 @@ const joinProject = async () => {
         severity: "warn",
         summary: "Invalid Code",
         detail: "Please check your code.",
-        lifetime: 1000,
+        lifetime: 3000,
       });
     } else {
       if (membership) {
@@ -80,7 +80,7 @@ const joinProject = async () => {
           severity: "info",
           summary: "You joined this project.",
           detail: "Please check your project list for this project.",
-          lifetime: 1000,
+          lifetime: 3000,
         });
       } else {
         loading.value = true;
@@ -109,7 +109,7 @@ const joinProject = async () => {
             severity: "success",
             summary: "Yay!",
             detail: "You are added to the project.",
-            lifetime: 1000,
+            lifetime: 3000,
           });
 
           const doneRefresh = await refreshDatastore("", projectExist.id);
@@ -129,7 +129,7 @@ const joinProject = async () => {
             severity: "danger",
             summary: "Oops",
             detail: "Error in joining project. Please try again later.",
-            lifetime: 1000,
+            lifetime: 3000,
           });
         }
       }

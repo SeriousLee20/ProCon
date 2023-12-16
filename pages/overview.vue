@@ -241,7 +241,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
           : null,
         due_date: props.due_date ? new Date(props.due_date) : null,
         urgent_date: props.urgent_date ? new Date(props.urgent_date) : null,
-        start_date: task?.start_date ? new Date(task?.start_date) : null,
+        start_date: props.start_date ? new Date(props.start_date) : null,
       };
 
       selectedTask.value = { ...props };
