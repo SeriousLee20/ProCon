@@ -67,11 +67,11 @@
 
 <script setup>
 import { useToast } from "primevue/usetoast";
-import { switchPage } from "~/components/Navbar.vue";
 import useCurrentProject from "~/composables/useProject";
 import { useDataStore } from "~/stores/datastore";
 import { refreshDatastore } from "./index.vue";
 
+const { $emit } = useNuxtApp();
 var projectName = ref();
 var projectDesc = ref();
 var invalidName = ref(false);
@@ -87,6 +87,7 @@ const validate = () => {
   console.log("is invalid name", invalidName.value);
 };
 
+// TODO: generate default filter in sql
 const createProject = async () => {
   loading.value = true;
   console.log("create new project", projectName.value);
@@ -126,7 +127,7 @@ const createProject = async () => {
           summary: "Yay!",
           detail:
             "The project is created. Edit the details in management page.",
-          lifetime: 1000,
+          lifetime: 3000,
         });
 
         const doneRefresh = await refreshDatastore("", createdProject.id);
@@ -137,14 +138,17 @@ const createProject = async () => {
           setCurrentProject(createdProject.id);
           //   navigateTo(`/projectManagement/${createdProject.id}`);
           // dstore.setSelectedProject(createdProject.id);
-          switchPage(`/projectManagement/${createdProject.id}`, "Edit Project");
+          $emit("switch-page", {
+            routeName: `${createdProject.id}/management`,
+            pageName: "Management",
+          });
         }
       } else {
         toast.add({
           severity: "danger",
           summary: "Oops",
           detail: "Error in creating project. Please try again later.",
-          lifetime: 1000,
+          lifetime: 3000,
         });
       }
     }

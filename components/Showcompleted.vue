@@ -1,6 +1,12 @@
 <template>
-  <Pbutton class="no-shadow" :icon="setShowCompletedIcon(showCompleted)" @click="handler" label="Completed" size="medium"
-    text />
+  <Pbutton
+    class="no-shadow font-normal"
+    :icon="setShowCompletedIcon(showCompleted)"
+    @click="handler"
+    label="Completed"
+    size="medium"
+    text
+  />
 </template>
 
 <script setup>

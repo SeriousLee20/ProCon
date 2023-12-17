@@ -79,12 +79,121 @@ export interface Database {
           }
         ]
       }
+      chat_group: {
+        Row: {
+          created_at: string
+          group_description: string | null
+          group_id: string
+          group_name: string
+          profile_photo_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_description?: string | null
+          group_id?: string
+          group_name: string
+          profile_photo_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_description?: string | null
+          group_id?: string
+          group_name?: string
+          profile_photo_url?: string | null
+        }
+        Relationships: []
+      }
+      chat_log: {
+        Row: {
+          chat_log_id: string
+          chatroom_id: string | null
+          created_at: string
+          media_content_url: string | null
+          sender_id: string
+          text_content: string
+        }
+        Insert: {
+          chat_log_id?: string
+          chatroom_id?: string | null
+          created_at?: string
+          media_content_url?: string | null
+          sender_id: string
+          text_content: string
+        }
+        Update: {
+          chat_log_id?: string
+          chatroom_id?: string | null
+          created_at?: string
+          media_content_url?: string | null
+          sender_id?: string
+          text_content?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_log_chatroom_id_fkey"
+            columns: ["chatroom_id"]
+            isOneToOne: false
+            referencedRelation: "chatroom"
+            referencedColumns: ["chatroom_id"]
+          },
+          {
+            foreignKeyName: "chat_log_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      chatroom: {
+        Row: {
+          chatroom_id: string
+          created_at: string
+          group_id: string | null
+          last_update_time: string | null
+          project_id: string | null
+          user_ids: string[] | null
+        }
+        Insert: {
+          chatroom_id?: string
+          created_at?: string
+          group_id?: string | null
+          last_update_time?: string | null
+          project_id?: string | null
+          user_ids?: string[] | null
+        }
+        Update: {
+          chatroom_id?: string
+          created_at?: string
+          group_id?: string | null
+          last_update_time?: string | null
+          project_id?: string | null
+          user_ids?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatroom_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_group"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "chatroom_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       filters: {
         Row: {
           board_name: string
           filter: Json | null
           id: number
           modified_at: string
+          project_id: string | null
           user_id: string
         }
         Insert: {
@@ -92,6 +201,7 @@ export interface Database {
           filter?: Json | null
           id?: number
           modified_at?: string
+          project_id?: string | null
           user_id: string
         }
         Update: {
@@ -99,9 +209,17 @@ export interface Database {
           filter?: Json | null
           id?: number
           modified_at?: string
+          project_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "filters_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "filters_user_id_fkey"
             columns: ["user_id"]
@@ -160,25 +278,36 @@ export interface Database {
         Row: {
           content: string | null
           created_at: string
-          id: number
+          notification_id: string
+          project_id: string | null
           target: string[] | null
           title: string
         }
         Insert: {
           content?: string | null
           created_at?: string
-          id?: number
+          notification_id?: string
+          project_id?: string | null
           target?: string[] | null
           title: string
         }
         Update: {
           content?: string | null
           created_at?: string
-          id?: number
+          notification_id?: string
+          project_id?: string | null
           target?: string[] | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       parameters: {
         Row: {
@@ -244,6 +373,7 @@ export interface Database {
           creation_timestamp: string | null
           creator_id: string
           description: string | null
+          due_date: string | null
           due_date_time: string | null
           id: string
           importance: number | null
@@ -260,6 +390,7 @@ export interface Database {
           creation_timestamp?: string | null
           creator_id: string
           description?: string | null
+          due_date?: string | null
           due_date_time?: string | null
           id?: string
           importance?: number | null
@@ -276,6 +407,7 @@ export interface Database {
           creation_timestamp?: string | null
           creator_id?: string
           description?: string | null
+          due_date?: string | null
           due_date_time?: string | null
           id?: string
           importance?: number | null
@@ -369,6 +501,52 @@ export interface Database {
         }
         Relationships: []
       }
+      user_chatgroup: {
+        Row: {
+          created_at: string
+          group_id: string
+          project_id: string
+          user_group_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          project_id: string
+          user_group_id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          project_id?: string
+          user_group_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_chatgroup_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_group"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "user_chatgroup_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_chatgroup_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -406,13 +584,27 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
+        }[]
+      }
+      delete_task_from_ov: {
+        Args: {
+          n_task_id: string
+          n_project_id: string
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          grouped_members: Json
+          task_list: Json
         }[]
       }
       get_all_project: {
@@ -447,6 +639,23 @@ export interface Database {
           n_project_id: string
         }
         Returns: Record<string, unknown>
+      }
+      get_chatlist: {
+        Args: {
+          n_user_id: string
+          n_project_id: string
+        }
+        Returns: {
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          chat_target: Json
+        }[]
       }
       get_department: {
         Args: {
@@ -502,6 +711,29 @@ export interface Database {
           user_department: string
         }[]
       }
+      get_management_boards: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          grouped_members: Json
+          task_list: Json
+        }[]
+      }
+      get_notification: {
+        Args: {
+          n_project_id: string
+          n_user_id: string
+        }
+        Returns: {
+          notification_id: string
+          created_at: string
+          title: string
+          content: string
+        }[]
+      }
       get_parameter_bridge: {
         Args: {
           ref1: unknown
@@ -541,11 +773,12 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]
@@ -570,6 +803,7 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
@@ -577,6 +811,25 @@ export interface Database {
           owner_names: string[]
           status_icon: string
           status_severity: string
+        }[]
+      }
+      get_task_by_user2: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          task_list: Json
+        }[]
+      }
+      get_task1: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: {
+          projects: Json
+          tasks: Json
         }[]
       }
       get_user: {
@@ -634,11 +887,18 @@ export interface Database {
       }
       insert_notification: {
         Args: {
-          p_title: string
-          p_content: string
-          p_target: string[]
+          n_title: string
+          n_content: string
+          n_target: string[]
+          n_project_id: string
+          n_user_id: string
         }
-        Returns: undefined
+        Returns: {
+          notification_id: string
+          created_at: string
+          title: string
+          content: string
+        }[]
       }
       insert_position: {
         Args: {
@@ -655,6 +915,7 @@ export interface Database {
           n_owner_ids: string[]
           n_status_code: number
           n_due_date_time: string
+          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -676,11 +937,12 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
         }[]
@@ -730,6 +992,7 @@ export interface Database {
           n_owner_ids: string[]
           n_status_code: number
           n_due_date_time: string
+          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -751,13 +1014,37 @@ export interface Database {
           status: string
           status_code: number
           due_date_time: string
+          due_date: string
           urgent_date: string
           importance: number
           importance_desc: string
           importance_rate: number
-          owner_names: string[]
+          owner_info: Json
           status_icon: string
           status_severity: string
+        }[]
+      }
+      update_task_from_ov: {
+        Args: {
+          n_task_id: string
+          n_name: string
+          n_description: string
+          n_owner_ids: string[]
+          n_status_code: number
+          n_due_date_time: string
+          n_due_date: string
+          n_urgent_date: string
+          n_importance: number
+          n_importance_rate: number
+          n_modified_at: string
+          n_modified_by: string
+          n_project_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          grouped_members: Json
+          task_list: Json
         }[]
       }
       update_user: {
@@ -784,7 +1071,21 @@ export interface Database {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      chatlog_type: {
+        chat_log_id: string
+        text_content: string
+        media_content_url: string
+        created_at: string
+        sender_id: string
+        sender_name: string
+      }
+      group_member_type: {
+        user_id: string
+        name: string
+        role: string
+        position: string
+        department: string
+      }
     }
   }
   storage: {
@@ -967,3 +1268,83 @@ export interface Database {
     }
   }
 }
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
+      Database["public"]["Views"])
+  ? (Database["public"]["Tables"] &
+      Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof Database["public"]["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
+  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+  : never

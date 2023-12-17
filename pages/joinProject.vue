@@ -36,8 +36,8 @@
 import { useToast } from "primevue/usetoast";
 import { useDataStore } from "~/stores/datastore";
 import { refreshDatastore } from "./index.vue";
-import { switchPage } from "~/components/Navbar.vue";
 
+const { $emit } = useNuxtApp();
 const loading = ref(false);
 const projectCode = ref("");
 const toast = useToast();
@@ -47,6 +47,7 @@ const { data: all_project } = await useFetch("/api/get_all_project");
 
 console.log(all_project);
 
+// TODO: generate default filter in sql script
 const joinProject = async () => {
   console.log(projectCode.value);
   if (!projectCode.value) {
@@ -54,7 +55,7 @@ const joinProject = async () => {
       severity: "error",
       summary: "Empty Code",
       detail: "Please paste your code.",
-      lifetime: 100,
+      lifetime: 3000,
     });
   } else {
     const projectExist = all_project.value.response.find(
@@ -71,7 +72,7 @@ const joinProject = async () => {
         severity: "warn",
         summary: "Invalid Code",
         detail: "Please check your code.",
-        lifetime: 1000,
+        lifetime: 3000,
       });
     } else {
       if (membership) {
@@ -79,7 +80,7 @@ const joinProject = async () => {
           severity: "info",
           summary: "You joined this project.",
           detail: "Please check your project list for this project.",
-          lifetime: 1000,
+          lifetime: 3000,
         });
       } else {
         loading.value = true;
@@ -108,7 +109,7 @@ const joinProject = async () => {
             severity: "success",
             summary: "Yay!",
             detail: "You are added to the project.",
-            lifetime: 1000,
+            lifetime: 3000,
           });
 
           const doneRefresh = await refreshDatastore("", projectExist.id);
@@ -118,14 +119,17 @@ const joinProject = async () => {
             loading.value = false;
             // navigateTo(`/project/${newProject.id}`);
             // dstore.setSelectedProject(createdProject.id);
-            switchPage(`/project/${newProject.id}`, "project");
+            $emit("switch-page", {
+              routeName: `${newProject.id}/task`,
+              pageName: "Task",
+            });
           }
         } else {
           toast.add({
             severity: "danger",
             summary: "Oops",
             detail: "Error in joining project. Please try again later.",
-            lifetime: 1000,
+            lifetime: 3000,
           });
         }
       }

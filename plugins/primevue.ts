@@ -31,6 +31,10 @@ import Calendar from "primevue/calendar";
 import Rating from "primevue/rating";
 import OverlayPanel from "primevue/overlaypanel";
 import Chart from "primevue/chart";
+import Listbox from "primevue/listbox";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
+import FileUpload from "primevue/fileupload";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -60,8 +64,14 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Prating", Rating);
   nuxtApp.vueApp.component("Poverlay-panel", OverlayPanel);
   nuxtApp.vueApp.component("PChart", Chart);
+  nuxtApp.vueApp.component("PListbox", Listbox);
+  nuxtApp.vueApp.component("Paccordian", Accordion);
+  nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
+  nuxtApp.vueApp.component("Pfileupload", FileUpload);
 
-  // Quill.register({}, true);
+  // if (process.client) {
+  //   Quill.register(Editor, true);
+  // }
 
   //other components that you need
 

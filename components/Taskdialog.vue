@@ -2,7 +2,7 @@
   <Pdialog
     v-if="props.taskDialog"
     style="width: 80%"
-    header="Edit Task"
+    :header="header"
     :modal="true"
     class="p-fluid"
   >
@@ -13,17 +13,30 @@
         id="task-name"
         v-model="props.selectedTask.task_name"
         :disabled="!props.isAdmin"
+        required
       />
     </div>
-    <div class="field overflow-scroll h-25rem">
+    <div class="field overflow-scroll h-20rem">
       <label for="task-desc">Description</label>
       <Peditor
         id="task-desc"
         v-model="props.selectedTask.task_desc"
-        class="h-20rem"
+        class="h-15rem"
       ></Peditor>
     </div>
+
     <div class="flex justify-content-between">
+      <div class="field">
+        <label for="task-start-date">Start Date</label>
+        <Pcalendar
+          id="task-start-date"
+          v-model="props.selectedTask.start_date"
+          dateFormat="M dd, yy"
+          :selectOtherMonths="true"
+          :disabled="!props.isAdmin"
+          showButtonBar
+        ></Pcalendar>
+      </div>
       <div class="field">
         <label for="task-due-datetime">Due Datetime</label>
         <Pcalendar
@@ -33,8 +46,8 @@
           hourFormat="24"
           dateFormat="M dd, yy"
           showButtonBar
+          :min="props.selectedTask.start_date"
           :overlayVisible="true"
-          :minDate="new Date()"
           :selectOtherMonths="true"
           :disabled="!props.isAdmin"
         ></Pcalendar>
@@ -45,7 +58,6 @@
           id="task-urgent-date"
           v-model="props.selectedTask.urgent_date"
           dateFormat="M dd, yy"
-          :minDate="new Date()"
           :maxDate="props.selectedTask.due_date_time"
           :selectOtherMonths="true"
           :disabled="!props.isAdmin"
@@ -102,7 +114,7 @@
         optionValue="user_id"
         optionGroupLabel="department"
         filter
-        optionGroupChildren="users"
+        optionGroupChildren="members"
         display="chip"
         placeholder="Assign Task to"
         class="w-full"
@@ -117,7 +129,7 @@
     </div>
     <template #footer>
       <div class="w-full flex justify-content-between align-items-end">
-        <div class="w-full text-left footnote" v-if="props.isEditTask">
+        <div class="w-full text-left footnote text-xs" v-if="props.isEditTask">
           <div>
             Created by {{ props.selectedTask.creator_name }} at
             {{ formatDate(props.selectedTask.creation_timestamp) }}
@@ -127,6 +139,8 @@
             {{ formatDate(props.selectedTask.modified_at) }}
           </div>
         </div>
+        <Pconfirmpopup />
+
         <div class="w-full text-right pt-3">
           <Pbutton
             label="Save"
@@ -139,9 +153,10 @@
             label="Cancel"
             icon="pi pi-times"
             text
-            @click="$emit('update:visible', false)"
+            @click="closeTaskDialog"
           />
 
+          <!-- TODO: confirm delete dialog -->
           <Pbutton
             v-if="props.isEditTask"
             label="Delete"
@@ -159,6 +174,9 @@
 </template>
 
 <script setup>
+import { useConfirm } from "primevue/useconfirm";
+
+const confirm = useConfirm();
 const props = defineProps({
   taskDialog: {
     type: Boolean,
@@ -177,6 +195,7 @@ const props = defineProps({
 //   props.taskDialog = value;
 // });
 const isEditTask = props.isEditTask;
+const header = props.isEditTask ? "Edit Task" : "Add Task";
 console.log("dialog", isEditTask, props.taskDialog);
 
 const formatDate = (dateString) => {
@@ -209,7 +228,18 @@ const saveTaskUpdate = () => {
 
 const deleteTask = () => {
   console.log("dlt", props.selectedTask);
-  emit("delete-task", props.selectedTask);
+  confirm.require({
+    target: event.currentTarget,
+    message: "Delete this task?",
+    icon: "pi pi-info-circle",
+    acceptClass: "p-button-danger",
+    accept: async () => {
+      console.log("confirm dlt task");
+      emit("delete-task", props.selectedTask);
+    },
+    reject: () => {},
+  });
+  // emit("delete-task", props.selectedTask);
 };
 </script>
 
