@@ -62,12 +62,13 @@
               <div class="text-xl bg-primary-100 border-round pl-1">Chat</div>
             </template>
             <template #empty>
-              <div>Start a chat.</div>
+              <div>No members' here yet.</div>
             </template>
             <template #list="slotProps">
               <div
                 v-for="(item, index) in slotProps.items"
                 class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none w-full"
+                @click="openChatRoom(item)"
               >
                 <div v-if="item.group_id" class="w-full">
                   <div class="flex justify-content-between w-full">
@@ -78,8 +79,8 @@
                       {{ formatDate(item.last_update_time) }}
                     </div>
                   </div>
-                  <div v-if="item.chatlog[0]" class="flex font-normal text-xs">
-                    <div class="pr-1">{{ item.chatlog[0].sender_name }}:</div>
+                  <div v-if="item.chatlog" class="flex font-normal text-xs">
+                    <div class="pr-1">{{ item.chatlog[0]?.sender_name }}:</div>
                     <div
                       class="text-overflow-ellipsis white-space-nowrap overflow-hidden"
                       style="width: 100%"
@@ -93,11 +94,15 @@
                     <div class="font-bold text-sm">
                       {{ item.chat_target[0]?.name }}
                     </div>
-                    <div class="font-light text-xs min-w-max">
+                    <div
+                      v-if="item.last_update_time"
+                      class="font-light text-xs min-w-max"
+                    >
                       {{ formatDate(item.last_update_time) }}
                     </div>
                   </div>
                   <div
+                    v-if="item.chatlog"
                     class="font-normal text-xs text-overflow-ellipsis white-space-nowrap overflow-hidden"
                     style="width: 100%"
                   >
@@ -108,6 +113,89 @@
             </template>
           </Pdataview>
         </Poverlay-panel>
+        <Pdialog
+          v-model:visible="chatDialog"
+          :style="{ width: '30rem', shadow: 'none' }"
+          position="bottomright"
+          :draggable="false"
+          class="border-round border-1 border-primary shadow-none bg-white h-max"
+          :pt="{ transition: { class: 'transition-none' } }"
+        >
+          <template #container>
+            <div
+              style="height: 25rem; width: 15rem"
+              class="w-full bg-primary-100"
+            >
+              <div
+                class="flex align-items-center justify-content-between bg-primary w-full px-2"
+              >
+                <span class="pi pi-chevron-down"></span>
+                <div class="flex h6 h-2rem align-items-center text-lg">
+                  {{
+                    selectedChatroom.chat_target
+                      ? selectedChatroom.chat_target[0].name
+                      : selectedChatroom.group_info.group_name
+                  }}
+                </div>
+                <span
+                  class="flex pi pi-times justify-content-end"
+                  @click="closeChatRoom"
+                ></span>
+              </div>
+              <div
+                v-if="selectedChatroom.chatlog && !collapseChatroom"
+                class="w-full px-1"
+              >
+                <div v-for="message in selectedChatroom.chatlog" class="w-full">
+                  <div
+                    v-if="message.sender_id == user.id"
+                    class="flex flex-column justify-content-end pl-8"
+                  >
+                    <div
+                      class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
+                    >
+                      {{ message.sender_name }}
+                    </div>
+                    <div
+                      class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                      style="border-radius: 0.5rem 0 0.5rem 0.5rem"
+                    >
+                      <div>
+                        {{
+                          message.text_content
+                        }}...........................................
+                      </div>
+                      <div class="text-xs font-mono text-right">
+                        {{ formatDate(message.created_at) }}
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="w-full">
+                    <div v-if="message.text_content" class="pr-8 py-3">
+                      <div
+                        class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden"
+                      >
+                        {{ message.sender_name }}
+                      </div>
+                      <div
+                        class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                        style="border-radius: 0 0.5rem 0.5rem 0.5rem"
+                      >
+                        {{
+                          message.text_content
+                        }}...........................................
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex align-items-center">
+                  <span class="text-4xl">☺︎</span>
+                  <Pinputtext type="text"></Pinputtext>
+                </div>
+              </div>
+            </div>
+          </template>
+        </Pdialog>
         <Pbutton
           type="button"
           icon="pi pi-inbox"
@@ -176,6 +264,7 @@ import { ref } from "vue";
 import { createClient } from "@supabase/supabase-js";
 
 const { auth } = useSupabaseAuthClient();
+const user = useSupabaseUser();
 const dstore = useDataStore();
 var ddplaceholder = ref(dstore.getCurrentPage);
 var project = ref(dstore.getAllProjects);
@@ -196,6 +285,9 @@ const notificationPanel = ref(false);
 const notificationList = ref();
 const chatPanel = ref(false);
 const chatlist = ref();
+const chatDialog = ref(false);
+const selectedChatroom = ref();
+const collapseChatroom = ref(false);
 // TODO: add notification list
 // TODO: add chat member list
 const { $listen } = useNuxtApp();
@@ -271,6 +363,14 @@ const getChatList = async () => {
   console.log("chat", chatlistRes, chatlist.value);
 };
 
+const openChatRoom = (chatroom) => {
+  chatDialog.value = true;
+  selectedChatroom.value = chatroom;
+};
+
+const closeChatRoom = () => {
+  chatDialog.value = false;
+};
 const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };

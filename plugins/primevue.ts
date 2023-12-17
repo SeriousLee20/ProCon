@@ -32,6 +32,8 @@ import Rating from "primevue/rating";
 import OverlayPanel from "primevue/overlaypanel";
 import Chart from "primevue/chart";
 import Listbox from "primevue/listbox";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -62,6 +64,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Poverlay-panel", OverlayPanel);
   nuxtApp.vueApp.component("PChart", Chart);
   nuxtApp.vueApp.component("PListbox", Listbox);
+  nuxtApp.vueApp.component("Paccordian", Accordion);
+  nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
 
   // if (process.client) {
   //   Quill.register(Editor, true);

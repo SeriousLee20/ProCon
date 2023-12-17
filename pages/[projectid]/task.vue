@@ -386,7 +386,7 @@ const groupMember = projectMember.reduce((result, item) => {
 
 const formattedData = Object.keys(groupMember).map((department) => ({
   department,
-  users: groupMember[department],
+  members: groupMember[department],
 }));
 
 console.log("groupmember", groupMember, formattedData);
@@ -475,6 +475,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
     due_date: task?.due_date ? new Date(task?.due_date) : null,
+    start_date: task?.start_date ? new Date(task?.start_date) : null,
   }));
 
   // filter show completed
@@ -533,7 +534,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     console.log("filterlist2", filteredList);
 
     filteredList = filter.show_my_task_only
-      ? filteredList.filter((task) => task.owner_ids == userId)
+      ? filteredList.filter((task) => task.owner_ids?.includes(userId))
       : filteredList;
 
     console.log(mainTaskList.value);
@@ -589,18 +590,18 @@ myTaskList.value = getMyTaskList().filteredList;
 
 const toggleTaskDialog = (props, isToEditTask) => {
   console.log("edit", props, taskDialog);
-  taskDialog.value = !taskDialog.value;
   isEditTask.value = isToEditTask;
+
   console.log(taskDialog.value, isToEditTask);
-  if (taskDialog.value) {
+  if (!taskDialog.value) {
     if (isToEditTask) {
-      selectedTask.value = props.items[0];
-      taskDueDatetime.value = props.items[0].due_date_time
-        ? new Date(props.items[0].due_date_time)
-        : null;
-      taskUrgentDate.value = props.items[0].urgent_date
-        ? new Date(props.items[0].urgent_date)
-        : null;
+      selectedTask.value = { ...props };
+      // taskDueDatetime.value = props.items[0].due_date_time
+      //   ? new Date(props.items[0].due_date_time)
+      //   : null;
+      // taskUrgentDate.value = props.items[0].urgent_date
+      //   ? new Date(props.items[0].urgent_date)
+      //   : null;
     } else {
       selectedTask.value = {
         task_name: null,
@@ -609,12 +610,14 @@ const toggleTaskDialog = (props, isToEditTask) => {
         importance: 2,
         importance_rate: 1,
         owner_ids: null,
+        start_date: null,
         due_date_time: null,
         urgent_date: null,
       };
     }
     console.log("mytask props", props, selectedTask.value);
   }
+  taskDialog.value = !taskDialog.value;
 };
 
 const updateFilter = async (filterName, filterValue, boardName) => {
@@ -682,24 +685,21 @@ const updateTask = async () => {
 const sendNotification = async (action, title, content, target) => {
   console.log(action);
 
-  const { data: announcementNotificationRes } = await useFetch(
-    "/api/insert_notification",
-    {
-      method: "POST",
-      body: {
-        title: title,
-        content: content,
-        target: target,
-        project_id: projectid,
-      },
-      headers: { "cache-control": "no-cache" },
-    }
-  );
+  const { data: notificationRes } = await useFetch("/api/insert_notification", {
+    method: "POST",
+    body: {
+      title: title,
+      content: content,
+      target: target,
+      project_id: projectid,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
 
-  if (announcementNotificationRes.value.success) {
-    console.log("refresh noti", announcementNotificationRes.value.response);
+  if (notificationRes.value.success) {
+    console.log("refresh noti", notificationRes.value.response);
     // emit("refresh-notification", announcementNotificationRes.value.response);
-    $emit("refresh-notification", announcementNotificationRes.value.response);
+    $emit("refresh-notification", notificationRes.value.response);
     return true;
   }
 };
@@ -800,6 +800,7 @@ async function addAnnouncement() {
             announcementTitle.value +
             (announcementDesc.value ? " - " + announcementDesc.value : ""),
           target: announcementReceivers.value,
+          project_id: projectid,
         },
         headers: { "cache-control": "no-cache" },
       }

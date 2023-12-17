@@ -125,9 +125,7 @@
           :modal="true"
           class="p-fluid"
         >
-          <div class="footer2">
-            Please enter the user id, press enter to separate them.
-          </div>
+          <div class="footer2">Press ENTER to separate items.</div>
           <div class="footer2">Remember to save.</div>
           <Pchips v-model="newMember"></Pchips>
 
@@ -149,9 +147,7 @@
           :modal="true"
           class="p-fluid"
         >
-          <div class="footer2">
-            Please enter the department name, press enter to separate them.
-          </div>
+          <div class="footer2">Press ENTER to separate items.</div>
           <div class="footer2">Remember to save.</div>
           <div class="flex flex-column gap-3">
             <Pchips v-model="newDepartment"></Pchips>
@@ -206,9 +202,7 @@
           :modal="true"
           class="p-fluid"
         >
-          <div class="footer2">
-            Please enter the positions name, press enter to separate them.
-          </div>
+          <div class="footer2">Press ENTER to separate items.</div>
           <div class="footer2">Remember to save.</div>
           <div class="flex flex-column gap-3">
             <Pchips v-model="newPosition"></Pchips>
@@ -397,7 +391,7 @@ const deleteMember = (event, clickedMember) => {
   console.log("dlt member", clickedMember.use_id);
   confirm.require({
     target: event.currentTarget,
-    message: "Do you want to delete this member?",
+    message: "Delete this member?",
     icon: "pi pi-info-circle",
     acceptClass: "p-button-danger",
     accept: async () => {
@@ -507,7 +501,7 @@ const addMember = async () => {
         severity: "warn",
         summary: "Member joined.",
         detail: `${existedMember.join(", ")} already joined this project.`,
-        life: 50000,
+        life: 5000,
       });
     }
     if (hasNewMember) {
@@ -515,7 +509,7 @@ const addMember = async () => {
         severity: "success",
         summary: "Success",
         detail: `Added ${addedMember.join(", ")} to the project.`,
-        life: 50000,
+        life: 5000,
       });
     }
     if (invalidUser.length > 0) {
@@ -525,7 +519,7 @@ const addMember = async () => {
         detail: `${invalidUser.join(
           ", "
         )} cannot be found. Please check the id again.`,
-        life: 50000,
+        life: 5000,
       });
     }
 
@@ -570,7 +564,7 @@ const addDepartment = async () => {
         severity: "warn",
         summary: "Redundant Department!",
         detail: `${existedDepartment.join(", ")} already existed.`,
-        life: 50000,
+        life: 5000,
       });
     }
     if (hasNewDeprtment) {
@@ -589,7 +583,7 @@ const addDepartment = async () => {
           severity: "success",
           summary: "Success",
           detail: `Added ${addedDepartment.join(", ")} to the project.`,
-          life: 50000,
+          life: 5000,
         });
       }
     }
@@ -607,7 +601,7 @@ const deleteDepartment = (event, department) => {
   console.log("dlt dept", department);
   confirm.require({
     target: event.currentTarget,
-    message: "Do you want to delete this department?",
+    message: "Delete this department?",
     icon: "pi pi-info-circle",
     acceptClass: "p-button-danger",
     accept: async () => {
@@ -710,7 +704,7 @@ const addPosition = async () => {
         severity: "warn",
         summary: "Redundant Position.",
         detail: `${existedPosition.join(", ")} already existed.`,
-        life: 50000,
+        life: 5000,
       });
     }
     if (hasNewPosition) {
@@ -729,7 +723,7 @@ const addPosition = async () => {
           severity: "success",
           summary: "Success",
           detail: `Added ${addedPosition.join(", ")} to the project.`,
-          life: 50000,
+          life: 5000,
         });
       }
     }
@@ -744,10 +738,10 @@ const editPosition = (position) => {
 };
 
 const deletePosition = (event, position) => {
-  console.log("dlt pos", position);
+  console.log("dlt pos", event, position);
   confirm.require({
     target: event.currentTarget,
-    message: "Do you want to delete this position?",
+    message: "Delete this position?",
     icon: "pi pi-info-circle",
     acceptClass: "p-button-danger",
     accept: async () => {
