@@ -8,56 +8,23 @@
     <div class="col flex justify-content-center align-content-center">
       <div>
         <ClientOnly>
-          <Pdropdown
-            id="project-ddlist"
-            v-model="selectedProject"
-            :options="project"
-            optionLabel="name"
-            optionValue="id"
-            @change="onChangeSelectedProject($event)"
-            :placeholder="ddplaceholder"
-          >
+          <Pdropdown id="project-ddlist" v-model="selectedProject" :options="project" optionLabel="name" optionValue="id"
+            @change="onChangeSelectedProject($event)" :placeholder="ddplaceholder">
           </Pdropdown>
         </ClientOnly>
-        <Pbutton
-          type="button"
-          icon="pi pi-sliders-h"
-          @click="toggle"
-          aria-label="edit_project"
-          aria-haspopup="true"
-          aria-controls="edit_menu"
-        />
-        <Pmenu
-          ref="menu"
-          id="edit_menu"
-          :model="menuItems"
-          :popup="true"
-        ></Pmenu>
+        <Pbutton type="button" icon="pi pi-sliders-h" @click="toggle" aria-label="edit_project" aria-haspopup="true"
+          aria-controls="edit_menu" />
+        <Pmenu ref="menu" id="edit_menu" :model="menuItems" :popup="true"></Pmenu>
       </div>
     </div>
     <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
     <div class="col flex justify-content-end align-content-center gap-1">
-      <div
-        v-if="isShowButton"
-        class="flex justify-content-end align-content-center gap-1"
-      >
-        <Pbutton
-          type="button"
-          icon="pi pi-chart-bar"
-          @click="switchPage('ganttchart', 'Gantt Chart')"
-        />
+      <div v-if="isShowButton" class="flex justify-content-end align-content-center gap-1">
+        <Pbutton type="button" icon="pi pi-chart-bar" @click="switchPage('ganttchart', 'Gantt Chart')" />
         <Pbutton type="button" icon="pi pi-comment" @click="toggleChatPanel" />
-        <Poverlay-panel
-          ref="chatPanel"
-          appendTo="body"
-          style="width: 24rem; height: 20rem"
-        >
-          <Pdataview
-            :value="chatlist"
-            optionValue="chatroom_id"
-            class="h-17rem overflow-scroll"
-            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
-          >
+        <Poverlay-panel ref="chatPanel" appendTo="body" style="width: 24rem; height: 20rem">
+          <Pdataview :value="chatlist" optionValue="chatroom_id" class="h-17rem overflow-scroll"
+            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }">
             <template #header>
               <div class="text-xl bg-primary-100 border-round pl-1">Chat</div>
             </template>
@@ -65,11 +32,9 @@
               <div>No members' here yet.</div>
             </template>
             <template #list="slotProps">
-              <div
-                v-for="(item, index) in slotProps.items"
+              <div v-for="(item, index) in slotProps.items"
                 class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none w-full"
-                @click="openChatRoom(item)"
-              >
+                @click="openChatRoom(item)">
                 <div v-if="item.group_id" class="w-full">
                   <div class="flex justify-content-between w-full">
                     <div class="font-bold text-sm">
@@ -81,10 +46,7 @@
                   </div>
                   <div v-if="item.chatlog" class="flex font-normal text-xs">
                     <div class="pr-1">{{ item.chatlog[0]?.sender_name }}:</div>
-                    <div
-                      class="text-overflow-ellipsis white-space-nowrap overflow-hidden"
-                      style="width: 100%"
-                    >
+                    <div class="text-overflow-ellipsis white-space-nowrap overflow-hidden" style="width: 100%">
                       {{ item.chatlog[0].text_content }}
                     </div>
                   </div>
@@ -94,18 +56,13 @@
                     <div class="font-bold text-sm">
                       {{ item.chat_target[0]?.name }}
                     </div>
-                    <div
-                      v-if="item.last_update_time"
-                      class="font-light text-xs min-w-max"
-                    >
+                    <div v-if="item.last_update_time" class="font-light text-xs min-w-max">
                       {{ formatDate(item.last_update_time) }}
                     </div>
                   </div>
-                  <div
-                    v-if="item.chatlog"
+                  <div v-if="item.chatlog"
                     class="font-normal text-xs text-overflow-ellipsis white-space-nowrap overflow-hidden"
-                    style="width: 100%"
-                  >
+                    style="width: 100%">
                     {{ item.chatlog[0]?.text_content }}
                   </div>
                 </div>
@@ -113,57 +70,33 @@
             </template>
           </Pdataview>
         </Poverlay-panel>
-        <Pdialog
-          v-model:visible="chatDialog"
-          :style="{ width: '30rem', shadow: 'none' }"
-          position="bottomright"
-          :draggable="false"
-          class="border-round border-1 border-primary shadow-none bg-white h-max"
-          :pt="{ transition: { class: 'transition-none' } }"
-        >
+        <Pdialog v-model:visible="chatDialog" :style="{ width: '30rem', shadow: 'none' }" position="bottomright"
+          :draggable="false" class="border-round border-1 border-primary shadow-none bg-white h-max"
+          :pt="{ transition: { class: 'transition-none' } }">
           <template #container>
-            <div
-              style="height: 25rem; width: 15rem"
-              class="w-full bg-primary-100 h-full"
-            >
-              <div
-                class="flex align-items-center justify-content-between bg-primary w-full px-2"
-              >
+            <div style="height: 25rem; width: 15rem" class="w-full bg-primary-100 h-full">
+              <div class="flex align-items-center justify-content-between bg-primary w-full px-2">
                 <span class="pi pi-chevron-down"></span>
                 <div class="flex h6 h-2rem align-items-center text-lg">
                   {{
                     selectedChatroom.chat_target
-                      ? selectedChatroom.chat_target[0].name
-                      : selectedChatroom.group_info.group_name
+                    ? selectedChatroom.chat_target[0].name
+                    : selectedChatroom.group_info.group_name
                   }}
                 </div>
-                <span
-                  class="flex pi pi-times justify-content-end"
-                  @click="closeChatRoom"
-                ></span>
+                <span class="flex pi pi-times justify-content-end" @click="closeChatRoom"></span>
               </div>
               <div class="w-full">
-                <div
-                  v-if="selectedChatroom.chatlog && !collapseChatroom"
-                  class="w-full px-1 overflow-scroll"
-                >
-                  <div
-                    v-for="message in selectedChatroom.chatlog"
-                    class="w-full"
-                  >
-                    <div
-                      v-if="message.sender_id == user.id"
-                      class="flex flex-column justify-content-end pl-8"
-                    >
+                <div v-if="selectedChatroom.chatlog && !collapseChatroom" class="w-full px-1 overflow-scroll">
+                  <div v-for="message in selectedChatroom.chatlog" class="w-full">
+                    <div v-if="message.sender_id == user.id" class="flex flex-column justify-content-end pl-8">
                       <div
-                        class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
-                      >
+                        class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right pb-1">
                         {{ message.sender_name }}
                       </div>
                       <div
-                        class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
-                        style="border-radius: 0.5rem 0 0.5rem 0.5rem"
-                      >
+                        class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white p-2"
+                        style="border-radius: 0.5rem 0 0.5rem 0.5rem">
                         <div>
                           {{ message.text_content }}
                           ...........................................
@@ -175,15 +108,12 @@
                     </div>
                     <div v-else class="w-full h-full">
                       <div v-if="message.text_content" class="pr-8 py-3">
-                        <div
-                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden"
-                        >
+                        <div class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1">
                           {{ message.sender_name }}
                         </div>
                         <div
-                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
-                          style="border-radius: 0.5rem 0.5rem 0.5rem 0"
-                        >
+                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white p-2"
+                          style="border-radius: 0.5rem 0.5rem 0.5rem 0">
                           {{ message.text_content }}
                           ...........................................
                           <div class="text-xs font-mono text-right">
@@ -196,38 +126,19 @@
                 </div>
                 <div class="flex align-items-end w-full p-2">
                   <!-- <Pfileupload /> -->
-                  <EmojiPicker
-                    class="chat w-full"
-                    :native="true"
-                    @select="onSelectEmoji"
-                    picker-type="input"
-                  />
-                  <span
-                    class="pi pi-send flex align-self-center text-lg pl-2"
-                  ></span>
+                  <EmojiPicker style="border-radius: 6px;" class="chat w-full" :native="true" @select="onSelectEmoji"
+                    picker-type="input" />
+                  <span class="pi pi-send flex align-self-center text-lg pl-2"></span>
                 </div>
               </div>
             </div>
           </template>
         </Pdialog>
-        <Pbutton
-          type="button"
-          icon="pi pi-inbox"
-          @click="toggleNotificationPanel"
-          @refresh-notification="refreshNotification($event)"
-          :pt="{ content: { class: 'w-20rem h-20rem' } }"
-        />
-        <Poverlay-panel
-          ref="notificationPanel"
-          appendTo="body"
-          style="width: 24rem; height: 20rem"
-        >
-          <Pdataview
-            :value="notificationList"
-            optionValue="notification_id"
-            class="h-17rem overflow-scroll"
-            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
-          >
+        <Pbutton type="button" icon="pi pi-inbox" @click="toggleNotificationPanel"
+          @refresh-notification="refreshNotification($event)" :pt="{ content: { class: 'w-20rem h-20rem' } }" />
+        <Poverlay-panel ref="notificationPanel" appendTo="body" style="width: 24rem; height: 20rem">
+          <Pdataview :value="notificationList" optionValue="notification_id" class="h-17rem overflow-scroll"
+            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }">
             <template #header>
               <div class="text-xl bg-primary-100 border-round pl-1">
                 Notification
@@ -237,10 +148,8 @@
               <div>No Notifications</div>
             </template>
             <template #list="slotProps">
-              <div
-                v-for="(item, index) in slotProps.items"
-                class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
-              >
+              <div v-for="(item, index) in slotProps.items"
+                class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none">
                 <div>
                   <div class="font-bold text-sm">{{ item.title }}</div>
                   <div class="font-light text-xs text-overflow-ellipsis">
@@ -260,11 +169,7 @@
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
-      <Pbutton
-        type="button"
-        icon="pi pi-user"
-        @click="switchPage('/profile', 'Profile')"
-      />
+      <Pbutton type="button" icon="pi pi-user" @click="switchPage('/profile', 'Profile')" />
       <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
     </div>
   </div>
@@ -406,7 +311,7 @@ const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };
 
-const refreshNotification = (event) => {};
+const refreshNotification = (event) => { };
 
 const getNotification = async () => {
   var { data: notificationRes } = await useFetch("/api/get_notification", {
@@ -623,7 +528,7 @@ const logout = async () => {
   max-width: 80%;
 }
 
-.chat.v3-input-picker-root > input.v3-emoji-picker-input {
+.chat.v3-input-picker-root>input.v3-emoji-picker-input {
   border-radius: 0.5rem;
 }
 </style>
