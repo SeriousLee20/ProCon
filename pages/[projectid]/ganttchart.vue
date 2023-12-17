@@ -49,7 +49,7 @@ export default defineComponent({
         {
           data: [
             {
-              x: ["2023-09-12", "2023-10-20"],
+              x: ["2023-09-12T00:00:00", "2023-09-12T02:00:00"],
               y: "Create Poster",
               name: "Amber - Program",
               status: 2,
@@ -248,16 +248,21 @@ export default defineComponent({
           x: {
             position: "top",
             type: "time",
+            ticks: {
+              major: {
+                enabled: true,
+              },
+            },
             time: {
-              unit: "day",
+              unit: "hour",
             },
             adapters: {
               date: {
                 local: de,
               },
             },
-            min: "2023-09-01",
-            max: "2023-10-01",
+            min: "2023-09-12T00:00:00",
+            max: "2023-09-13T00:00:00",
           },
         },
         plugins: {
@@ -292,7 +297,7 @@ export default defineComponent({
           },
         },
       },
-      plugins: [todayLine, weekend, moveChart],
+      plugins: [todayLine, moveChart],
     });
 
     onMounted(() => {
@@ -326,9 +331,11 @@ function moveScroll(chart) {
     ) {
       const currentMinDate = new Date(chart.options.scales.x.min);
       const currentMaxDate = new Date(chart.options.scales.x.max);
-      let newMinDate = addMonths(currentMinDate, -1);
-      let newMaxDate = addMonths(currentMaxDate, -1);
-      console.log(newMinDate, newMaxDate);
+      // let newMinDate = addMonths(currentMinDate, -1);
+      // let newMaxDate = addMonths(currentMaxDate, -1);
+
+      let newMinDate = addDays(currentMinDate, -1);
+      let newMaxDate = addDays(currentMaxDate, -1);
       chart.options.scales.x.min = newMinDate;
       chart.options.scales.x.max = newMaxDate;
       chart.update();
@@ -340,9 +347,11 @@ function moveScroll(chart) {
     ) {
       const currentMinDate = new Date(chart.options.scales.x.min);
       const currentMaxDate = new Date(chart.options.scales.x.max);
-      let newMinDate = addMonths(currentMinDate, 1);
-      let newMaxDate = addMonths(currentMaxDate, 1);
-      console.log(newMinDate, newMaxDate);
+      // let newMinDate = addMonths(currentMinDate, 1);
+      // let newMaxDate = addMonths(currentMaxDate, 1);
+
+      let newMinDate = addDays(currentMinDate, 1);
+      let newMaxDate = addDays(currentMaxDate, 1);
       chart.options.scales.x.min = newMinDate;
       chart.options.scales.x.max = newMaxDate;
       chart.update();
@@ -359,7 +368,19 @@ function addMonths(date, months) {
   return formatDate(date);
 }
 
+function addDays(date, days) {
+  console.log("date before:", date);
+  var d = date.getDate();
+  date.setDate(date.getDate() + days);
+  console.log("date after:", date);
+  // if (date.getDate() != d) {
+  //   date.setDate(0);
+  // }
+  return formatDate(date);
+}
+
 function formatDate(date) {
+  console.log(date);
   var d = new Date(date),
     month = "" + (d.getMonth() + 1),
     day = "" + d.getDate(),
@@ -368,7 +389,9 @@ function formatDate(date) {
   if (month.length < 2) month = "0" + month;
   if (day.length < 2) day = "0" + day;
 
-  return [year, month, day].join("-");
+  console.log(year, month, day);
+
+  return [year, month, day].join("-") + "T00:00:00";
 }
 
 definePageMeta({
