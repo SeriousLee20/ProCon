@@ -124,7 +124,7 @@
           <template #container>
             <div
               style="height: 25rem; width: 15rem"
-              class="w-full bg-primary-100"
+              class="w-full bg-primary-100 h-full"
             >
               <div
                 class="flex align-items-center justify-content-between bg-primary w-full px-2"
@@ -142,55 +142,69 @@
                   @click="closeChatRoom"
                 ></span>
               </div>
-              <div
-                v-if="selectedChatroom.chatlog && !collapseChatroom"
-                class="w-full px-1"
-              >
-                <div v-for="message in selectedChatroom.chatlog" class="w-full">
+              <div class="w-full">
+                <div
+                  v-if="selectedChatroom.chatlog && !collapseChatroom"
+                  class="w-full px-1 overflow-scroll"
+                >
                   <div
-                    v-if="message.sender_id == user.id"
-                    class="flex flex-column justify-content-end pl-8"
+                    v-for="message in selectedChatroom.chatlog"
+                    class="w-full"
                   >
                     <div
-                      class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
+                      v-if="message.sender_id == user.id"
+                      class="flex flex-column justify-content-end pl-8"
                     >
-                      {{ message.sender_name }}
-                    </div>
-                    <div
-                      class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
-                      style="border-radius: 0.5rem 0 0.5rem 0.5rem"
-                    >
-                      <div>
-                        {{
-                          message.text_content
-                        }}...........................................
-                      </div>
-                      <div class="text-xs font-mono text-right">
-                        {{ formatDate(message.created_at) }}
-                      </div>
-                    </div>
-                  </div>
-                  <div v-else class="w-full">
-                    <div v-if="message.text_content" class="pr-8 py-3">
                       <div
-                        class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden"
+                        class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
                       >
                         {{ message.sender_name }}
                       </div>
                       <div
-                        class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
-                        style="border-radius: 0 0.5rem 0.5rem 0.5rem"
+                        class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                        style="border-radius: 0.5rem 0 0.5rem 0.5rem"
                       >
-                        {{
-                          message.text_content
-                        }}...........................................
+                        <div>
+                          {{ message.text_content }}
+                          ...........................................
+                        </div>
+                        <div class="text-xs font-mono text-right">
+                          {{ formatDate(message.created_at) }}
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="w-full h-full">
+                      <div v-if="message.text_content" class="pr-8 py-3">
+                        <div
+                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden"
+                        >
+                          {{ message.sender_name }}
+                        </div>
+                        <div
+                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                          style="border-radius: 0.5rem 0.5rem 0.5rem 0"
+                        >
+                          {{ message.text_content }}
+                          ...........................................
+                          <div class="text-xs font-mono text-right">
+                            {{ formatDate(message.created_at) }}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="flex align-items-center">
-                  <span class="text-4xl">☺︎</span>
-                  <Pinputtext type="text"></Pinputtext>
+                <div class="flex align-items-end w-full p-2">
+                  <!-- <Pfileupload /> -->
+                  <EmojiPicker
+                    class="chat w-full"
+                    :native="true"
+                    @select="onSelectEmoji"
+                    picker-type="input"
+                  />
+                  <span
+                    class="pi pi-send flex align-self-center text-lg pl-2"
+                  ></span>
                 </div>
               </div>
             </div>
@@ -262,6 +276,8 @@ import { useNow, useDateFormat } from "@vueuse/core";
 import useCurrentProject from "~/composables/useProject";
 import { ref } from "vue";
 import { createClient } from "@supabase/supabase-js";
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 
 const { auth } = useSupabaseAuthClient();
 const user = useSupabaseUser();
@@ -371,6 +387,21 @@ const openChatRoom = (chatroom) => {
 const closeChatRoom = () => {
   chatDialog.value = false;
 };
+
+function onSelectEmoji(emoji) {
+  console.log(emoji);
+  /*
+    // result
+    {
+        i: "😚",
+        n: ["kissing face"],
+        r: "1f61a", // with skin tone
+        t: "neutral", // skin tone
+        u: "1f61a" // without tone
+    }
+    */
+}
+
 const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };
@@ -590,5 +621,9 @@ const logout = async () => {
 <style lang="css" scoped>
 #project-ddlist {
   max-width: 80%;
+}
+
+.chat.v3-input-picker-root > input.v3-emoji-picker-input {
+  border-radius: 0.5rem;
 }
 </style>

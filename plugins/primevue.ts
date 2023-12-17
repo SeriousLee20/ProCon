@@ -34,6 +34,7 @@ import Chart from "primevue/chart";
 import Listbox from "primevue/listbox";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
+import FileUpload from "primevue/fileupload";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -66,6 +67,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("PListbox", Listbox);
   nuxtApp.vueApp.component("Paccordian", Accordion);
   nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
+  nuxtApp.vueApp.component("Pfileupload", FileUpload);
 
   // if (process.client) {
   //   Quill.register(Editor, true);
