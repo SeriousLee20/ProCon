@@ -113,24 +113,11 @@ const sortTasks = () => {
 
   console.log("ov filter, sort option", sortOption);
 
-  // let taskGroupedByProject = taskList.reduce((groupedList, task) => {
-  //   const project = task.project_name;
-
-  //   (groupedList[project] = groupedList[project] || []).push(task);
-  //   return groupedList;
-  // }, {});
-
-  // let groupedTaskList = Object.keys(taskGroupedByProject).map((project) => ({
-  //   project,
-  //   tasks: taskGroupedByProject[project],
-  // }));
-  // console.log("grouptasklist", groupedTaskList);
-
   taskList.forEach((list) => {
     console.log("filter sort", list.project_name, list.tasks);
     list.tasks = filters.show_completed
       ? list.tasks
-      : list.tasks?.filter((item) => item.status != "Completed");
+      : list.tasks?.filter((item) => item.status_name != "Completed");
     console.log("show complte", list.tasks);
 
     list.tasks = filters.show_my_task_only
@@ -230,7 +217,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
   if (!taskDialog.value) {
     groupedUsers.value = projectMember.filter(
       (project) => (project.project_id = props.project_id)
-    );
+    )[0].grouped_members;
     isAdmin.value = dstore.getUserRoleByProject(props.project_id) == "Admin";
     console.log("ov taskdialog", groupedUsers.value, isAdmin.value);
     if (isToEditTask) {

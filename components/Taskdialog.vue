@@ -114,7 +114,7 @@
         optionValue="user_id"
         optionGroupLabel="department"
         filter
-        optionGroupChildren="users"
+        optionGroupChildren="members"
         display="chip"
         placeholder="Assign Task to"
         class="w-full"

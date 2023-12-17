@@ -48,6 +48,7 @@
     "vue-chart-3": "^3.1.8",
     "vue-class-component": "^7.2.6",
     "vue-quill-editor": "^3.0.6",
+    "vue3-emoji-picker": "^1.1.8",
     "webpack": "^5.88.2"
   }
 }

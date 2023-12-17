@@ -386,7 +386,7 @@ const groupMember = projectMember.reduce((result, item) => {
 
 const formattedData = Object.keys(groupMember).map((department) => ({
   department,
-  users: groupMember[department],
+  members: groupMember[department],
 }));
 
 console.log("groupmember", groupMember, formattedData);
