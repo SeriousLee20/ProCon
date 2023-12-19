@@ -115,21 +115,18 @@
         </Poverlay-panel>
         <Pdialog
           v-model:visible="chatDialog"
-          :style="{ width: '30rem', shadow: 'none' }"
+          :style="{ width: '28rem', height: '15rem', shadow: 'none' }"
           position="bottomright"
           :draggable="false"
           class="border-round border-1 border-primary shadow-none bg-white h-max"
           :pt="{ transition: { class: 'transition-none' } }"
         >
           <template #container>
-            <div
-              style="height: 25rem; width: 15rem"
-              class="w-full bg-primary-100 h-full"
-            >
+            <div class="w-full bg-primary-100 h-full">
               <div
                 class="flex align-items-center justify-content-between bg-primary w-full px-2"
               >
-                <span class="pi pi-chevron-down"></span>
+                <span class="pi pi-chevron-down" @click="toggleChatroom"></span>
                 <div class="flex h6 h-2rem align-items-center text-lg">
                   {{
                     selectedChatroom.chat_target
@@ -142,31 +139,30 @@
                   @click="closeChatRoom"
                 ></span>
               </div>
-              <div class="w-full">
+              <div class="w-full" v-if="!collapseChatroom">
                 <div
-                  v-if="selectedChatroom.chatlog && !collapseChatroom"
+                  v-if="selectedChatroom.chatlog"
                   class="w-full px-1 overflow-scroll"
                 >
                   <div
                     v-for="message in selectedChatroom.chatlog"
-                    class="w-full"
+                    class="w-full py-2"
                   >
                     <div
                       v-if="message.sender_id == user.id"
                       class="flex flex-column justify-content-end pl-8"
                     >
-                      <div
+                      <!-- <div
                         class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
                       >
                         {{ message.sender_name }}
-                      </div>
+                      </div> -->
                       <div
-                        class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                        class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
                         style="border-radius: 0.5rem 0 0.5rem 0.5rem"
                       >
                         <div>
                           {{ message.text_content }}
-                          ...........................................
                         </div>
                         <div class="text-xs font-mono text-right">
                           {{ formatDate(message.created_at) }}
@@ -181,11 +177,10 @@
                           {{ message.sender_name }}
                         </div>
                         <div
-                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
                           style="border-radius: 0.5rem 0.5rem 0.5rem 0"
                         >
                           {{ message.text_content }}
-                          ...........................................
                           <div class="text-xs font-mono text-right">
                             {{ formatDate(message.created_at) }}
                           </div>
@@ -386,6 +381,10 @@ const openChatRoom = (chatroom) => {
 
 const closeChatRoom = () => {
   chatDialog.value = false;
+};
+
+const toggleChatroom = () => {
+  collapseChatroom.value = !collapseChatroom.value;
 };
 
 function onSelectEmoji(emoji) {
