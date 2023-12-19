@@ -11,8 +11,8 @@
           <template #content>
             <Pbutton
               type="button"
-              label="Login with Github"
-              icon="pi pi-github"
+              label="Login with Google"
+              icon="pi pi-google"
               @click="login"
             />
           </template>
@@ -24,17 +24,28 @@
 
 <script setup lang="ts">
 import { useDataStore } from "~/stores/datastore";
-import process from "process";
-const user = useSupabaseUser();
-const { auth } = useSupabaseAuthClient();
+import { createClient } from "@supabase/supabase-js";
+// const user = useSupabaseUser();
+// const { auth } = useSupabaseAuthClient();
 
-watchEffect(() => {
-  if (user.value) {
-    navigateTo("/");
-  }
-});
-
+var user = null;
 const runtimeConfig = useRuntimeConfig();
+const supabase = createClient(
+  runtimeConfig.public.SUPABASE_URL,
+  runtimeConfig.public.SUPABASE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  }
+);
+
+// const {
+//   data: { user },
+// } = await supabase.auth.getUser();
+// console.log(user?.id);
 
 const getURL = () => {
   let url =
@@ -49,15 +60,22 @@ const getURL = () => {
 };
 
 const login = async () => {
-  const { data, error } = await auth.signInWithOAuth({
+  const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
       redirectTo: getURL(),
     },
   });
+
   console.log(data);
   if (error) createError(error);
 };
+
+watchEffect(() => {
+  // if (user?.id) {
+  //   navigateTo("/");
+  // }
+});
 </script>
 
 <style lang="scss" scoped></style>
