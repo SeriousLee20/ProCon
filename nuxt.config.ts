@@ -37,7 +37,7 @@ export default defineNuxtConfig({
     public: {
       SUPABASE_KEY: process.env.SUPABASE_KEY,
       SUPABASE_URL: process.env.SUPABASE_URL,
-      NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     },
   },
   // components: false,
