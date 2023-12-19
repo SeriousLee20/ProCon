@@ -66,7 +66,7 @@ const login = async () => {
   const { data, error } = await auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "https://pro-con.vercel.app/",
+      redirectTo: "https://pro-con.vercel.app/overview",
     },
   });
 
