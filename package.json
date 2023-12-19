@@ -16,7 +16,8 @@
     "@types/quill": "^2.0.11",
     "gantt-elastic": "^1.0.12",
     "nuxt": "^3.5.2",
-    "supabase": "^1.68.6"
+    "supabase": "^1.68.6",
+    "vue-server-renderer": "^2.7.15"
   },
   "dependencies": {
     "@babel/parser": "^7.23.5",
