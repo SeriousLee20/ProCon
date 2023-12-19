@@ -80,12 +80,14 @@
                     </div>
                   </div>
                   <div v-if="item.chatlog" class="flex font-normal text-xs">
-                    <div class="pr-1">{{ item.chatlog[0]?.sender_name }}:</div>
+                    <div class="pr-1">
+                      {{ item.chatlog[item.chatlog.length - 1]?.sender_name }}:
+                    </div>
                     <div
                       class="text-overflow-ellipsis white-space-nowrap overflow-hidden"
                       style="width: 100%"
                     >
-                      {{ item.chatlog[0].text_content }}
+                      {{ item.chatlog[item.chatlog.length - 1].text_content }}
                     </div>
                   </div>
                 </div>
@@ -106,7 +108,7 @@
                     class="font-normal text-xs text-overflow-ellipsis white-space-nowrap overflow-hidden"
                     style="width: 100%"
                   >
-                    {{ item.chatlog[0]?.text_content }}
+                    {{ item.chatlog[item.chatlog.length - 1]?.text_content }}
                   </div>
                 </div>
               </div>
@@ -115,21 +117,18 @@
         </Poverlay-panel>
         <Pdialog
           v-model:visible="chatDialog"
-          :style="{ width: '30rem', shadow: 'none' }"
+          :style="{ width: '28rem', height: '15rem', shadow: 'none' }"
           position="bottomright"
           :draggable="false"
           class="border-round border-1 border-primary shadow-none bg-white h-max"
           :pt="{ transition: { class: 'transition-none' } }"
         >
           <template #container>
-            <div
-              style="height: 25rem; width: 15rem"
-              class="w-full bg-primary-100 h-full"
-            >
+            <div class="w-full bg-primary-100 h-full">
               <div
                 class="flex align-items-center justify-content-between bg-primary w-full px-2"
               >
-                <span class="pi pi-chevron-down"></span>
+                <span class="pi pi-chevron-down" @click="toggleChatroom"></span>
                 <div class="flex h6 h-2rem align-items-center text-lg">
                   {{
                     selectedChatroom.chat_target
@@ -142,31 +141,30 @@
                   @click="closeChatRoom"
                 ></span>
               </div>
-              <div class="w-full">
+              <div class="w-full" v-if="!collapseChatroom">
                 <div
-                  v-if="selectedChatroom.chatlog && !collapseChatroom"
+                  v-if="selectedChatroom.chatlog"
                   class="w-full px-1 overflow-scroll"
                 >
                   <div
                     v-for="message in selectedChatroom.chatlog"
-                    class="w-full"
+                    class="w-full py-2"
                   >
                     <div
                       v-if="message.sender_id == user.id"
                       class="flex flex-column justify-content-end pl-8"
                     >
-                      <div
+                      <!-- <div
                         class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
                       >
                         {{ message.sender_name }}
-                      </div>
+                      </div> -->
                       <div
-                        class="font-light text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                        class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
                         style="border-radius: 0.5rem 0 0.5rem 0.5rem"
                       >
                         <div>
                           {{ message.text_content }}
-                          ...........................................
                         </div>
                         <div class="text-xs font-mono text-right">
                           {{ formatDate(message.created_at) }}
@@ -176,16 +174,15 @@
                     <div v-else class="w-full h-full">
                       <div v-if="message.text_content" class="pr-8 py-3">
                         <div
-                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden"
+                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
                         >
                           {{ message.sender_name }}
                         </div>
                         <div
-                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white"
+                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
                           style="border-radius: 0.5rem 0.5rem 0.5rem 0"
                         >
                           {{ message.text_content }}
-                          ...........................................
                           <div class="text-xs font-mono text-right">
                             {{ formatDate(message.created_at) }}
                           </div>
@@ -199,11 +196,12 @@
                   <EmojiPicker
                     class="chat w-full"
                     :native="true"
-                    @select="onSelectEmoji"
+                    v-model:text="chatInput"
                     picker-type="input"
                   />
                   <span
-                    class="pi pi-send flex align-self-center text-lg pl-2"
+                    class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
+                    @click="insert_chatlog"
                   ></span>
                 </div>
               </div>
@@ -302,6 +300,7 @@ const notificationList = ref();
 const chatPanel = ref(false);
 const chatlist = ref();
 const chatDialog = ref(false);
+const chatInput = ref();
 const selectedChatroom = ref();
 const collapseChatroom = ref(false);
 // TODO: add notification list
@@ -388,6 +387,10 @@ const closeChatRoom = () => {
   chatDialog.value = false;
 };
 
+const toggleChatroom = () => {
+  collapseChatroom.value = !collapseChatroom.value;
+};
+
 function onSelectEmoji(emoji) {
   console.log(emoji);
   /*
@@ -401,6 +404,38 @@ function onSelectEmoji(emoji) {
     }
     */
 }
+
+const insert_chatlog = async () => {
+  console.log("chatinput", chatInput.value, selectedChatroom.value);
+  if (chatInput.value) {
+    let chatroom = selectedChatroom.value;
+
+    var { data: insertChatlogRes } = await useFetch("/api/insert_chatlog", {
+      method: "POST",
+      body: {
+        chatroom_id: chatroom.chatroom_id,
+        project_id: selectedProject.value,
+        receiver_id: chatroom.chat_target
+          ? chatroom.chat_target[0].user_id
+          : null,
+        text_content: chatInput.value,
+      },
+      headers: { "cache-control": "no-cache" },
+    });
+
+    if (insertChatlogRes.value.success) {
+      chatlist.value = insertChatlogRes.value.response;
+      selectedChatroom.value = chatlist.value[0];
+      chatInput.value = "";
+    }
+    console.log(
+      "insertchatlogres",
+      chatlist.value,
+      insertChatlogRes.value,
+      selectedChatroom.value
+    );
+  }
+};
 
 const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
@@ -467,7 +502,7 @@ const switchPage = (routeName, pageName) => {
       );
       navigateTo(routeName);
     }
-  } else if (pageName == "Management") {
+  } else if (pageName == "Management" || pageName == "Gantt Chart") {
     navigateTo(routeName);
   } else if (pageName != "Overview" && pageName != "Management") {
     // pagename = Create project/Join Project
