@@ -14,6 +14,8 @@ import { de } from "date-fns/locale";
 import { defineComponent, ref, onMounted } from "vue";
 import { Chart, registerables } from "chart.js";
 import { BarChart, useBarChart } from "vue-chart-3";
+import { useDataStore } from "~/stores/datastore";
+
 const value = ref(null);
 
 Chart.register(...registerables);
@@ -39,6 +41,11 @@ export default defineComponent({
     BarChart,
   },
   setup() {
+    const { projectid } = useRoute().params;
+    const dstore = useDataStore();
+    dstore.setSelectedProject(projectid);
+    dstore.setCurrentPage("");
+    console.log("gantt proj id", projectid);
     const colours = [
       "rgba(255,26,104,1)",
       "rgba(255,159,64,1)",
@@ -394,6 +401,13 @@ function formatDate(date) {
   return [year, month, day].join("-") + "T00:00:00";
 }
 
+onNuxtReady(() => {
+  // projectId = useRoute().params.projectid;
+  // const dstore = useDataStore();
+  // dstore.setSelectedProject(projectId);
+  // dstore.setCurrentPage("");
+  // console.log("gantt proj id", projectId);
+});
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],

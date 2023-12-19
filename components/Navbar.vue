@@ -80,12 +80,14 @@
                     </div>
                   </div>
                   <div v-if="item.chatlog" class="flex font-normal text-xs">
-                    <div class="pr-1">{{ item.chatlog[0]?.sender_name }}:</div>
+                    <div class="pr-1">
+                      {{ item.chatlog[item.chatlog.length - 1]?.sender_name }}:
+                    </div>
                     <div
                       class="text-overflow-ellipsis white-space-nowrap overflow-hidden"
                       style="width: 100%"
                     >
-                      {{ item.chatlog[0].text_content }}
+                      {{ item.chatlog[item.chatlog.length - 1].text_content }}
                     </div>
                   </div>
                 </div>
@@ -106,7 +108,7 @@
                     class="font-normal text-xs text-overflow-ellipsis white-space-nowrap overflow-hidden"
                     style="width: 100%"
                   >
-                    {{ item.chatlog[0]?.text_content }}
+                    {{ item.chatlog[item.chatlog.length - 1]?.text_content }}
                   </div>
                 </div>
               </div>
@@ -194,11 +196,12 @@
                   <EmojiPicker
                     class="chat w-full"
                     :native="true"
-                    @select="onSelectEmoji"
+                    v-model:text="chatInput"
                     picker-type="input"
                   />
                   <span
-                    class="pi pi-send flex align-self-center text-lg pl-2"
+                    class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
+                    @click="insert_chatlog"
                   ></span>
                 </div>
               </div>
@@ -297,6 +300,7 @@ const notificationList = ref();
 const chatPanel = ref(false);
 const chatlist = ref();
 const chatDialog = ref(false);
+const chatInput = ref();
 const selectedChatroom = ref();
 const collapseChatroom = ref(false);
 // TODO: add notification list
@@ -401,6 +405,38 @@ function onSelectEmoji(emoji) {
     */
 }
 
+const insert_chatlog = async () => {
+  console.log("chatinput", chatInput.value, selectedChatroom.value);
+  if (chatInput.value) {
+    let chatroom = selectedChatroom.value;
+
+    var { data: insertChatlogRes } = await useFetch("/api/insert_chatlog", {
+      method: "POST",
+      body: {
+        chatroom_id: chatroom.chatroom_id,
+        project_id: selectedProject.value,
+        receiver_id: chatroom.chat_target
+          ? chatroom.chat_target[0].user_id
+          : null,
+        text_content: chatInput.value,
+      },
+      headers: { "cache-control": "no-cache" },
+    });
+
+    if (insertChatlogRes.value.success) {
+      chatlist.value = insertChatlogRes.value.response;
+      selectedChatroom.value = chatlist.value[0];
+      chatInput.value = "";
+    }
+    console.log(
+      "insertchatlogres",
+      chatlist.value,
+      insertChatlogRes.value,
+      selectedChatroom.value
+    );
+  }
+};
+
 const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };
@@ -466,7 +502,7 @@ const switchPage = (routeName, pageName) => {
       );
       navigateTo(routeName);
     }
-  } else if (pageName == "Management") {
+  } else if (pageName == "Management" || pageName == "Gantt Chart") {
     navigateTo(routeName);
   } else if (pageName != "Overview" && pageName != "Management") {
     // pagename = Create project/Join Project

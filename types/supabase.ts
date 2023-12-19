@@ -383,6 +383,7 @@ export interface Database {
           name: string
           owner_ids: string[] | null
           project_id: string
+          start_date: string | null
           status_code: number | null
           urgent_date: string | null
         }
@@ -400,6 +401,7 @@ export interface Database {
           name: string
           owner_ids?: string[] | null
           project_id: string
+          start_date?: string | null
           status_code?: number | null
           urgent_date?: string | null
         }
@@ -417,6 +419,7 @@ export interface Database {
           name?: string
           owner_ids?: string[] | null
           project_id?: string
+          start_date?: string | null
           status_code?: number | null
           urgent_date?: string | null
         }
@@ -583,6 +586,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date: string
           due_date_time: string
           due_date: string
           urgent_date: string
@@ -772,6 +776,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date: string
           due_date_time: string
           due_date: string
           urgent_date: string
@@ -802,6 +807,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date: string
           due_date_time: string
           due_date: string
           urgent_date: string
@@ -878,6 +884,26 @@ export interface Database {
           receiver_ids: string[]
         }[]
       }
+      insert_chatlog: {
+        Args: {
+          n_chatroom_id: string
+          n_project_id: string
+          n_user_id: string
+          n_receiver_id: string
+          n_text_content: string
+        }
+        Returns: {
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          chat_target: Json
+        }[]
+      }
       insert_department: {
         Args: {
           n_name: Json[]
@@ -936,6 +962,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date: string
           due_date_time: string
           due_date: string
           urgent_date: string
@@ -1013,6 +1040,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date: string
           due_date_time: string
           due_date: string
           urgent_date: string
