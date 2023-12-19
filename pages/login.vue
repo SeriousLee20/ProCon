@@ -50,7 +50,7 @@ const getURL = () => {
 
 const login = async () => {
   const { data, error } = await auth.signInWithOAuth({
-    provider: "github",
+    provider: "google",
     options: {
       redirectTo: getURL(),
     },
