@@ -25,22 +25,22 @@
 <script setup lang="ts">
 import { useDataStore } from "~/stores/datastore";
 import { createClient } from "@supabase/supabase-js";
-// const user = useSupabaseUser();
-// const { auth } = useSupabaseAuthClient();
+const user = useSupabaseUser();
+const { auth } = useSupabaseAuthClient();
 
-var user = null;
+// var user = null;
 const runtimeConfig = useRuntimeConfig();
-const supabase = createClient(
-  runtimeConfig.public.SUPABASE_URL,
-  runtimeConfig.public.SUPABASE_KEY,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false,
-    },
-  }
-);
+// const supabase = createClient(
+//   runtimeConfig.public.SUPABASE_URL,
+//   runtimeConfig.public.SUPABASE_KEY,
+//   {
+//     auth: {
+//       autoRefreshToken: false,
+//       persistSession: false,
+//       detectSessionInUrl: false,
+//     },
+//   }
+// );
 
 // const {
 //   data: { user },
@@ -52,18 +52,21 @@ const getURL = () => {
     // process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
     runtimeConfig?.public.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
     "http://localhost:3000/";
+  console.log("url", url);
   // Make sure to include `https://` when not localhost.
   url = url.includes("http") ? url : `https://${url}`;
+  console.log("url", url);
   // Make sure to include a trailing `/`.
   url = url.charAt(url.length - 1) === "/" ? url : `${url}/`;
+  console.log("url", url);
   return url;
 };
 
 const login = async () => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const { data, error } = await auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: getURL(),
+      redirectTo: "/",
     },
   });
 
