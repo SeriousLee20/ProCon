@@ -30,17 +30,17 @@ const { auth } = useSupabaseAuthClient();
 
 // var user = null;
 const runtimeConfig = useRuntimeConfig();
-// const supabase = createClient(
-//   runtimeConfig.public.SUPABASE_URL,
-//   runtimeConfig.public.SUPABASE_KEY,
-//   {
-//     auth: {
-//       autoRefreshToken: false,
-//       persistSession: false,
-//       detectSessionInUrl: false,
-//     },
-//   }
-// );
+const supabase = createClient(
+  runtimeConfig.public.SUPABASE_URL,
+  runtimeConfig.public.SUPABASE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  }
+);
 
 // const {
 //   data: { user },
@@ -65,7 +65,7 @@ const getURL = () => {
 const login = async () => {
   const route = useRoute().params;
   console.log("route", route);
-  const { data, error } = await auth.signInWithOAuth({
+  const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     // options: {
     //   redirectTo: getURL(),
