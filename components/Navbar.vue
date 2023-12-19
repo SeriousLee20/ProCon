@@ -174,7 +174,7 @@
                     <div v-else class="w-full h-full">
                       <div v-if="message.text_content" class="pr-8 py-3">
                         <div
-                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden"
+                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
                         >
                           {{ message.sender_name }}
                         </div>
