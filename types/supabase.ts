@@ -278,22 +278,31 @@ export interface Database {
         Row: {
           content: string | null
           created_at: string
+<<<<<<< HEAD
           notification_id: string
           project_id: string | null
+=======
+          id: number
+>>>>>>> feat/web-worker
           target: string[] | null
           title: string
         }
         Insert: {
           content?: string | null
           created_at?: string
+<<<<<<< HEAD
           notification_id?: string
           project_id?: string | null
+=======
+          id?: number
+>>>>>>> feat/web-worker
           target?: string[] | null
           title: string
         }
         Update: {
           content?: string | null
           created_at?: string
+<<<<<<< HEAD
           notification_id?: string
           project_id?: string | null
           target?: string[] | null
@@ -308,6 +317,13 @@ export interface Database {
             referencedColumns: ["id"]
           }
         ]
+=======
+          id?: number
+          target?: string[] | null
+          title?: string
+        }
+        Relationships: []
+>>>>>>> feat/web-worker
       }
       parameters: {
         Row: {
@@ -883,6 +899,7 @@ export interface Database {
           project_id: string
           receiver_ids: string[]
         }[]
+<<<<<<< HEAD
       }
       insert_chatlog: {
         Args: {
@@ -903,6 +920,8 @@ export interface Database {
           group_members: Json
           chat_target: Json
         }[]
+=======
+>>>>>>> feat/web-worker
       }
       insert_department: {
         Args: {
@@ -913,6 +932,7 @@ export interface Database {
       }
       insert_notification: {
         Args: {
+<<<<<<< HEAD
           n_title: string
           n_content: string
           n_target: string[]
@@ -925,6 +945,13 @@ export interface Database {
           title: string
           content: string
         }[]
+=======
+          p_title: string
+          p_content: string
+          p_target: string[]
+        }
+        Returns: undefined
+>>>>>>> feat/web-worker
       }
       insert_position: {
         Args: {
