@@ -22,16 +22,47 @@
         <div v-if="isShowButton" class="flex justify-content-end align-content-center gap-1">
           <Pbutton type="button" icon="pi pi-chart-bar" />
           <Pbutton type="button" icon="pi pi-comment" />
-          <Pbutton type="button" icon="pi pi-inbox" />
+          <Pbutton
+            type="button"
+            icon="pi pi-inbox"
+            @click="toggleNotificationPanel"
+            :pt="{ content: { class: 'w-20rem h-20rem' } }"
+          />
+          <Poverlay-panel
+            ref="notificationPanel"
+            appendTo="body"
+            style="width: 20rem; height: 20rem"
+          >
+            <footer>No Notifications</footer>
+          </Poverlay-panel>
         </div>
         <!-- <Pbutton
           type="button"
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
+        <Pbutton type="button" icon="pi pi-bell" @click="visible = true" />
         <Pbutton type="button" icon="pi pi-user" @click="switchPage('/profile', 'Profile')" />
         <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
+
+        <Pdialog v-model:visible="visible" modal header="Connect ProCon to Telegram!" :style="{ width: '50rem' }"
+          :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+          <Pcarousel :value="products" :numVisible="1" :numScroll="1" orientation="vertical"
+            verticalViewPortHeight="360px" containerStyle="max-width: 30rem" contentClass="flex align-items-center">
+            <template #item="slotProps">
+              <div class=" m-2 text-center py-5 px-3">
+                <div class="mb-3">
+                  <h5>Step {{ slotProps.data.id }} : {{ slotProps.data.description }}</h5>
+                  <!-- <img :src="'https://primefaces.org/cdn/primevue/images/product/' + slotProps.data.image"
+                    :alt="slotProps.data.name" class="w-6 shadow-2" /> -->
+                </div>
+              </div>
+            </template>
+          </Pcarousel>
+        </Pdialog>
       </div>
+
+
     </ClientOnly>
   </div>
 </template>
@@ -40,8 +71,11 @@
 import { useDataStore } from "~/stores/datastore";
 import { useNow, useDateFormat } from "@vueuse/core";
 import useCurrentProject from "~/composables/useProject";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { createClient } from "@supabase/supabase-js";
+import { BotService } from "~/service/BotService"
+
+
 
 const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
@@ -56,6 +90,7 @@ const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
 // var project = ref(dstore.getAllProjects);
 // var selectedProject = ref(dstore.getSelectedProject?.id);
 // const selectedProject = ref(currentProject);
+const notificationPanel = ref(false);
 
 const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
@@ -67,46 +102,14 @@ console.log(supabase);
 const worker = new Worker('/worker.js');
 console.log(worker)
 worker.postMessage("test sw");
-worker.addEventListener('message', (e) => {
-  if (e.data) {
-    console.log(e.data)
-    worker.terminate()
-  }
-}, false);
 
+onMounted(() => {
+  BotService.getProductsSmall().then((data) => (products.value = data));
+})
+const products = ref();
 Notification.requestPermission();
 
-const handleInserts = (payload) => {
-  console.log("Change received!", payload);
-  new Notification("New Changes!", { body: "Tasks updated!" });
-
-};
-
-
-supabase
-  .channel("task")
-  .on(
-    "postgres_changes",
-    { event: "*", schema: "public", table: "task" },
-    handleInserts
-  )
-  .subscribe();
-
-// const mySubscription = supabase
-//   .from('*')
-//   .on('*', payload => {
-//     console.log('Change received!', payload)
-//   })
-//   .subscribe()
-
-const test = async () => {
-  console.log("hello world");
-  Notification.requestPermission().then((perm) => {
-    if (perm === "granted") {
-      new Notification("New Changes!", { body: "Tasks updated!" });
-    }
-  });
-};
+const visible = ref(false);
 
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
@@ -138,6 +141,10 @@ console.log(menuItems.value);
 
 const toggle = (event) => {
   menu.value.toggle(event);
+};
+
+const toggleNotificationPanel = (event) => {
+  notificationPanel.value.toggle(event);
 };
 
 function onChangeSelectedProject(event) {
