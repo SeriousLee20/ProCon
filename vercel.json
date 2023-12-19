@@ -1,11 +1,5 @@
 {
-  "builds":[
-    {
-      "src": "nuxt.config.ts",
-      "use": "@nuxtjs/vercel-builder",
-      "config":{}
-    }
-  ],
+
   "redirects": [
     { "source": "/login", "destination": "/", "permanent": false }
   ]
