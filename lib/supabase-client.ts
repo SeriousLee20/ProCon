@@ -9,7 +9,7 @@ const url =
 const supabase = createClient<Database>(
   url as string,
 
-  process.env.SUPABASE_ANON_KEY as string
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
 );
 
 export default supabase;

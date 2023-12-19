@@ -78,8 +78,10 @@ export default defineNuxtModule<ModuleOptions>({
     },
   },
   defaults: {
-    url: process.env.SUPABASE_URL as string,
-    key: process.env.SUPABASE_KEY as string,
+    // url: process.env.SUPABASE_URL as string,
+    // key: process.env.SUPABASE_KEY as string,
+    url: process.env.NEXT_PUBLIC_SITE_URL as string,
+    key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
     serviceKey: process.env.SUPABASE_SERVICE_KEY as string,
     client: {
       auth: {
