@@ -86,6 +86,7 @@ export interface Database {
           group_id: string
           group_name: string
           profile_photo_url: string | null
+          project_id: string | null
         }
         Insert: {
           created_at?: string
@@ -93,6 +94,7 @@ export interface Database {
           group_id?: string
           group_name: string
           profile_photo_url?: string | null
+          project_id?: string | null
         }
         Update: {
           created_at?: string
@@ -100,8 +102,17 @@ export interface Database {
           group_id?: string
           group_name?: string
           profile_photo_url?: string | null
+          project_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_group_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       chat_log: {
         Row: {
@@ -508,21 +519,18 @@ export interface Database {
         Row: {
           created_at: string
           group_id: string
-          project_id: string
           user_group_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           group_id: string
-          project_id: string
           user_group_id?: string
           user_id: string
         }
         Update: {
           created_at?: string
           group_id?: string
-          project_id?: string
           user_group_id?: string
           user_id?: string
         }
@@ -533,13 +541,6 @@ export interface Database {
             isOneToOne: false
             referencedRelation: "chat_group"
             referencedColumns: ["group_id"]
-          },
-          {
-            foreignKeyName: "user_chatgroup_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project"
-            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "user_chatgroup_user_id_fkey"
@@ -560,6 +561,26 @@ export interface Database {
           user_id: string
         }
         Returns: boolean
+      }
+      create_chatgroup: {
+        Args: {
+          n_group_name: string
+          n_group_description: string
+          n_project_id: string
+          n_user_ids: string[]
+          n_user_id: string
+        }
+        Returns: {
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          chat_target: Json
+        }[]
       }
       delete_member: {
         Args: {
@@ -989,6 +1010,24 @@ export interface Database {
           n_creator_id: string
         }
         Returns: Record<string, unknown>
+      }
+      quit_groupchat: {
+        Args: {
+          n_user_id: string
+          n_group_id: string
+          n_project_id: string
+        }
+        Returns: {
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          chat_target: Json
+        }[]
       }
       update_filter: {
         Args: {
