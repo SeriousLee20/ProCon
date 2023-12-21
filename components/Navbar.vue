@@ -131,6 +131,7 @@
                 </div>
                 <div class="flex align-items-end w-full p-2">
                   <!-- <Pfileupload /> -->
+                  <button @click="clearInput">Clear</button>
                   <EmojiPicker class="chat w-full" :native="true" v-model:text="chatInput" picker-type="input" />
                   <span class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
                     @click="insert_chatlog"></span>
@@ -315,6 +316,11 @@ function onSelectEmoji(emoji) {
         u: "1f61a" // without tone
     }
     */
+}
+
+const clearInput = async () => {
+  console.log(chatInput);
+  chatInput.value = ''
 }
 
 const insert_chatlog = async () => {
