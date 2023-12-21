@@ -69,9 +69,9 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
   nuxtApp.vueApp.component("Pfileupload", FileUpload);
 
-  // if (process.client) {
-  //   Quill.register(Editor, true);
-  // }
+  if (process.client) {
+    Quill.register(Editor, true);
+  }
 
   //other components that you need
 

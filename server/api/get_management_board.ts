@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "get_management_board",
+        "get_management_board2",
         {
           n_project_id: nData.project_id,
         }

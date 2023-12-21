@@ -29,7 +29,7 @@
         optionValue="user_id"
         optionGroupLabel="department"
         filter
-        optionGroupChildren="users"
+        optionGroupChildren="members"
         display="chip"
         placeholder="Select members to notify"
         class="w-full md:w-20rem"
@@ -290,7 +290,6 @@ dstore.setCurrentPage("");
 const emit = defineEmits(["refresh-notification"]);
 const { $emit } = useNuxtApp();
 const toast = useToast();
-const groupedUsers = ref([]);
 let announcements = [];
 // let filteredAnnouncements = [];
 let userOptions = [];
@@ -335,6 +334,7 @@ const taskOptions = {
   status: getSortOptions("task_status"),
 };
 
+const groupedUsers = ref(projectMemberRes.value?.response);
 const myTaskSortOptions = getSortOptions("sort_option");
 const mainTaskSortOptions = getSortOptions("main_task_sort_option");
 const taskDialog = ref(false);
@@ -346,8 +346,6 @@ const mainShowMyTaskOnly = ref(
   getFilter("main_task").thisFilter.show_my_task_only
 );
 const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
-const taskDueDatetime = ref();
-const taskUrgentDate = ref();
 const mainTaskList = ref({ q1: [], q2: [], q3: [], q4: [] });
 const myTaskList = ref();
 const myTaskSortOption = ref(getFilter("my_task").thisFilter.sort_option);
@@ -369,27 +367,27 @@ console.log("task", tasksRes);
 console.log("current projectid", projectid);
 console.log("isAdmin", dstore.getSelectedProject, isAdmin);
 
-const groupMember = projectMember.reduce((result, item) => {
-  const department = item.user_department;
+// const groupMember = projectMember.reduce((result, item) => {
+//   const department = item.user_department;
 
-  if (!result[department]) {
-    result[department] = [];
-  }
+//   if (!result[department]) {
+//     result[department] = [];
+//   }
 
-  const itemWithoutDepartment = { ...item };
-  delete itemWithoutDepartment.user_department;
+//   const itemWithoutDepartment = { ...item };
+//   delete itemWithoutDepartment.user_department;
 
-  result[department].push(itemWithoutDepartment);
+//   result[department].push(itemWithoutDepartment);
 
-  return result;
-}, {});
+//   return result;
+// }, {});
 
-const formattedData = Object.keys(groupMember).map((department) => ({
-  department,
-  members: groupMember[department],
-}));
+// const formattedData = Object.keys(groupMember).map((department) => ({
+//   department,
+//   members: groupMember[department],
+// }));
 
-console.log("groupmember", groupMember, formattedData);
+// console.log("groupmember", groupMember, formattedData);
 console.log("groupedUsers", groupedUsers);
 console.log("projectmember", projectMember);
 
@@ -405,7 +403,7 @@ if (Array.isArray(projectMember)) {
   };
 }
 
-groupedUsers.value = [...formattedData];
+// groupedUsers.value = [...formattedData];
 
 console.log("useroption", userOptions);
 
