@@ -409,6 +409,8 @@ const toggleChatPanel = (event) => {
 
 const openCreateGroupPanel = () => {
   chatPanelState.value = "create_group";
+  let groupedUsers = dstore.getManagementBoard;
+  console.log(groupedUsers)
 };
 
 const getChatList = async () => {

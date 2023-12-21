@@ -334,7 +334,7 @@ const taskOptions = {
   status: getSortOptions("task_status"),
 };
 
-const groupedUsers = ref(projectMemberRes.value?.response);
+const groupedUsers = ref(projectMemberRes.value?.response[0].project_members);
 const myTaskSortOptions = getSortOptions("sort_option");
 const mainTaskSortOptions = getSortOptions("main_task_sort_option");
 const taskDialog = ref(false);
@@ -359,6 +359,7 @@ const announcementTitle = ref(null);
 const announcementDesc = ref(null);
 const announcementReceivers = ref();
 var announcementList = ref(projectAnnouncementRes.value.response);
+dstore.setManagementBoard(groupedUsers.value)
 
 console.log("mytask", tasksRes.value.response, myTaskList);
 console.log("param", parameters);
@@ -366,28 +367,6 @@ console.log("filters", filters);
 console.log("task", tasksRes);
 console.log("current projectid", projectid);
 console.log("isAdmin", dstore.getSelectedProject, isAdmin);
-
-// const groupMember = projectMember.reduce((result, item) => {
-//   const department = item.user_department;
-
-//   if (!result[department]) {
-//     result[department] = [];
-//   }
-
-//   const itemWithoutDepartment = { ...item };
-//   delete itemWithoutDepartment.user_department;
-
-//   result[department].push(itemWithoutDepartment);
-
-//   return result;
-// }, {});
-
-// const formattedData = Object.keys(groupMember).map((department) => ({
-//   department,
-//   members: groupMember[department],
-// }));
-
-// console.log("groupmember", groupMember, formattedData);
 console.log("groupedUsers", groupedUsers);
 console.log("projectmember", projectMember);
 
