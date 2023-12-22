@@ -141,11 +141,27 @@
                 :pt="{
                   root: { style: 'box-shadow:none; border: none; padding:0;' },
                 }"
-                :disabled="!selectedGroupMember"
+                :disabled="!selectedGroupMember.length > 0"
+                @click="doneSelectGroupMember"
                 text
               >
                 Next
               </Pbutton>
+            </div>
+            <div class="pt-2">
+              <div v-for="department of groupedUsers" :key="department">
+                <div>{{ department.department }}</div>
+                <div  v-for="member in department.members" :key="member.user_id">
+                  <Pcheckbox
+
+                  v-model="selectedGroupMember"
+                    :inputId="member.user_id"
+                    name="member"
+                    :value="member.username"
+                  />
+                  <label :for="member.user_id">{{ member.username }}</label>
+                </div>
+              </div>
             </div>
           </div>
         </Poverlay-panel>
@@ -307,11 +323,11 @@
 </template>
 
 <script setup type="module">
+import { useSupabaseAuthClient } from "~/src/runtime/composables/useSupabaseAuthClient";
 import { useDataStore } from "~/stores/datastore";
 import { useNow, useDateFormat } from "@vueuse/core";
 import useCurrentProject from "~/composables/useProject";
 import { ref } from "vue";
-import { createClient } from "@supabase/supabase-js";
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 
@@ -337,7 +353,8 @@ const notificationPanel = ref(false);
 const notificationList = ref();
 const chatPanel = ref(false);
 const chatPanelState = ref("home");
-const selectedGroupMember = ref();
+const selectedGroupMember = ref([]);
+const groupedUsers = ref();
 const chatlist = ref();
 const chatDialog = ref(false);
 const chatInput = ref();
@@ -347,15 +364,12 @@ const collapseChatroom = ref(false);
 // TODO: add chat member list
 const { $listen } = useNuxtApp();
 
-const supabase = createClient(
-  "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
-);
+
 
 const getUserData = async () => {
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await auth.getUser();
   console.log(user);
   worker.postMessage(user.id);
 };
@@ -409,6 +423,12 @@ const toggleChatPanel = (event) => {
 
 const openCreateGroupPanel = () => {
   chatPanelState.value = "create_group";
+  groupedUsers.value = dstore.getManagementBoard;
+  console.log("chat grouped users", groupedUsers.value);
+};
+
+const doneSelectGroupMember = () => {
+  console.log("selected group members", selectedGroupMember.value);
 };
 
 const getChatList = async () => {
