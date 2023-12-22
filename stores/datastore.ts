@@ -8,6 +8,7 @@ export const useDataStore = defineStore("data", {
     announcement: null as Announcement[] | null,
     selectedProject: null as Project | null,
     currentPage: "",
+    managementBoard: null as ProjectMember[] | null,
   }),
   getters: {
     getUserId: (state) => state.user?.id,
@@ -17,6 +18,7 @@ export const useDataStore = defineStore("data", {
     getSelectedProject: (state) => state.selectedProject,
     getAllProjects: (state) => state.projects,
     getCurrentPage: (state) => state.currentPage,
+    getManagementBoard: (state) => state.managementBoard
   },
   actions: {
     createUser(user: User) {
@@ -87,6 +89,9 @@ export const useDataStore = defineStore("data", {
       this.selectedProject = project ? project : null;
       console.log("ds set selected project", id);
     },
+    setManagementBoard(managementBoard: ProjectMember[]){
+      this.managementBoard = managementBoard;
+    },
     clearData() {
       this.user = null;
       this.projects = null;
@@ -129,6 +134,14 @@ interface Project {
   //     task_urgent_date: string;
   //     task_status: string;
   //   }];
+}
+
+interface ProjectMember {
+  user_id: string,
+  username: string,
+  department: string,
+  position: string,
+  role: string
 }
 
 interface Overview {
