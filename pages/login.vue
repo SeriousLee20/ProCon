@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSupabaseAuthClient } from "~/src/runtime/composables/useSupabaseAuthClient";
 import { useDataStore } from "~/stores/datastore";
 const user = useSupabaseUser();
 const { auth } = useSupabaseAuthClient();

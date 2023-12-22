@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // devtools: { enabled: true }
+  devtools: { enabled: false },
 
   plugins: [
     "~/plugins/event-bus.ts",
@@ -25,10 +25,11 @@ export default defineNuxtConfig({
     transpile: ["primevue"],
   },
   supabase: {
-    cookies: {
-      lifetime: 60 * 60 * 8, // 8 hours
+    cookieOptions: {
+      maxAge: 60 * 60 * 8, // 8 hours
     },
-    redirect: {
+    redirect: true,
+    redirectOptions: {
       login: "/login",
       callback: "/",
     },

@@ -26,7 +26,7 @@ import DataView from "primevue/dataview";
 import DataViewLayoutOptions from "primevue/dataviewlayoutoptions"; // optional
 import Tag from "primevue/tag";
 import Editor from "primevue/editor";
-import Quill from "quill";
+// import Quill from "quill";
 import Calendar from "primevue/calendar";
 import Rating from "primevue/rating";
 import OverlayPanel from "primevue/overlaypanel";
@@ -35,6 +35,7 @@ import Listbox from "primevue/listbox";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import FileUpload from "primevue/fileupload";
+import Checkbox from 'primevue/checkbox';
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -68,6 +69,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Paccordian", Accordion);
   nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
   nuxtApp.vueApp.component("Pfileupload", FileUpload);
+  nuxtApp.vueApp.component("Pcheckbox", Checkbox);
 
   // if (process.client) {
   //   Quill.register(Editor, true);

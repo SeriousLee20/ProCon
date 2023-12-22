@@ -3,10 +3,10 @@ import { useRuntimeConfig, useRouter } from "#imports";
 export const redirectToLogin = (toPath: string) => {
   const router = useRouter();
 
-  const redirect = useRuntimeConfig().public.supabase.redirect;
-  if (redirect && redirect.login) {
+  const redirectOptions = useRuntimeConfig().public.supabase.redirectOptions;
+  if (redirectOptions && redirectOptions.login) {
     // Do not redirect for login and callback pages
-    if ([redirect.login, redirect.callback].includes(toPath)) {
+    if ([redirectOptions.login, redirectOptions.callback].includes(toPath)) {
       return;
     }
 
@@ -15,6 +15,6 @@ export const redirectToLogin = (toPath: string) => {
       return;
     }
 
-    router.push(redirect.login);
+    router.push(redirectOptions.login);
   }
 };

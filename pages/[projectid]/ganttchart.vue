@@ -415,6 +415,5 @@ definePageMeta({
 </script>
 
 <style>
-#app {
-}
+
 </style>

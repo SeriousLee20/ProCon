@@ -276,6 +276,7 @@
 </template>
 
 <script setup>
+import { useSupabaseAuthClient } from "~/src/runtime/composables/useSupabaseAuthClient";
 import { useDataStore } from "~/stores/datastore";
 import { useToast } from "primevue/usetoast";
 import { ref, onMounted } from "vue";

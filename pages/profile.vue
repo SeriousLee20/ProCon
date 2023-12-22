@@ -69,13 +69,7 @@
 
 <script setup>
 import { useDataStore } from "~/stores/datastore";
-import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
-// Create a single supabase client for interacting with your database
-const supabase = createClient(
-  "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
-);
 
 const toast = useToast();
 const dstore = useDataStore();
@@ -110,31 +104,29 @@ const updateProfile = async () => {
 
   dstore.createUser(newProfile);
 
-  try {
-    const { error } = await supabase
-      .from("user")
-      .update({
-        id: userId,
-        name: nname,
-        email: nemail,
-        contact_number: nphone,
-        start_working_hour: startTime,
-        end_working_hour: endTime,
-      })
-      .eq("id", userId);
+  var { data: updateUserRes } = await useFetch("/api/update_user", {
+    method: "POST",
+    body: {
+      name: nname,
+      email: nemail,
+      contact_number: nphone,
+      start_working_hour: startTime,
+      end_working_hour: endTime,
+      avatar_url: "",
+    },
+    headers: { "cache-control": "no-cache" },
+  });
 
+  if(updateUserRes.value.success){
+    console.log('update user', updateUserRes)
     toast.add({
       severity: "success",
       summary: "Hurray!",
       detail: "Profile Updated Successfully",
-      life: 50000,
+      life: 5000,
     });
-
-    console.log(error);
-    loading = false;
-  } catch (error) {
-    console.log(error);
   }
+
 };
 
 dstore.setSelectedProject(null);

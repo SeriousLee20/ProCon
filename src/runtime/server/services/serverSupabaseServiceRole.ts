@@ -9,7 +9,7 @@ export const serverSupabaseServiceRole = <T>(
   const {
     supabase: { serviceKey },
     public: {
-      supabase: { url, client: clientOptions },
+      supabase: { url, clientOptions: clientOptions },
     },
   } = useRuntimeConfig();
 
