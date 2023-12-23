@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import { User } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { useSupabaseToken } from "./useSupabaseToken";
 import { useState } from "#imports";
 
