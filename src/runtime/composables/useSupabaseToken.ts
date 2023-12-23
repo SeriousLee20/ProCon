@@ -2,9 +2,9 @@ import { useCookie, useRuntimeConfig } from "#imports";
 
 export const useSupabaseToken = () => {
   const {
-    supabase: { cookies: cookieOptions },
+    supabase: { cookieName: cookieName },
   } = useRuntimeConfig().public;
-  const cookieName = `${cookieOptions.name}-access-token`;
+  const thisCookieName = `${cookieName}-access-token`;
 
-  return useCookie(cookieName);
+  return useCookie(thisCookieName);
 };

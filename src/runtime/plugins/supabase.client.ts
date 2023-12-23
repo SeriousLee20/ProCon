@@ -1,4 +1,4 @@
-import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { useSupabaseAuthClient } from "../composables/useSupabaseAuthClient";
 import { useSupabaseUser } from "../composables/useSupabaseUser";
 import { useSupabaseToken } from "../composables/useSupabaseToken";

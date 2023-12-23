@@ -6,12 +6,12 @@ import { useRuntimeConfig } from "#imports";
 
 export const serverSupabaseClient = <T>(event: H3Event): SupabaseClient<T> => {
   const {
-    supabase: { url, key, client: clientOptions, cookies: cookieOptions },
+    supabase: { url, key, clientOptions: clientOptions, cookieOptions: cookieOptions, cookieName:cookieName },
   } = useRuntimeConfig().public;
 
   // No need to recreate client if exists in request context
   if (!event.context._supabaseClient) {
-    const token = getCookie(event, `${cookieOptions.name}-access-token`);
+    const token = getCookie(event, `${cookieName}-access-token`);
 
     const auth = {
       detectSessionInUrl: false,

@@ -6,7 +6,8 @@ const config = useRuntimeConfig().public
 export default defineEventHandler(async (event) => {
   assertMethod(event, 'POST')
   const body = await readBody(event)
-  const cookieOptions = config.supabase.cookies
+  const cookieOptions = config.supabase.cookieOptions
+  const cookieName = config.supabase.cookieName
 
   const { event: signEvent, session } = body
 
@@ -14,27 +15,27 @@ export default defineEventHandler(async (event) => {
 
   if (signEvent === 'SIGNED_IN' || signEvent === 'TOKEN_REFRESHED') {
     if (!session) { throw new Error('Auth session missing!') }
-    setCookie(event, `${cookieOptions.name}-access-token`, session.access_token, {
+    setCookie(event, `${cookieName}-access-token`, session.access_token, {
       domain: cookieOptions.domain,
-      maxAge: cookieOptions.lifetime ?? 0,
+      maxAge: cookieOptions.maxAge ?? 0,
       path: cookieOptions.path,
       sameSite: cookieOptions.sameSite as boolean | 'lax' | 'strict' | 'none'
     }
     )
-    setCookie(event, `${cookieOptions.name}-refresh-token`, session.refresh_token, {
+    setCookie(event, `${cookieName}-refresh-token`, session.refresh_token, {
       domain: cookieOptions.domain,
-      maxAge: cookieOptions.lifetime ?? 0,
+      maxAge: cookieOptions.maxAge ?? 0,
       path: cookieOptions.path,
       sameSite: cookieOptions.sameSite as boolean | 'lax' | 'strict' | 'none'
     })
   }
 
   if (signEvent === 'SIGNED_OUT') {
-    setCookie(event, `${cookieOptions.name}-access-token`, '', {
+    setCookie(event, `${cookieName}-access-token`, '', {
       maxAge: -1,
       path: cookieOptions.path
     })
-    setCookie(event, `${cookieOptions.name}-refresh-token`, '', {
+    setCookie(event, `${cookieName}-refresh-token`, '', {
       maxAge: -1,
       path: cookieOptions.path
     })

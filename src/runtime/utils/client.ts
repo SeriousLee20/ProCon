@@ -8,7 +8,7 @@ export const createSupabaseClient = () => {
   const Authorization = token.value ? `Bearer ${token.value}` : undefined;
 
   const {
-    supabase: { url, key, client: clientOptions },
+    supabase: { url, key, clientOptions: clientOptions },
   } = useRuntimeConfig().public;
 
   // Set auth options to fix https://github.com/supabase/gotrue-js/issues/539

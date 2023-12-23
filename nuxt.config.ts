@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // devtools: { enabled: true }
+  devtools: { enabled: false },
 
   plugins: [
     "~/plugins/event-bus.ts",
@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     cookies: {
       lifetime: 60 * 60 * 8, // 8 hours
     },
+    // redirect: true,
     redirect: {
       login: "/login",
       callback: "/",

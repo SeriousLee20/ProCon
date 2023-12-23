@@ -151,10 +151,9 @@
             <div class="pt-2">
               <div v-for="department of groupedUsers" :key="department">
                 <div>{{ department.department }}</div>
-                <div  v-for="member in department.members" :key="member.user_id">
+                <div v-for="member in department.members" :key="member.user_id">
                   <Pcheckbox
-
-                  v-model="selectedGroupMember"
+                    v-model="selectedGroupMember"
                     :inputId="member.user_id"
                     name="member"
                     :value="member.username"
@@ -363,8 +362,6 @@ const collapseChatroom = ref(false);
 // TODO: add notification list
 // TODO: add chat member list
 const { $listen } = useNuxtApp();
-
-
 
 const getUserData = async () => {
   const {
