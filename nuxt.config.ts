@@ -33,6 +33,12 @@ export default defineNuxtConfig({
       callback: "/",
     },
   },
-
+  runtimeConfig: {
+    public: {
+      SUPABASE_KEY: process.env.SUPABASE_KEY,
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    },
+  },
   // components: false,
 });
