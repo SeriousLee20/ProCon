@@ -736,6 +736,14 @@ export interface Database {
           user_department: string
         }[]
       }
+      get_management_board2: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: {
+          project_members: Json
+        }[]
+      }
       get_management_boards: {
         Args: {
           n_user_id: string

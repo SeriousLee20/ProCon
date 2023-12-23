@@ -13,13 +13,17 @@ export default defineEventHandler(async (event) => {
   if (user) {
     const nData = data ? data : null;
     const id = user?.id.toString();
-    console.log(nData);
+    console.log("ann data", nData);
 
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "get_management_board2",
+        "create_chatgroup",
         {
+          n_group_name: nData.group_name,
+          n_group_description: nData.group_description,
           n_project_id: nData.project_id,
+          n_user_ids: nData.user_ids,
+          n_user_id: id,
         }
       );
 

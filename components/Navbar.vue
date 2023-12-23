@@ -53,13 +53,22 @@
           style="width: 24rem; height: 20rem"
         >
           <Pdataview
+            v-if="chatPanelState == 'home'"
             :value="chatlist"
             optionValue="chatroom_id"
             class="h-17rem overflow-scroll"
             :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
           >
             <template #header>
-              <div class="text-xl bg-primary-100 border-round pl-1">Chat</div>
+              <div class="flex justify-content-between align-items-center">
+                <div class="text-xl bg-primary-100 border-round w-full px-1">
+                  Chat
+                </div>
+                <div
+                  class="pi pi-users text-xl font-bold hover:bg-primary-200 hover:border-2 border-round cursor-pointer ml-2 p-1"
+                  @click="openCreateGroupPanel"
+                ></div>
+              </div>
             </template>
             <template #empty>
               <div>No members' here yet.</div>
@@ -114,6 +123,98 @@
               </div>
             </template>
           </Pdataview>
+          <div v-if="chatPanelState == 'create_group'">
+            <div class="flex justify-content-between align-items-center">
+              <Pbutton
+                class="text-primary text-sm cursor-pointer hover:bg-white"
+                :pt="{
+                  root: {
+                    style: 'box-shadow:none; border: none; padding:0;',
+                  },
+                }"
+                @click="cancelCreateGroup"
+                text
+                >Cancel</Pbutton
+              >
+              <div class="font-bold">Add Members</div>
+              <Pbutton
+                class="text-primary text-sm cursor-pointer"
+                :pt="{
+                  root: { style: 'box-shadow:none; border: none; padding:0;' },
+                }"
+                :disabled="!selectedGroupMember.length > 0"
+                @click="doneSelectGroupMember"
+                text
+              >
+                Next
+              </Pbutton>
+            </div>
+            <div class="pt-2 h-17rem overflow-scroll">
+              <div
+                v-for="department of groupedUsers"
+                :key="department"
+                class="overflow-scroll"
+              >
+                <div class="font-bold pb-2">{{ department.department }}</div>
+                <div
+                  v-for="member in department.members"
+                  :key="member.user_id"
+                  class="pb-2"
+                >
+                  <Pcheckbox
+                    v-model="selectedGroupMember"
+                    :inputId="member.user_id"
+                    name="member"
+                    :value="member.user_id"
+                  />
+                  <label class="pl-2" :for="member.user_id">{{
+                    member.username
+                  }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="chatPanelState == 'enter_group_info'">
+            <div class="flex justify-content-between align-items-center">
+              <Pbutton
+                class="text-primary text-sm cursor-pointer hover:bg-white"
+                :pt="{
+                  root: {
+                    style: 'box-shadow:none; border: none; padding:0;',
+                  },
+                }"
+                @click="backToSelectGroupMember"
+                text
+                >Back</Pbutton
+              >
+              <div class="font-bold">Add Members</div>
+              <Pbutton
+                class="text-primary text-sm cursor-pointer"
+                :pt="{
+                  root: { style: 'box-shadow:none; border: none; padding:0;' },
+                }"
+                :disabled="!chatGroupName?.length > 0"
+                @click="createChatGroup"
+                text
+              >
+                Done
+              </Pbutton>
+            </div>
+            <div class="pt-5 w-full">
+              <Pinputtext
+                class="w-full"
+                type="text"
+                id="chatgroup-name"
+                v-model="chatGroupName"
+                placeholder="Group Name"
+                aria-labelledby="chatgroup-name-help"
+                required
+              />
+              <small id="chatgroup-name-help"
+                >Enter a simple and precise group name.</small
+              >
+            </div>
+          </div>
         </Poverlay-panel>
         <Pdialog
           v-model:visible="chatDialog"
@@ -142,49 +243,47 @@
                 ></span>
               </div>
               <div class="w-full" v-if="!collapseChatroom">
-                <div
-                  v-if="selectedChatroom.chatlog"
-                  class="w-full px-1 overflow-scroll"
-                >
+                <div class="overflow-scroll max-h-25rem h-25rem flex flex-column-reverse">
+
                   <div
-                    v-for="message in selectedChatroom.chatlog"
-                    class="w-full py-2"
+                    v-if="selectedChatroom.chatlog"
+                    class="w-full px-1 "
                   >
                     <div
-                      v-if="message.sender_id == user.id"
-                      class="flex flex-column justify-content-end pl-8"
+                      v-for="message in selectedChatroom.chatlog"
+                      class="w-full py-2"
                     >
-                      <!-- <div
-                        class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden text-right"
-                      >
-                        {{ message.sender_name }}
-                      </div> -->
                       <div
-                        class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
-                        style="border-radius: 0.5rem 0 0.5rem 0.5rem"
+                        v-if="message.sender_id == user.id"
+                        class="flex flex-column justify-content-end pl-8"
                       >
-                        <div>
-                          {{ message.text_content }}
-                        </div>
-                        <div class="text-xs font-mono text-right">
-                          {{ formatDate(message.created_at) }}
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else class="w-full h-full">
-                      <div v-if="message.text_content" class="pr-8 py-3">
                         <div
-                          class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
+                          class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
+                          style="border-radius: 0.5rem 0 0.5rem 0.5rem"
                         >
-                          {{ message.sender_name }}
-                        </div>
-                        <div
-                          class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
-                          style="border-radius: 0.5rem 0.5rem 0.5rem 0"
-                        >
-                          {{ message.text_content }}
+                          <div>
+                            {{ message.text_content }}
+                          </div>
                           <div class="text-xs font-mono text-right">
                             {{ formatDate(message.created_at) }}
+                          </div>
+                        </div>
+                      </div>
+                      <div v-else class="w-full h-full">
+                        <div v-if="message.text_content" class="pr-8 py-3">
+                          <div
+                            class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
+                          >
+                            {{ message.sender_name }}
+                          </div>
+                          <div
+                            class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
+                            style="border-radius: 0.5rem 0.5rem 0.5rem 0"
+                          >
+                            {{ message.text_content }}
+                            <div class="text-xs font-mono text-right">
+                              {{ formatDate(message.created_at) }}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -301,6 +400,11 @@ const chatPanel = ref(false);
 const chatlist = ref();
 const chatDialog = ref(false);
 const chatInput = ref();
+const chatPanelState = ref("home");
+const groupedUsers = ref();
+const selectedGroupMember = ref([]);
+const chatGroupName = ref();
+const chatGroupDescription = ref();
 const selectedChatroom = ref();
 const collapseChatroom = ref(false);
 // TODO: add notification list
@@ -365,6 +469,46 @@ const toggle = (event) => {
 
 const toggleChatPanel = (event) => {
   chatPanel.value.toggle(event);
+};
+
+const openCreateGroupPanel = () => {
+  selectedGroupMember.value = [];
+  chatPanelState.value = "create_group";
+  groupedUsers.value = dstore.getManagementBoard;
+  console.log("chat grouped users", groupedUsers.value);
+};
+
+const cancelCreateGroup = () => {
+  selectedGroupMember.value = [];
+  chatPanelState.value = "home";
+};
+
+const backToSelectGroupMember = () => {
+  chatPanelState.value = "create_group";
+};
+
+const doneSelectGroupMember = () => {
+  chatPanelState.value = "enter_group_info";
+  console.log("selected group members", selectedGroupMember.value);
+};
+
+const createChatGroup = async () => {
+  console.log("groupinfo", chatGroupName.value, chatGroupDescription);
+  const { data: createGroupRes } = await useFetch("/api/create_group", {
+    method: "POST",
+    body: {
+      group_name: chatGroupName.value,
+      group_description: null,
+      project_id: selectedProject.value,
+      user_ids: selectedGroupMember.value,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  if (createGroupRes.value.success) {
+    chatlist.value = createGroupRes.value.response;
+    chatPanelState.value = 'home'
+  }
 };
 
 const getChatList = async () => {
