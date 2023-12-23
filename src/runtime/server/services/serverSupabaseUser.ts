@@ -1,4 +1,4 @@
-import { User } from "@supabase/supabase-js";
+import type{ User } from "@supabase/supabase-js";
 import type { H3Event } from "h3";
 import { serverSupabaseClient } from "../services/serverSupabaseClient";
 
