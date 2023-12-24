@@ -156,7 +156,6 @@
             @click="closeTaskDialog"
           />
 
-          <!-- TODO: confirm delete dialog -->
           <Pbutton
             v-if="props.isEditTask"
             label="Delete"
@@ -168,7 +167,6 @@
         </div>
       </div>
 
-      <!-- TODO:add delete button, with confirm dialog -->
     </template>
   </Pdialog>
 </template>

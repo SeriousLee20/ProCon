@@ -22,9 +22,9 @@ export const useDataStore = defineStore("data", {
     getManagementBoard: (state) => state.managementBoard
   },
   actions: {
-    createUser(user: User) {
-      this.user = user;
-      // console.log(user);
+    createUser(user: JSON) {
+      this.user = user as any as User;
+      console.log(user);
     },
     logIn() {
       this.isLoggedIn = true;
@@ -32,11 +32,26 @@ export const useDataStore = defineStore("data", {
     logOut() {
       this.isLoggedIn = false;
     },
+    initializeProjectList(projects: JSON){
+      projects ? this.projects = [...projects as any as Project[]] : null;
+    },
+    initializeUserInfo(user: JSON){
+      // this.user = user ? JSON.parse(user || '{}') : null;
+    },
     async createProject(project: Project) {
       console.log(project);
       if (!this.projects) this.projects = [];
       this.projects.push(project);
       //   console.log("e", this.projects);
+    },
+    updateProjectInfo(project: Project){
+      let index = this.projects?.findIndex(proj => proj.id = project.id);
+      if(index){
+
+        this.projects?.splice(index, 1);
+        this.projects?.push(project);
+        this.selectedProject = project;
+      }
     },
     createAnnouncement(announcement: Announcement) {
       console.log(announcement);
@@ -105,7 +120,7 @@ export const useDataStore = defineStore("data", {
   },
 });
 
-interface User {
+export interface User {
   id: string;
   name: string;
   contact_number: string;

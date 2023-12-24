@@ -30,7 +30,7 @@
               <div class="flex justify-content-between">
                 <small>Short & unique is nice!</small>
                 <small class="invalid-input" v-if="invalidName"
-                  >Invalid :(</small
+                  >Invalid :</small
                 >
               </div>
             </div>

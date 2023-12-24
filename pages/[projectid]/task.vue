@@ -302,7 +302,7 @@ var { data: tasksRes } = await useFetch("/api/get_task_by_project", {
   body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },
 });
-const { data: projectMemberRes } = await useFetch("/api/get_management_board", {
+const { data: projectMemberRes } = await useFetch("/api/get_grouped_members", {
   method: "POST",
   body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },

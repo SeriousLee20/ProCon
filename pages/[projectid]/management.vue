@@ -5,10 +5,19 @@
     <Pcard>
       <template #title>
         <div class="flex justify-content-between">
-          <div class="flex align-items-center">
-            Management Board
-            <footer class="pl-2">
-              Id: {{ projectid }} <span class="pi pi-copy"></span>
+          <div class="flex flex-column">
+            <div>Management Board</div>
+            <footer class="flex align-items-center">
+              <div>Project ID: {{ projectid }}</div>
+              <span
+                class="pi pi-copy cursor-pointer pl-2"
+                v-if="isSupported"
+                @click="copy(projectid)"
+              ></span>
+              <div v-if="copied" class="text-primary">Copied!</div>
+            </footer>
+            <footer>
+              <div>{{ selectedProject.description }}</div>
             </footer>
           </div>
           <div>
@@ -30,17 +39,40 @@
         </div>
       </template>
       <template #content>
-        <Pdatatable :value="board">
-          <Pcolumn field="user_id" header="Id"></Pcolumn>
-          <Pcolumn field="username" header="Name" sortable></Pcolumn>
-          <Pcolumn field="user_position" header="Position" sortable></Pcolumn>
+        <Pdatatable
+          :value="board"
+          rowGroupMode="rowspan"
+          groupRowsBy="user_department"
+          sortMode="single"
+          sortField="user_department"
+          scrollHeight="23rem"
+          scrollable
+        >
           <Pcolumn
             field="user_department"
             header="Department"
+            width="20%"
+          ></Pcolumn>
+          <Pcolumn
+            field="username"
+            header="Name"
+            width="25%"
             sortable
           ></Pcolumn>
-          <Pcolumn field="user_role" header="Role" sortable></Pcolumn>
-          <Pcolumn>
+          <Pcolumn
+            field="position"
+            header="Position"
+            width="20%"
+            sortable
+          ></Pcolumn>
+          <Pcolumn
+            field="user_role"
+            header="Role"
+            width="10%"
+            sortable
+          ></Pcolumn>
+          <Pcolumn field="user_id" header="ID" width="10%"></Pcolumn>
+          <Pcolumn width="10%">
             <template #body="slotProps">
               <Pbutton
                 icon="pi pi-pencil"
@@ -56,9 +88,15 @@
                 rounded
                 severity="danger"
                 @click="deleteMember($event, slotProps.data)"
+                class="ml-2"
               />
             </template>
           </Pcolumn>
+          <template #groupheader="slotProps">
+            <div>
+              <div class="font-bold">{{ slotProps.data.user_department }}</div>
+            </div>
+          </template>
         </Pdatatable>
         <Pdialog
           v-model:visible="boardDialog"
@@ -250,6 +288,61 @@
             </Pdatatable>
           </div>
         </Pdialog>
+        <Pdialog
+          v-model:visible="editProjInfoDialog"
+          :style="{ width: '33.3rem' }"
+          header="Update Project Information"
+          :modal="true"
+          class="p-fluid"
+        >
+          <div class="flex flex-column gap-3">
+            <div class="w-full">
+              <div class="flex justify-content-between">
+                <label for="project-name">Project Name</label>
+                <small v-if="!selectedProject.name" id="invalid-proj-name" class="text-red-500">*Required</small>
+              </div>
+              <Pinputtext
+                id="project-name"
+                class="w-full"
+                :class="{ 'p-invalid': !projectName }"
+                v-model="projectName"
+                type="text"
+                required
+                aria-labelledby="invalid-proj-name"
+              />
+            </div>
+            <div>
+              <label for="project-desc">Description</label>
+              <Ptextarea
+                id="project-desc"
+                v-model="projectDescription"
+                type="text"
+                autoResize
+                rows="5"
+                cols="30"
+              />
+            </div>
+          </div>
+          <template #footer>
+            <div class="w-full text-right pt-3">
+              <Pbutton
+                label="Save"
+                icon="pi pi-check"
+                severity="success"
+                text
+                @click="updateProjInfo"
+              />
+              <Pbutton
+                label="Cancel"
+                icon="pi pi-times"
+                text
+                @click="closeProjInfoDialog"
+              />
+
+
+            </div>
+          </template>
+        </Pdialog>
       </template>
     </Pcard>
   </div>
@@ -259,18 +352,24 @@
 import { useDataStore } from "~/stores/datastore";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
+import { useClipboard, usePermission } from "@vueuse/core";
 
 const dstore = useDataStore();
 const toast = useToast();
 const confirm = useConfirm();
 const { projectid } = useRoute().params;
+const { text, copy, copied, isSupported } = useClipboard();
 
 const board = ref();
 const positions = ref([]);
 const departments = ref([]);
 const roles = ref(["Admin", "Member"]);
 const member = ref({});
+const selectedProject = ref(dstore.getSelectedProject);
+const projectName = ref(selectedProject.value.name);
+const projectDescription = ref(selectedProject.value.description);
 const boardDialog = ref(false);
+const editProjInfoDialog = ref(false);
 const departmentDialog = ref(false);
 const positionDialog = ref(false);
 const addMemberDialog = ref(false);
@@ -291,6 +390,10 @@ const editBoardMenu = ref([
   {
     label: "Manage Departments",
     command: () => (departmentDialog.value = true),
+  },
+  {
+    label: "Update Project Information",
+    command: () => (editProjInfoDialog.value = true),
   },
 ]);
 
@@ -325,6 +428,18 @@ console.log("projectmemberlist", projectMemberList.value.response);
 console.log("board value", board.value);
 console.log("boardcomponent", boardComponent);
 console.log("department, position", departments.value, positions.value);
+
+const updateProjInfo = () => {
+  console.log("udpate proj info", selectedProject.value);
+  if(selectedProject.value.name){
+    // TODO: api update project info
+  }
+};
+
+const closeProjInfoDialog = () => {
+  editProjInfoDialog.value = false;
+
+}
 
 const editMember = (clickedMember) => {
   member.value = { ...clickedMember };

@@ -724,6 +724,23 @@ export interface Database {
           project_creator_id: string
         }[]
       }
+      get_full_data2: {
+        Args: {
+          current_user_id: string
+        }
+        Returns: {
+          user_info: Json
+          user_projects: Json
+        }[]
+      }
+      get_grouped_members: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: {
+          project_members: Json
+        }[]
+      }
       get_management_board: {
         Args: {
           n_project_id: string
@@ -734,14 +751,6 @@ export interface Database {
           user_role: string
           user_position: string
           user_department: string
-        }[]
-      }
-      get_management_board2: {
-        Args: {
-          n_project_id: string
-        }
-        Returns: {
-          project_members: Json
         }[]
       }
       get_management_boards: {

@@ -12,8 +12,8 @@
             id="project-ddlist"
             v-model="selectedProject"
             :options="project"
-            optionLabel="name"
-            optionValue="id"
+            optionLabel="project_name"
+            optionValue="project_id"
             @change="onChangeSelectedProject($event)"
             :placeholder="ddplaceholder"
           >
