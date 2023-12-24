@@ -8,6 +8,12 @@
     class="flex flex-column gap-5 align-items-center justify-content-center mt-3"
     style="font-family: sans-serif"
   >
+  <div class="flex">
+    <div class="text-gray-500">User ID:</div>
+    <div class="text-sm px-1 text-gray-500">{{ userId }}</div>
+    <div class="pi pi-copy text-gray-500 cursor-pointer" @click="copy(userId)"></div>
+    <div v-if="copied" class="text-primary text-sm pl-1">Copied!</div>
+  </div>
     <div>
       <span class="p-float-label">
         <Pinputtext id="name" v-model="name" type="text" required />
@@ -71,6 +77,7 @@
 import { useDataStore } from "~/stores/datastore";
 import { createClient } from "@supabase/supabase-js";
 import { useToast } from "primevue/usetoast";
+import { useClipboard, usePermission } from "@vueuse/core";
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
@@ -81,11 +88,13 @@ const toast = useToast();
 const dstore = useDataStore();
 const loading = ref(false);
 const user = dstore.getUser;
+const userId = user.id;
 var name = ref(user.name);
 var email = ref(user.email);
 var phone = ref(user.contact_number);
 var starttime = ref(user.start_working_hour);
 var endtime = ref(user.end_working_hour);
+const { text, copy, copied, isSupported } = useClipboard();
 
 console.log("profile ori user", user);
 
