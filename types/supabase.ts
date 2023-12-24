@@ -82,6 +82,7 @@ export interface Database {
       chat_group: {
         Row: {
           created_at: string
+          group_creator: string | null
           group_description: string | null
           group_id: string
           group_name: string
@@ -90,6 +91,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          group_creator?: string | null
           group_description?: string | null
           group_id?: string
           group_name: string
@@ -98,6 +100,7 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          group_creator?: string | null
           group_description?: string | null
           group_id?: string
           group_name?: string
@@ -105,6 +108,13 @@ export interface Database {
           project_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "chat_group_group_creator_fkey"
+            columns: ["group_creator"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "chat_group_project_id_fkey"
             columns: ["project_id"]
@@ -243,6 +253,7 @@ export interface Database {
       map_project: {
         Row: {
           department: string | null
+          department_abbr: string | null
           is_show_in_overview: boolean | null
           position: string | null
           project_id: string
@@ -252,6 +263,7 @@ export interface Database {
         }
         Insert: {
           department?: string | null
+          department_abbr?: string | null
           is_show_in_overview?: boolean | null
           position?: string | null
           project_id: string
@@ -261,6 +273,7 @@ export interface Database {
         }
         Update: {
           department?: string | null
+          department_abbr?: string | null
           is_show_in_overview?: boolean | null
           position?: string | null
           project_id?: string
@@ -579,6 +592,7 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
         }[]
       }
@@ -679,6 +693,7 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
         }[]
       }
@@ -939,6 +954,7 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
         }[]
       }
@@ -1043,6 +1059,7 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
         }[]
       }
@@ -1055,6 +1072,39 @@ export interface Database {
         Returns: {
           board_name: string
           filter: Json
+        }[]
+      }
+      update_group_info: {
+        Args: {
+          n_group_id: string
+          n_group_name: string
+          n_group_description: string
+          n_project_id: string
+          n_user_ids: string[]
+          n_user_id: string
+        }
+        Returns: {
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          gp_member_ids: string[]
+          chat_target: Json
+        }[]
+      }
+      update_project: {
+        Args: {
+          n_user_id: string
+          n_project_id: string
+          n_project_name: string
+          n_project_description: string
+        }
+        Returns: {
+          user_projects: Json
         }[]
       }
       update_project_user_map: {

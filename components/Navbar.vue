@@ -70,7 +70,7 @@
               </div>
             </template>
             <template #empty>
-              <div>No members' here yet.</div>
+              <div>No member's here yet.</div>
             </template>
             <template #list="slotProps">
               <div
@@ -229,7 +229,10 @@
                 class="flex align-items-center justify-content-between bg-primary w-full px-2"
               >
                 <span class="pi pi-chevron-down" @click="toggleChatroom"></span>
-                <div class="flex h6 h-2rem align-items-center text-lg">
+                <div
+                  class="flex h6 h-2rem align-items-center text-lg hover:underline cursor-pointer"
+                  @click="seeChatroomInfo"
+                >
                   {{
                     selectedChatroom.chat_target
                       ? selectedChatroom.chat_target[0].name
@@ -242,46 +245,211 @@
                 ></span>
               </div>
               <div class="w-full" v-if="!collapseChatroom">
-                <div class="overflow-scroll max-h-25rem h-25rem flex flex-column-reverse">
-
+                <div v-if="chatroomState == 'home'">
                   <div
-                    v-if="selectedChatroom.chatlog"
-                    class="w-full px-1 "
+                    class="overflow-scroll max-h-25rem h-25rem flex flex-column-reverse"
                   >
-                    <div
-                      v-for="message in selectedChatroom.chatlog"
-                      class="w-full py-2"
-                    >
+                    <div v-if="selectedChatroom.chatlog" class="w-full px-1">
                       <div
-                        v-if="message.sender_id == user.id"
-                        class="flex flex-column justify-content-end pl-8"
+                        v-for="message in selectedChatroom.chatlog"
+                        class="w-full py-2"
                       >
                         <div
-                          class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
-                          style="border-radius: 0.5rem 0 0.5rem 0.5rem"
+                          v-if="message.sender_id == user.id"
+                          class="flex flex-column justify-content-end pl-8"
                         >
-                          <div>
-                            {{ message.text_content }}
+                          <div
+                            class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
+                            style="border-radius: 0.5rem 0 0.5rem 0.5rem"
+                          >
+                            <div>
+                              {{ message.text_content }}
+                            </div>
+                            <div class="text-xs font-mono text-right">
+                              {{ formatDate(message.created_at) }}
+                            </div>
                           </div>
-                          <div class="text-xs font-mono text-right">
-                            {{ formatDate(message.created_at) }}
+                        </div>
+                        <div v-else class="w-full h-full">
+                          <div v-if="message.text_content" class="pr-8 py-3">
+                            <div
+                              class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
+                            >
+                              {{ message.sender_name }}
+                            </div>
+                            <div
+                              class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
+                              style="border-radius: 0.5rem 0.5rem 0.5rem 0"
+                            >
+                              {{ message.text_content }}
+                              <div class="text-xs font-mono text-right">
+                                {{ formatDate(message.created_at) }}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div v-else class="w-full h-full">
-                        <div v-if="message.text_content" class="pr-8 py-3">
-                          <div
-                            class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
-                          >
-                            {{ message.sender_name }}
+                    </div>
+                  </div>
+                  <div class="flex align-items-end w-full p-2">
+                    <!-- <Pfileupload /> -->
+                    <EmojiPicker
+                      class="chat w-full"
+                      :native="true"
+                      v-model:text="chatInput"
+                      picker-type="input"
+                    />
+                    <span
+                      class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
+                      @click="insert_chatlog"
+                    ></span>
+                  </div>
+                </div>
+                <div
+                  v-else-if="chatroomState == 'details'"
+                  class="overflow-scroll max-h-25rem h-25rem"
+                >
+                  <div class="">
+                    <div
+                      class="p-2 flex justify-content-between align-items-center"
+                    >
+                      <div
+                        class="flex align-items-center cursor-pointer text-primary text-sm font-bold"
+                        @click="backToChatroomHome"
+                      >
+                        <div class="pi pi-arrow-left text-sm mr-2"></div>
+                        <div>Back</div>
+                      </div>
+                      <div
+                        v-if="
+                          selectedChatroom.group_info &&
+                          selectedChatroom.group_info?.group_creator == user.id
+                        "
+                        class="text-sm font-bold text-primary cursor-pointer"
+                        @click="editGroupInfo"
+                      >
+                        Edit
+                      </div>
+                    </div>
+                    <div class="h-full pt-1">
+                      <div v-if="selectedChatroom.group_info" class="mx-2">
+                        <div class="my-3">
+                          <div class="font-bold text-sm">Group Description</div>
+                          <div class="mt-1 w-full">
+                            {{
+                              selectedChatroom.group_info.group_description ||
+                              "No Description"
+                            }}
                           </div>
+                        </div>
+                        <div>
+                          <div class="font-bold text-sm">Group Members</div>
                           <div
-                            class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
-                            style="border-radius: 0.5rem 0.5rem 0.5rem 0"
+                            class="border-top-1 border-x-1 border-round border-gray-300 mt-1"
                           >
-                            {{ message.text_content }}
-                            <div class="text-xs font-mono text-right">
-                              {{ formatDate(message.created_at) }}
+                            <div
+                              v-for="member in selectedChatroom.group_members"
+                              class="border-bottom-1 border-gray-300 p-2 flex align-items-center justify-content-between"
+                            >
+                              <div class="flex align-items-center">
+                                <Pavatar
+                                  icon="pi pi-user"
+                                  class="mr-2"
+                                  size="large"
+                                  shape="circle"
+                                />
+                                <div class="p-2">{{ member?.name }}</div>
+                              </div>
+                              <div class="flex gap-1 align-items-center">
+                                <Ptag
+                                  :value="member.department_abbr"
+                                  class="text-xs max-h-1rem font-normal"
+                                  rounded
+                                />
+                                <Ptag
+                                  :value="member.position"
+                                  class="text-xs max-h-1rem font-normal"
+                                  rounded
+                                />
+                                <Ptag
+                                  v-if="member.is_owner"
+                                  value="Owner"
+                                  class="text-xs max-h-1rem font-normal"
+                                  rounded
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="flex my-3 justify-content-center align-items-end"
+                        >
+                          <div class="pr-1 text-xs text-gray-300">
+                            Group created at
+                          </div>
+                          <div class="text-xs text-gray-300">
+                            {{
+                              formatDate(selectedChatroom.group_info.created_at)
+                            }}
+                          </div>
+                        </div>
+                      </div>
+                      <div v-else>
+                        <div class="flex flex-column align-items-center">
+                          <Pavatar
+                            icon="pi pi-user"
+                            class="mr-2"
+                            size="large"
+                            shape="circle"
+                          />
+                          <div>
+                            <div class="mt-2">
+                              {{ selectedChatroom.chat_target[0]?.name }}
+                            </div>
+                          </div>
+                          <div class="flex gap-1 mt-2">
+                            <Ptag
+                              :value="
+                                selectedChatroom.chat_target[0]
+                                  ?.department_abbr || 'No Department'
+                              "
+                              class="text-xs max-h-1rem font-normal"
+                              rounded
+                            />
+                            <Ptag
+                              :value="selectedChatroom.chat_target[0].position"
+                              class="text-xs max-h-1rem font-normal"
+                              rounded
+                            />
+                          </div>
+                          <div class="flex align-items-center mb-2 mt-4">
+                            <div class="pi pi-phone mx-1"></div>
+                            <div>
+                              {{
+                                selectedChatroom.chat_target[0]
+                                  ?.contact_number || "Not Provided"
+                              }}
+                            </div>
+                          </div>
+                          <div class="flex align-items-center my-2">
+                            <div class="pi pi-envelope mx-1"></div>
+                            <div>
+                              {{
+                                selectedChatroom.chat_target[0]?.email ||
+                                "Not Provided"
+                              }}
+                            </div>
+                          </div>
+                          <div class="flex align-items-center my-2">
+                            <div class="pi pi-stopwatch mx-1"></div>
+                            <div>
+                              {{
+                                selectedChatroom.chat_target[0]?.start_working_hour ||
+                                "Not Provided"
+                              }} - {{
+                                selectedChatroom.chat_target[0]?.end_working_hour ||
+                                "Not Provided"
+                              }}
                             </div>
                           </div>
                         </div>
@@ -289,18 +457,100 @@
                     </div>
                   </div>
                 </div>
-                <div class="flex align-items-end w-full p-2">
-                  <!-- <Pfileupload /> -->
-                  <EmojiPicker
-                    class="chat w-full"
-                    :native="true"
-                    v-model:text="chatInput"
-                    picker-type="input"
-                  />
-                  <span
-                    class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
-                    @click="insert_chatlog"
-                  ></span>
+                <div v-else-if="chatroomState == 'edit'" class="p-2">
+                  <div
+                    class="flex justify-content-between align-items-center mb-3"
+                  >
+                    <div
+                      class="text-sm font-bold text-primary cursor-pointer"
+                      @click="backToChatroomDetails"
+                    >
+                      Cancel
+                    </div>
+                    <div
+                      class="text-sm font-bold text-primary cursor-pointer"
+                      @click="updateGroupInfo"
+                    >
+                      Save
+                    </div>
+                  </div>
+                  <div class="overflow-scroll max-h-25rem h-25rem">
+                    <div class="pt-3 w-full">
+                      <div class="text-sm font-bold mb-1">Group Name</div>
+                      <Pinputtext
+                        class="w-full"
+                        :class="{ 'p-invalid': !chatGroupName }"
+                        v-model="chatGroupName"
+                        aria-labelledby="invalid-group-name"
+                      />
+                      <small
+                        v-if="!chatGroupName"
+                        id="invalid-group-name"
+                        class="text-red-500"
+                        >*Required</small
+                      >
+                    </div>
+                    <div class="py-3">
+                      <div class="text-sm font-bold mb-1">
+                        Group Description
+                      </div>
+                      <Ptextarea
+                        v-model="chatGroupDescription"
+                        autoResize
+                        rows="5"
+                        cols="50"
+                      />
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold">Group Members</div>
+                      <div
+                        v-for="department of groupedUsers"
+                        :key="department"
+                        class="overflow-scroll border-1 border-round border-gray-200 p-2 my-1"
+                      >
+                        <div class="font-bold pb-2">
+                          {{ department.department }}
+                        </div>
+                        <div
+                          v-for="member in department.members"
+                          :key="member.user_id"
+                          class="pb-2 flex align-items-center"
+                        >
+                          <Pcheckbox
+                            v-model="selectedGroupMember"
+                            :inputId="member.user_id"
+                            name="member"
+                            :value="member.user_id"
+                            class=""
+                            :disabled="
+                              member.user_id ==
+                              selectedChatroom.group_info.group_creator
+                            "
+                          />
+                          <label
+                            class="pl-2 flex align-items-center gap-2"
+                            :for="member.user_id"
+                            >{{ member.username }}
+                            <div class="flex gap-1">
+                              <Ptag
+                                :value="member.position"
+                                class="max-h-1rem font-normal"
+                              />
+                              <Ptag
+                                v-if="
+                                  member.user_id ==
+                                  selectedChatroom.group_info.group_creator
+                                "
+                                value="Owner"
+                                class="max-h-1rem font-normal"
+                                severity="warning"
+                              />
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -405,6 +655,7 @@ const selectedGroupMember = ref([]);
 const chatGroupName = ref();
 const chatGroupDescription = ref();
 const selectedChatroom = ref();
+const chatroomState = ref("home");
 const collapseChatroom = ref(false);
 // TODO: add notification list
 // TODO: add chat member list
@@ -473,6 +724,7 @@ const toggleChatPanel = (event) => {
 const openCreateGroupPanel = () => {
   selectedGroupMember.value = [];
   chatPanelState.value = "create_group";
+  chatroomState.value = "home";
   groupedUsers.value = dstore.getManagementBoard;
   console.log("chat grouped users", groupedUsers.value);
 };
@@ -506,7 +758,7 @@ const createChatGroup = async () => {
 
   if (createGroupRes.value.success) {
     chatlist.value = createGroupRes.value.response;
-    chatPanelState.value = 'home'
+    chatPanelState.value = "home";
   }
 };
 
@@ -523,11 +775,82 @@ const getChatList = async () => {
 
 const openChatRoom = (chatroom) => {
   chatDialog.value = true;
+  chatPanel.value.toggle(true);
   selectedChatroom.value = chatroom;
+  selectedGroupMember.value = [];
+  chatGroupName.value = null;
+  chatGroupDescription.value = null;
+  chatroomState.value = "home";
+};
+
+const seeChatroomInfo = () => {
+  chatroomState.value = "details";
+};
+
+const backToChatroomHome = () => {
+  chatroomState.value = "home";
+  console.log(chatroomState.value);
+};
+
+const backToChatroomDetails = () => {
+  chatroomState.value = "details";
+  selectedGroupMember.value = [];
+  chatGroupName.value = null;
+  chatGroupDescription.value = null;
+};
+
+const editGroupInfo = () => {
+  groupedUsers.value = dstore.getSelectedProject.grouped_members;
+  selectedGroupMember.value = selectedChatroom.value.gp_member_ids;
+  chatGroupName.value = selectedChatroom.value.group_info.group_name;
+  chatGroupDescription.value =
+    selectedChatroom.value.group_info.group_description;
+  chatroomState.value = "edit";
+  console.log(
+    "edit gp info users",
+    groupedUsers.value,
+    selectedGroupMember.value
+  );
+};
+
+const updateGroupInfo = async () => {
+  if (chatGroupName) {
+    chatroomState.value = "details";
+    const { data: updateGroupInfoRes } = await useFetch(
+      "/api/update_group_info",
+      {
+        method: "POST",
+        body: {
+          group_id: selectedChatroom.value.group_info.group_id,
+          group_name: chatGroupName.value,
+          group_description: chatGroupDescription.value,
+          project_id: selectedProject.value,
+          user_ids: selectedGroupMember.value,
+        },
+        headers: { "cache-control": "no-cache" },
+      }
+    );
+
+    if (updateGroupInfoRes.value?.success) {
+      chatlist.value = updateGroupInfoRes.value.response;
+      selectedChatroom.value = chatlist.value?.filter((cr) => {
+        return cr.chatroom_id == selectedChatroom.value.chatroom_id;
+      })[0];
+    }
+    console.log("update gp info res", updateGroupInfoRes.value);
+  }
+
+  console.log(
+    "update gp info",
+    chatGroupName.value,
+    chatGroupDescription.value,
+    selectedGroupMember.value
+  );
 };
 
 const closeChatRoom = () => {
   chatDialog.value = false;
+  chatroomState.value = "home";
 };
 
 const toggleChatroom = () => {
@@ -683,6 +1006,7 @@ onNuxtReady(() => {
 
   $listen("refresh-project-list", (action) => {
     project.value = dstore.getAllProjects;
+    selectedProject.value = dstore.getSelectedProject.id;
   });
 });
 

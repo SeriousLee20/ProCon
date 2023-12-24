@@ -36,6 +36,7 @@ import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import FileUpload from "primevue/fileupload";
 import Checkbox from "primevue/checkbox";
+import Inplace from 'primevue/inplace';
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -70,6 +71,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
   nuxtApp.vueApp.component("Pfileupload", FileUpload);
   nuxtApp.vueApp.component("Pcheckbox", Checkbox);
+  nuxtApp.vueApp.component("Pinplace", Inplace);
 
   // if (process.client) {
     // Quill.register(Editor, true);

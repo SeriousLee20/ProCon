@@ -35,23 +35,17 @@ export const useDataStore = defineStore("data", {
     initializeProjectList(projects: JSON){
       projects ? this.projects = [...projects as any as Project[]] : null;
     },
-    initializeUserInfo(user: JSON){
-      // this.user = user ? JSON.parse(user || '{}') : null;
-    },
     async createProject(project: Project) {
       console.log(project);
       if (!this.projects) this.projects = [];
       this.projects.push(project);
       //   console.log("e", this.projects);
     },
-    updateProjectInfo(project: Project){
-      let index = this.projects?.findIndex(proj => proj.id = project.id);
-      if(index){
-
-        this.projects?.splice(index, 1);
-        this.projects?.push(project);
-        this.selectedProject = project;
-      }
+    updateProjectList(projects: JSON){
+      projects ? this.projects = [...projects as any as Project[]] : null;
+      this.setSelectedProject(this.selectedProject!.id);
+      console.log(this.projects, this.selectedProject)
+      return this.selectedProject;
     },
     createAnnouncement(announcement: Announcement) {
       console.log(announcement);
