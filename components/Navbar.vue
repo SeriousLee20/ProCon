@@ -35,7 +35,6 @@
         ></Pmenu>
       </div>
     </div>
-    <!-- <Pbutton type="submit" label="Test" @click="test"></Pbutton> -->
     <div class="col flex justify-content-end align-content-center gap-1">
       <div
         v-if="isShowButton"
