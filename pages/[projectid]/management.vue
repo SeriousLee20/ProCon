@@ -9,15 +9,21 @@
             <div>Management Board</div>
             <footer class="flex align-items-center">
               <div>Project ID: {{ projectid }}</div>
-              <span
-                class="pi pi-copy cursor-pointer pl-2"
-                v-if="isSupported"
-                @click="copy(projectid)"
-              ></span>
+              <ClientOnly>
+
+                <span
+                  class="pi pi-copy cursor-pointer pl-2"
+                  v-if="isSupported"
+                  @click="copy(projectid)"
+                ></span>
+              </ClientOnly>
               <div v-if="copied" class="text-primary">Copied!</div>
             </footer>
             <footer>
-              <div>{{ selectedProject.description }}</div>
+              <ClientOnly>
+
+                <div>{{ selectedProject?.description }}</div>
+              </ClientOnly>
             </footer>
           </div>
           <div>
@@ -299,7 +305,12 @@
             <div class="w-full">
               <div class="flex justify-content-between">
                 <label for="project-name">Project Name</label>
-                <small v-if="!selectedProject.name" id="invalid-proj-name" class="text-red-500">*Required</small>
+                <small
+                  v-if="!selectedProject.name"
+                  id="invalid-proj-name"
+                  class="text-red-500"
+                  >*Required</small
+                >
               </div>
               <Pinputtext
                 id="project-name"
@@ -338,8 +349,6 @@
                 text
                 @click="closeProjInfoDialog"
               />
-
-
             </div>
           </template>
         </Pdialog>
@@ -354,6 +363,7 @@ import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { useClipboard, usePermission } from "@vueuse/core";
 
+const {$emit} = useNuxtApp();
 const dstore = useDataStore();
 const toast = useToast();
 const confirm = useConfirm();
@@ -366,8 +376,8 @@ const departments = ref([]);
 const roles = ref(["Admin", "Member"]);
 const member = ref({});
 const selectedProject = ref(dstore.getSelectedProject);
-const projectName = ref(selectedProject.value.name);
-const projectDescription = ref(selectedProject.value.description);
+const projectName = ref(selectedProject.value?.name);
+const projectDescription = ref(selectedProject.value?.description);
 const boardDialog = ref(false);
 const editProjInfoDialog = ref(false);
 const departmentDialog = ref(false);
@@ -429,17 +439,34 @@ console.log("board value", board.value);
 console.log("boardcomponent", boardComponent);
 console.log("department, position", departments.value, positions.value);
 
-const updateProjInfo = () => {
+const updateProjInfo = async () => {
   console.log("udpate proj info", selectedProject.value);
-  if(selectedProject.value.name){
+  if (projectName.value) {
     // TODO: api update project info
+    let updatedData = {
+      project_id: selectedProject.value.id,
+      project_name: projectName.value,
+      description: projectDescription.value,
+    };
+    const { data: updateProjRes } = await useFetch("/api/update_project", {
+      method: "POST",
+      body: updatedData,
+      headers: { "cache-control": "no-cache" },
+    });
+
+    console.log('updateproject', updateProjRes.value)
+    if(updateProjRes.value?.success){
+      editProjInfoDialog.value = false;
+      let updatedProjectList = updateProjRes.value.response[0].user_projects;
+      selectedProject.value = dstore.updateProjectList(updatedProjectList);
+      $emit('refresh-project-list');
+    }
   }
 };
 
 const closeProjInfoDialog = () => {
   editProjInfoDialog.value = false;
-
-}
+};
 
 const editMember = (clickedMember) => {
   member.value = { ...clickedMember };
