@@ -417,6 +417,7 @@ export interface Database {
           owner_ids: string[] | null
           project_id: string
           start_date: string | null
+          start_date_time: string | null
           status_code: number | null
           urgent_date: string | null
         }
@@ -435,6 +436,7 @@ export interface Database {
           owner_ids?: string[] | null
           project_id: string
           start_date?: string | null
+          start_date_time?: string | null
           status_code?: number | null
           urgent_date?: string | null
         }
@@ -453,6 +455,7 @@ export interface Database {
           owner_ids?: string[] | null
           project_id?: string
           start_date?: string | null
+          start_date_time?: string | null
           status_code?: number | null
           urgent_date?: string | null
         }
@@ -630,6 +633,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -842,6 +846,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -1009,7 +1014,7 @@ export interface Database {
           n_owner_ids: string[]
           n_status_code: number
           n_due_date_time: string
-          n_due_date: string
+          n_start_date_time: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -1030,6 +1035,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -1139,8 +1145,8 @@ export interface Database {
           n_description: string
           n_owner_ids: string[]
           n_status_code: number
+          n_start_date_time: string
           n_due_date_time: string
-          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -1161,6 +1167,7 @@ export interface Database {
           owner_ids: string[]
           status: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -1180,8 +1187,8 @@ export interface Database {
           n_description: string
           n_owner_ids: string[]
           n_status_code: number
+          n_start_date_time: string
           n_due_date_time: string
-          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number

@@ -14,7 +14,14 @@
         v-model="props.selectedTask.task_name"
         :disabled="!props.isAdmin"
         required
+        aria-labelledby="invalid-task-name"
       />
+      <small
+        v-if="!props.selectedTask.task_name"
+        id="invalid-task-name"
+        class="text-red-500 text-xs"
+        >*Required</small
+      >
     </div>
     <div class="field overflow-scroll h-20rem">
       <label for="task-desc">Description</label>
@@ -27,42 +34,64 @@
 
     <div class="flex justify-content-between">
       <div class="field">
-        <label for="task-start-date">Start Date</label>
+        <label for="task-start-date">Start Datetime</label>
         <Pcalendar
           id="task-start-date"
-          v-model="props.selectedTask.start_date"
+          :class="{ 'p-invalid': invalidStartDate }"
+          v-model="props.selectedTask.start_date_time"
+          showTime
+          hourFormat="24"
           dateFormat="M dd, yy"
           :selectOtherMonths="true"
           :disabled="!props.isAdmin"
           showButtonBar
+          @hide="checkValidDates"
         ></Pcalendar>
       </div>
       <div class="field">
         <label for="task-due-datetime">Due Datetime</label>
+
         <Pcalendar
           id="task-due-datetime"
+          :class="{ 'p-invalid': invalidDueDate }"
           v-model="props.selectedTask.due_date_time"
           showTime
           hourFormat="24"
           dateFormat="M dd, yy"
           showButtonBar
-          :min="props.selectedTask.start_date"
+          :min="props.selectedTask.start_date_time"
           :overlayVisible="true"
           :selectOtherMonths="true"
-          :disabled="!props.isAdmin"
+          :disabled="!props.isAdmin || disableDueDate"
+          aria-labelledby="invalid-due-date"
+          @hide="checkValidDates($event)"
         ></Pcalendar>
+        <small
+          v-if="invalidDueDate"
+          id="invalid-due-date"
+          class="text-red-500 text-xs"
+          >{{ invalidDueDateMessage }}</small
+        >
       </div>
       <div class="field">
         <label for="task-urgent-date">Urgent Date</label>
         <Pcalendar
           id="task-urgent-date"
+          :class="{ 'p-invalid': invalidUrgentDate }"
           v-model="props.selectedTask.urgent_date"
           dateFormat="M dd, yy"
           :maxDate="props.selectedTask.due_date_time"
           :selectOtherMonths="true"
-          :disabled="!props.isAdmin"
+          :disabled="!props.isAdmin || disableUrgentDate"
           showButtonBar
+          @update:model-value="checkValidDates"
         ></Pcalendar>
+        <small
+          v-if="invalidUrgentDate"
+          id="invalid-urgent-date"
+          class="text-red-500 text-xs"
+          >{{ invalidUrgentDateMessage }}</small
+        >
       </div>
       <div class="field">
         <label for="task-status">Status</label>
@@ -147,7 +176,7 @@
             icon="pi pi-check"
             severity="success"
             text
-            @click="saveTaskUpdate"
+            @click="saveTask"
           />
           <Pbutton
             label="Cancel"
@@ -166,12 +195,12 @@
           />
         </div>
       </div>
-
     </template>
   </Pdialog>
 </template>
 
 <script setup>
+import { DatePickerEditCell } from "@syncfusion/ej2-vue-grids";
 import { useConfirm } from "primevue/useconfirm";
 
 const confirm = useConfirm();
@@ -194,6 +223,14 @@ const props = defineProps({
 // });
 const isEditTask = props.isEditTask;
 const header = props.isEditTask ? "Edit Task" : "Add Task";
+const invalidDueDate = ref(false);
+const invalidStartDate = ref(false);
+const invalidUrgentDate = ref(false);
+const invalidDueDateMessage = ref();
+const invalidUrgentDateMessage = ref();
+const disableDueDate = ref(false);
+const disableUrgentDate = ref(false);
+
 console.log("dialog", isEditTask, props.taskDialog);
 
 const formatDate = (dateString) => {
@@ -201,6 +238,47 @@ const formatDate = (dateString) => {
     locales: "en-US",
   });
   return formattedDate.value;
+};
+
+const setSecondToZero = (timestamp) => {
+  return new Date(timestamp.setSeconds(0, 0));
+};
+
+const checkValidDates = () => {
+  console.log("check dates", props.selectedTask);
+  if (props.selectedTask.due_date_time && props.selectedTask.start_date_time) {
+    let sdt = setSecondToZero(props.selectedTask.start_date_time);
+    let edt = setSecondToZero(props.selectedTask.due_date_time);
+    let ud = props.selectedTask.urgent_date;
+
+    console.log(sdt, edt, ud);
+    invalidStartDate.value = ud && ud < new Date(sdt.toDateString()) || sdt >= edt;
+    invalidDueDate.value =
+      sdt >= edt || (ud && ud > new Date(edt.toDateString()));
+    invalidUrgentDate.value = ud && ud < new Date(sdt.toDateString()) || ud && ud > new Date(edt.toDateString());
+    invalidDueDateMessage.value =
+      sdt >= edt ? "Due Datetime must after Start Datetime" : null;
+    invalidUrgentDateMessage.value =
+      ud < new Date(sdt.toDateString())
+        ? "Urgent Date must after Start Date"
+        : ud > new Date(edt.toDateString())
+        ? "Urgent Date must before Due Date"
+        : null;
+  }
+  disableUrgentDate.value =
+    !props.selectedTask.start_date_time || !props.selectedTask.due_date_time;
+  disableDueDate.value = !props.selectedTask.start_date_time;
+  props.selectedTask.urgent_date = disableUrgentDate.value
+    ? null
+    : props.selectedTask.urgent_date;
+  props.selectedTask.due_date_time = disableDueDate.value
+    ? null
+    : props.selectedTask.due_date_time;
+  console.log(
+    invalidStartDate.value,
+    invalidDueDate.value,
+    invalidUrgentDate.value
+  );
 };
 
 const emit = defineEmits([
@@ -214,13 +292,20 @@ const closeTaskDialog = () => {
   emit("close-task-dialog");
 };
 
-const saveTaskUpdate = () => {
-  if (props.isEditTask) {
-    emit("update-task");
-    console.log("update", props.selectedTask);
-  } else {
-    emit("insert-task");
-    console.log("insert", props.selectedTask);
+const saveTask = () => {
+  if (
+    !invalidDueDate.value &&
+    !invalidStartDate.value &&
+    !invalidUrgentDate.value &&
+    props.selectedTask.task_name
+  ) {
+    if (props.isEditTask) {
+      emit("update-task");
+      console.log("update", props.selectedTask);
+    } else {
+      emit("insert-task");
+      console.log("insert", props.selectedTask);
+    }
   }
 };
 

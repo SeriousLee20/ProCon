@@ -56,7 +56,7 @@ export default defineComponent({
         {
           data: [
             {
-              x: ["2023-09-12T00:00:00", "2023-09-12T02:00:00"],
+              x: ["2023-09-12", "2023-09-13"],
               y: "Create Poster",
               name: "Amber - Program",
               status: 2,
@@ -261,15 +261,15 @@ export default defineComponent({
               },
             },
             time: {
-              unit: "hour",
+              unit: "day",
             },
             adapters: {
               date: {
                 local: de,
               },
             },
-            min: "2023-09-12T00:00:00",
-            max: "2023-09-13T00:00:00",
+            min: "2023-09-12",
+            max: "2023-10-13",
           },
         },
         plugins: {

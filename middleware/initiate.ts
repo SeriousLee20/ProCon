@@ -19,14 +19,15 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   if (userData) {
     dstore.createUser(userData.user_info as any as JSON);
     dstore.initializeProjectList(userData.user_projects as any as JSON);
-    // dstore.createProject({
-    //   id: "-1",
-    //   name: "Overview",
-    //   role: "",
-    //   description: "Overview",
-    //   creator_id: "system",
-    //   is_show_project_in_overview: true,
-    // });
+    dstore.createProject({
+      id: "-1",
+      name: "Overview",
+      role: "",
+      description: "Overview",
+      creator_id: "system",
+      is_show_project_in_overview: true,
+      telegram_chat_id: ''
+    });
     // dstore.initializeProjectList(userData?.user_projects)
     // userData.forEach((data) => {
     //   console.log(data);

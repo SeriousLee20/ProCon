@@ -291,9 +291,6 @@ const updateTask = async () => {
   const updatedTask = selectedTask.value;
   updatedTask["project_id"] = updatedTask.project_id;
   updatedTask["modified_at"] = new Date();
-  updatedTask["due_date"] = updatedTask.due_date_time
-    ? new Date(new Date(updatedTask.due_date_time).toDateString())
-    : null;
   console.log(selectedTask.value, updatedTask);
 
   const { data: updateTaskRes } = await useFetch("/api/update_task_from_ov", {
