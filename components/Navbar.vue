@@ -8,57 +8,39 @@
     <div class="col flex justify-content-center align-content-center">
       <div>
         <ClientOnly>
-          <Pdropdown
-            id="project-ddlist"
-            v-model="selectedProject"
-            :options="project"
-            optionLabel="name"
-            optionValue="id"
-            @change="onChangeSelectedProject($event)"
-            :placeholder="ddplaceholder"
-            :pt="{input: {class:'text-sm', style:'height:2.2rem; text-align:center'}}"
-          >
+          <Pdropdown id="project-ddlist" v-model="selectedProject" :options="project" optionLabel="name" optionValue="id"
+            @change="onChangeSelectedProject($event)" :placeholder="ddplaceholder"
+            :pt="{ input: { class: 'text-sm', style: 'height:2.2rem; text-align:center' } }">
           </Pdropdown>
         </ClientOnly>
-        <Pbutton
-          type="button"
-          icon="pi pi-sliders-h"
-          @click="toggle"
-          aria-label="edit_project"
-          aria-haspopup="true"
-          aria-controls="edit_menu"
-        />
-        <Pmenu
-          ref="menu"
-          id="edit_menu"
-          :model="menuItems"
-          :popup="true"
-        ></Pmenu>
+        <Pbutton type="button" icon="pi pi-sliders-h" @click="toggle" aria-label="edit_project" aria-haspopup="true"
+          aria-controls="edit_menu" />
+        <Pmenu ref="menu" id="edit_menu" :model="menuItems" :popup="true"></Pmenu>
       </div>
     </div>
     <div class="col flex justify-content-end align-content-center gap-1">
-      <div
-        v-if="isShowButton"
-        class="flex justify-content-end align-content-center gap-1"
-      >
-        <Pbutton
-          type="button"
-          icon="pi pi-chart-bar"
-          @click="switchPage('ganttchart', 'Gantt Chart')"
-        />
+      <Pbutton type="button" icon="pi pi-question" @click="toggleGuide" />
+      <Poverlay-panel ref="guidePanel" appendTo="body" style="width: 30rem; height: 30rem">
+        <Pcarousel :value="steps" :numVisible="1" :numScroll="1" circular>
+          <template #item="slotProps">
+            <div class="border-1 surface-border border-round m-2 text-center py-5 px-3">
+              <div class="mb-3">
+                <img :src="'./assets/' + slotProps.data.image" :alt="slotProps.data.name" class="w-6 shadow-2" />
+              </div>
+              <div>
+                <h4 class="mb-1">{{ slotProps.data.name }}</h4>
+                <h6 class="mt-0 mb-3 text-left">{{ slotProps.data.description }}</h6>
+              </div>
+            </div>
+          </template>
+        </Pcarousel>
+      </Poverlay-panel>
+      <div v-if="isShowButton" class="flex justify-content-end align-content-center gap-1">
+        <Pbutton type="button" icon="pi pi-chart-bar" @click="switchPage('ganttchart', 'Gantt Chart')" />
         <Pbutton type="button" icon="pi pi-comment" @click="toggleChatPanel" />
-        <Poverlay-panel
-          ref="chatPanel"
-          appendTo="body"
-          style="width: 24rem; height: 20rem"
-        >
-          <Pdataview
-            v-if="chatPanelState == 'home'"
-            :value="chatlist"
-            optionValue="chatroom_id"
-            class="h-17rem overflow-scroll"
-            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
-          >
+        <Poverlay-panel ref="chatPanel" appendTo="body" style="width: 24rem; height: 20rem">
+          <Pdataview v-if="chatPanelState == 'home'" :value="chatlist" optionValue="chatroom_id"
+            class="h-17rem overflow-scroll" :pt="{ header: { class: 'p-0 pl-1 pb-2' } }">
             <template #header>
               <div class="flex justify-content-between align-items-center">
                 <div class="text-xl bg-primary-100 border-round w-full px-1">
@@ -66,19 +48,16 @@
                 </div>
                 <div
                   class="pi pi-users text-xl font-bold hover:bg-primary-200 hover:border-2 border-round cursor-pointer ml-2 p-1"
-                  @click="openCreateGroupPanel"
-                ></div>
+                  @click="openCreateGroupPanel"></div>
               </div>
             </template>
             <template #empty>
               <div>No member's here yet.</div>
             </template>
             <template #list="slotProps">
-              <div
-                v-for="(item, index) in slotProps.items"
+              <div v-for="(item, index) in slotProps.items"
                 class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none w-full"
-                @click="openChatRoom(item)"
-              >
+                @click="openChatRoom(item)">
                 <div v-if="item.group_id" class="w-full">
                   <div class="flex justify-content-between w-full">
                     <div class="font-bold text-sm">
@@ -92,10 +71,7 @@
                     <div class="pr-1">
                       {{ item.chatlog[item.chatlog.length - 1]?.sender_name }}:
                     </div>
-                    <div
-                      class="text-overflow-ellipsis white-space-nowrap overflow-hidden"
-                      style="width: 100%"
-                    >
+                    <div class="text-overflow-ellipsis white-space-nowrap overflow-hidden" style="width: 100%">
                       {{ item.chatlog[item.chatlog.length - 1].text_content }}
                     </div>
                   </div>
@@ -105,18 +81,13 @@
                     <div class="font-bold text-sm">
                       {{ item.chat_target[0]?.name }}
                     </div>
-                    <div
-                      v-if="item.last_update_time"
-                      class="font-light text-xs min-w-max"
-                    >
+                    <div v-if="item.last_update_time" class="font-light text-xs min-w-max">
                       {{ formatDate(item.last_update_time) }}
                     </div>
                   </div>
-                  <div
-                    v-if="item.chatlog"
+                  <div v-if="item.chatlog"
                     class="font-normal text-xs text-overflow-ellipsis white-space-nowrap overflow-hidden"
-                    style="width: 100%"
-                  >
+                    style="width: 100%">
                     {{ item.chatlog[item.chatlog.length - 1]?.text_content }}
                   </div>
                 </div>
@@ -125,48 +96,24 @@
           </Pdataview>
           <div v-if="chatPanelState == 'create_group'">
             <div class="flex justify-content-between align-items-center">
-              <Pbutton
-                class="text-primary text-sm cursor-pointer hover:bg-white"
-                :pt="{
-                  root: {
-                    style: 'box-shadow:none; border: none; padding:0;',
-                  },
-                }"
-                @click="cancelCreateGroup"
-                text
-                >Cancel</Pbutton
-              >
+              <Pbutton class="text-primary text-sm cursor-pointer hover:bg-white" :pt="{
+                root: {
+                  style: 'box-shadow:none; border: none; padding:0;',
+                },
+              }" @click="cancelCreateGroup" text>Cancel</Pbutton>
               <div class="font-bold">Add Members</div>
-              <Pbutton
-                class="text-primary text-sm cursor-pointer"
-                :pt="{
-                  root: { style: 'box-shadow:none; border: none; padding:0;' },
-                }"
-                :disabled="!selectedGroupMember.length > 0"
-                @click="doneSelectGroupMember"
-                text
-              >
+              <Pbutton class="text-primary text-sm cursor-pointer" :pt="{
+                root: { style: 'box-shadow:none; border: none; padding:0;' },
+              }" :disabled="!selectedGroupMember.length > 0" @click="doneSelectGroupMember" text>
                 Next
               </Pbutton>
             </div>
             <div class="pt-2 h-17rem overflow-scroll">
-              <div
-                v-for="department of groupedUsers"
-                :key="department"
-                class="overflow-scroll"
-              >
+              <div v-for="department of groupedUsers" :key="department" class="overflow-scroll">
                 <div class="font-bold pb-2">{{ department.department }}</div>
-                <div
-                  v-for="member in department.members"
-                  :key="member.user_id"
-                  class="pb-2"
-                >
-                  <Pcheckbox
-                    v-model="selectedGroupMember"
-                    :inputId="member.user_id"
-                    name="member"
-                    :value="member.user_id"
-                  />
+                <div v-for="member in department.members" :key="member.user_id" class="pb-2">
+                  <Pcheckbox v-model="selectedGroupMember" :inputId="member.user_id" name="member"
+                    :value="member.user_id" />
                   <label class="pl-2" :for="member.user_id">{{
                     member.username
                   }}</label>
@@ -176,93 +123,52 @@
           </div>
           <div v-if="chatPanelState == 'enter_group_info'">
             <div class="flex justify-content-between align-items-center">
-              <Pbutton
-                class="text-primary text-sm cursor-pointer hover:bg-white"
-                :pt="{
-                  root: {
-                    style: 'box-shadow:none; border: none; padding:0;',
-                  },
-                }"
-                @click="backToSelectGroupMember"
-                text
-                >Back</Pbutton
-              >
+              <Pbutton class="text-primary text-sm cursor-pointer hover:bg-white" :pt="{
+                root: {
+                  style: 'box-shadow:none; border: none; padding:0;',
+                },
+              }" @click="backToSelectGroupMember" text>Back</Pbutton>
               <div class="font-bold">Add Members</div>
-              <Pbutton
-                class="text-primary text-sm cursor-pointer"
-                :pt="{
-                  root: { style: 'box-shadow:none; border: none; padding:0;' },
-                }"
-                :disabled="!chatGroupName?.length > 0"
-                @click="createChatGroup"
-                text
-              >
+              <Pbutton class="text-primary text-sm cursor-pointer" :pt="{
+                root: { style: 'box-shadow:none; border: none; padding:0;' },
+              }" :disabled="!chatGroupName?.length > 0" @click="createChatGroup" text>
                 Done
               </Pbutton>
             </div>
             <div class="pt-5 w-full">
-              <Pinputtext
-                class="w-full"
-                type="text"
-                id="chatgroup-name"
-                v-model="chatGroupName"
-                placeholder="Group Name"
-                aria-labelledby="chatgroup-name-help"
-                required
-              />
-              <small id="chatgroup-name-help"
-                >Enter a simple and precise group name.</small
-              >
+              <Pinputtext class="w-full" type="text" id="chatgroup-name" v-model="chatGroupName" placeholder="Group Name"
+                aria-labelledby="chatgroup-name-help" required />
+              <small id="chatgroup-name-help">Enter a simple and precise group name.</small>
             </div>
           </div>
         </Poverlay-panel>
-        <Pdialog
-          v-model:visible="chatDialog"
-          :style="{ width: '28rem', height: '15rem', shadow: 'none' }"
-          position="bottomright"
-          :draggable="false"
+        <Pdialog v-model:visible="chatDialog" :style="{ width: '28rem', height: '15rem', shadow: 'none' }"
+          position="bottomright" :draggable="false"
           class="border-round border-1 border-primary shadow-none bg-white h-max"
-          :pt="{ transition: { class: 'transition-none' } }"
-        >
+          :pt="{ transition: { class: 'transition-none' } }">
           <template #container>
             <div class="w-full bg-primary-100 h-full">
-              <div
-                class="flex align-items-center justify-content-between bg-primary w-full px-2"
-              >
+              <div class="flex align-items-center justify-content-between bg-primary w-full px-2">
                 <span class="pi pi-chevron-down" @click="toggleChatroom"></span>
-                <div
-                  class="flex h6 h-2rem align-items-center text-lg hover:underline cursor-pointer"
-                  @click="seeChatroomInfo"
-                >
+                <div class="flex h6 h-2rem align-items-center text-lg hover:underline cursor-pointer"
+                  @click="seeChatroomInfo">
                   {{
                     selectedChatroom.chat_target
-                      ? selectedChatroom.chat_target[0].name
-                      : selectedChatroom.group_info.group_name
+                    ? selectedChatroom.chat_target[0].name
+                    : selectedChatroom.group_info.group_name
                   }}
                 </div>
-                <span
-                  class="flex pi pi-times justify-content-end"
-                  @click="closeChatRoom"
-                ></span>
+                <span class="flex pi pi-times justify-content-end" @click="closeChatRoom"></span>
               </div>
               <div class="w-full" v-if="!collapseChatroom">
                 <div v-if="chatroomState == 'home'">
-                  <div
-                    class="overflow-scroll max-h-25rem h-25rem flex flex-column-reverse"
-                  >
+                  <div class="overflow-scroll max-h-25rem h-25rem flex flex-column-reverse">
                     <div v-if="selectedChatroom.chatlog" class="w-full px-1">
-                      <div
-                        v-for="message in selectedChatroom.chatlog"
-                        class="w-full py-2"
-                      >
-                        <div
-                          v-if="message.sender_id == user.id"
-                          class="flex flex-column justify-content-end pl-8"
-                        >
+                      <div v-for="message in selectedChatroom.chatlog" class="w-full py-2">
+                        <div v-if="message.sender_id == user.id" class="flex flex-column justify-content-end pl-8">
                           <div
                             class="font-normal text-base text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
-                            style="border-radius: 0.5rem 0 0.5rem 0.5rem"
-                          >
+                            style="border-radius: 0.5rem 0 0.5rem 0.5rem">
                             <div>
                               {{ message.text_content }}
                             </div>
@@ -273,15 +179,12 @@
                         </div>
                         <div v-else class="w-full h-full">
                           <div v-if="message.text_content" class="pr-8 py-3">
-                            <div
-                              class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1"
-                            >
+                            <div class="font-bold text-sm text-overflow-ellipsis white-space-wrap overflow-hidden pb-1">
                               {{ message.sender_name }}
                             </div>
                             <div
                               class="font-light text- text-overflow-ellipsis white-space-wrap overflow-hidden border-1 border-white bg-white px-1"
-                              style="border-radius: 0.5rem 0.5rem 0.5rem 0"
-                            >
+                              style="border-radius: 0.5rem 0.5rem 0.5rem 0">
                               {{ message.text_content }}
                               <div class="text-xs font-mono text-right">
                                 {{ formatDate(message.created_at) }}
@@ -294,41 +197,22 @@
                   </div>
                   <div class="flex align-items-end w-full p-2">
                     <!-- <Pfileupload /> -->
-                    <EmojiPicker
-                      class="chat w-full"
-                      :native="true"
-                      v-model:text="chatInput"
-                      picker-type="input"
-                    />
-                    <span
-                      class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
-                      @click="insert_chatlog"
-                    ></span>
+                    <EmojiPicker class="chat w-full" :native="true" v-model:text="chatInput" picker-type="input" />
+                    <span class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
+                      @click="insert_chatlog"></span>
                   </div>
                 </div>
-                <div
-                  v-else-if="chatroomState == 'details'"
-                  class="overflow-scroll max-h-25rem h-25rem"
-                >
+                <div v-else-if="chatroomState == 'details'" class="overflow-scroll max-h-25rem h-25rem">
                   <div class="">
-                    <div
-                      class="p-2 flex justify-content-between align-items-center"
-                    >
-                      <div
-                        class="flex align-items-center cursor-pointer text-primary text-sm font-bold"
-                        @click="backToChatroomHome"
-                      >
+                    <div class="p-2 flex justify-content-between align-items-center">
+                      <div class="flex align-items-center cursor-pointer text-primary text-sm font-bold"
+                        @click="backToChatroomHome">
                         <div class="pi pi-arrow-left text-sm mr-2"></div>
                         <div>Back</div>
                       </div>
-                      <div
-                        v-if="
-                          selectedChatroom.group_info &&
-                          selectedChatroom.group_info?.group_creator == user.id
-                        "
-                        class="text-sm font-bold text-primary cursor-pointer"
-                        @click="editGroupInfo"
-                      >
+                      <div v-if="selectedChatroom.group_info &&
+                        selectedChatroom.group_info?.group_creator == user.id
+                        " class="text-sm font-bold text-primary cursor-pointer" @click="editGroupInfo">
                         Edit
                       </div>
                     </div>
@@ -345,46 +229,23 @@
                         </div>
                         <div>
                           <div class="font-bold text-sm">Group Members</div>
-                          <div
-                            class="border-top-1 border-x-1 border-round border-gray-300 mt-1"
-                          >
-                            <div
-                              v-for="member in selectedChatroom.group_members"
-                              class="border-bottom-1 border-gray-300 p-2 flex align-items-center justify-content-between"
-                            >
+                          <div class="border-top-1 border-x-1 border-round border-gray-300 mt-1">
+                            <div v-for="member in selectedChatroom.group_members"
+                              class="border-bottom-1 border-gray-300 p-2 flex align-items-center justify-content-between">
                               <div class="flex align-items-center">
-                                <Pavatar
-                                  icon="pi pi-user"
-                                  class="mr-2"
-                                  size="large"
-                                  shape="circle"
-                                />
+                                <Pavatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />
                                 <div class="p-2">{{ member?.name }}</div>
                               </div>
                               <div class="flex gap-1 align-items-center">
-                                <Ptag
-                                  :value="member.department_abbr"
-                                  class="text-xs max-h-1rem font-normal"
-                                  rounded
-                                />
-                                <Ptag
-                                  :value="member.position"
-                                  class="text-xs max-h-1rem font-normal"
-                                  rounded
-                                />
-                                <Ptag
-                                  v-if="member.is_owner"
-                                  value="Owner"
-                                  class="text-xs max-h-1rem font-normal"
-                                  rounded
-                                />
+                                <Ptag :value="member.department_abbr" class="text-xs max-h-1rem font-normal" rounded />
+                                <Ptag :value="member.position" class="text-xs max-h-1rem font-normal" rounded />
+                                <Ptag v-if="member.is_owner" value="Owner" class="text-xs max-h-1rem font-normal"
+                                  rounded />
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div
-                          class="flex my-3 justify-content-center align-items-end"
-                        >
+                        <div class="flex my-3 justify-content-center align-items-end">
                           <div class="pr-1 text-xs text-gray-300">
                             Group created at
                           </div>
@@ -397,31 +258,18 @@
                       </div>
                       <div v-else>
                         <div class="flex flex-column align-items-center">
-                          <Pavatar
-                            icon="pi pi-user"
-                            class="mr-2"
-                            size="large"
-                            shape="circle"
-                          />
+                          <Pavatar icon="pi pi-user" class="mr-2" size="large" shape="circle" />
                           <div>
                             <div class="mt-2">
                               {{ selectedChatroom.chat_target[0]?.name }}
                             </div>
                           </div>
                           <div class="flex gap-1 mt-2">
-                            <Ptag
-                              :value="
-                                selectedChatroom.chat_target[0]
-                                  ?.department_abbr || 'No Department'
-                              "
-                              class="text-xs max-h-1rem font-normal"
-                              rounded
-                            />
-                            <Ptag
-                              :value="selectedChatroom.chat_target[0].position"
-                              class="text-xs max-h-1rem font-normal"
-                              rounded
-                            />
+                            <Ptag :value="selectedChatroom.chat_target[0]
+                              ?.department_abbr || 'No Department'
+                              " class="text-xs max-h-1rem font-normal" rounded />
+                            <Ptag :value="selectedChatroom.chat_target[0].position" class="text-xs max-h-1rem font-normal"
+                              rounded />
                           </div>
                           <div class="flex align-items-center mb-2 mt-4">
                             <div class="pi pi-phone mx-1"></div>
@@ -459,93 +307,46 @@
                   </div>
                 </div>
                 <div v-else-if="chatroomState == 'edit'" class="p-2">
-                  <div
-                    class="flex justify-content-between align-items-center mb-3"
-                  >
-                    <div
-                      class="text-sm font-bold text-primary cursor-pointer"
-                      @click="backToChatroomDetails"
-                    >
+                  <div class="flex justify-content-between align-items-center mb-3">
+                    <div class="text-sm font-bold text-primary cursor-pointer" @click="backToChatroomDetails">
                       Cancel
                     </div>
-                    <div
-                      class="text-sm font-bold text-primary cursor-pointer"
-                      @click="updateGroupInfo"
-                    >
+                    <div class="text-sm font-bold text-primary cursor-pointer" @click="updateGroupInfo">
                       Save
                     </div>
                   </div>
                   <div class="overflow-scroll max-h-25rem h-25rem">
                     <div class="pt-3 w-full">
                       <div class="text-sm font-bold mb-1">Group Name</div>
-                      <Pinputtext
-                        class="w-full"
-                        :class="{ 'p-invalid': !chatGroupName }"
-                        v-model="chatGroupName"
-                        aria-labelledby="invalid-group-name"
-                      />
-                      <small
-                        v-if="!chatGroupName"
-                        id="invalid-group-name"
-                        class="text-red-500"
-                        >*Required</small
-                      >
+                      <Pinputtext class="w-full" :class="{ 'p-invalid': !chatGroupName }" v-model="chatGroupName"
+                        aria-labelledby="invalid-group-name" />
+                      <small v-if="!chatGroupName" id="invalid-group-name" class="text-red-500">*Required</small>
                     </div>
                     <div class="py-3">
                       <div class="text-sm font-bold mb-1">
                         Group Description
                       </div>
-                      <Ptextarea
-                        v-model="chatGroupDescription"
-                        autoResize
-                        rows="5"
-                        cols="50"
-                      />
+                      <Ptextarea v-model="chatGroupDescription" autoResize rows="5" cols="50" />
                     </div>
                     <div>
                       <div class="text-sm font-bold">Group Members</div>
-                      <div
-                        v-for="department of groupedUsers"
-                        :key="department"
-                        class="overflow-scroll border-1 border-round border-gray-200 p-2 my-1"
-                      >
+                      <div v-for="department of groupedUsers" :key="department"
+                        class="overflow-scroll border-1 border-round border-gray-200 p-2 my-1">
                         <div class="font-bold pb-2">
                           {{ department.department }}
                         </div>
-                        <div
-                          v-for="member in department.members"
-                          :key="member.user_id"
-                          class="pb-2 flex align-items-center"
-                        >
-                          <Pcheckbox
-                            v-model="selectedGroupMember"
-                            :inputId="member.user_id"
-                            name="member"
-                            :value="member.user_id"
-                            class=""
-                            :disabled="
-                              member.user_id ==
+                        <div v-for="member in department.members" :key="member.user_id"
+                          class="pb-2 flex align-items-center">
+                          <Pcheckbox v-model="selectedGroupMember" :inputId="member.user_id" name="member"
+                            :value="member.user_id" class="" :disabled="member.user_id ==
                               selectedChatroom.group_info.group_creator
-                            "
-                          />
-                          <label
-                            class="pl-2 flex align-items-center gap-2"
-                            :for="member.user_id"
-                            >{{ member.username }}
+                              " />
+                          <label class="pl-2 flex align-items-center gap-2" :for="member.user_id">{{ member.username }}
                             <div class="flex gap-1">
-                              <Ptag
-                                :value="member.position"
-                                class="max-h-1rem font-normal"
-                              />
-                              <Ptag
-                                v-if="
-                                  member.user_id ==
-                                  selectedChatroom.group_info.group_creator
-                                "
-                                value="Owner"
-                                class="max-h-1rem font-normal"
-                                severity="warning"
-                              />
+                              <Ptag :value="member.position" class="max-h-1rem font-normal" />
+                              <Ptag v-if="member.user_id ==
+                                selectedChatroom.group_info.group_creator
+                                " value="Owner" class="max-h-1rem font-normal" severity="warning" />
                             </div>
                           </label>
                         </div>
@@ -557,24 +358,11 @@
             </div>
           </template>
         </Pdialog>
-        <Pbutton
-          type="button"
-          icon="pi pi-inbox"
-          @click="toggleNotificationPanel"
-          @refresh-notification="refreshNotification($event)"
-          :pt="{ content: { class: 'w-20rem h-20rem' } }"
-        />
-        <Poverlay-panel
-          ref="notificationPanel"
-          appendTo="body"
-          style="width: 24rem; height: 20rem"
-        >
-          <Pdataview
-            :value="notificationList"
-            optionValue="notification_id"
-            class="h-17rem overflow-scroll"
-            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
-          >
+        <Pbutton type="button" icon="pi pi-inbox" @click="toggleNotificationPanel"
+          @refresh-notification="refreshNotification($event)" :pt="{ content: { class: 'w-20rem h-20rem' } }" />
+        <Poverlay-panel ref="notificationPanel" appendTo="body" style="width: 24rem; height: 20rem">
+          <Pdataview :value="notificationList" optionValue="notification_id" class="h-17rem overflow-scroll"
+            :pt="{ header: { class: 'p-0 pl-1 pb-2' } }">
             <template #header>
               <div class="text-xl bg-primary-100 border-round pl-1">
                 Notification
@@ -584,10 +372,8 @@
               <div>No Notifications</div>
             </template>
             <template #list="slotProps">
-              <div
-                v-for="(item, index) in slotProps.items"
-                class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none"
-              >
+              <div v-for="(item, index) in slotProps.items"
+                class="flex justify-content-between pb-3 col-12 cursor-pointer hover:bg-primary-200 pl-2 pb-3 border-round border-none">
                 <div>
                   <div class="font-bold text-sm">{{ item.title }}</div>
                   <div class="font-light text-xs text-overflow-ellipsis">
@@ -607,11 +393,7 @@
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
         /> -->
-      <Pbutton
-        type="button"
-        icon="pi pi-user"
-        @click="switchPage('/profile', 'Profile')"
-      />
+      <Pbutton type="button" icon="pi pi-user" @click="switchPage('/profile', 'Profile')" />
       <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
     </div>
   </div>
@@ -646,6 +428,7 @@ const menuItems = ref([]);
 // const selectedProject = ref(currentProject);
 const notificationPanel = ref(false);
 const notificationList = ref();
+const guidePanel = ref(false);
 const chatPanel = ref(false);
 const chatlist = ref();
 const chatDialog = ref(false);
@@ -682,6 +465,70 @@ console.log(worker);
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
 console.log("selected project:", selectedProject.value);
+
+const steps = [
+  {
+    name: 'Step 1',
+    description: 'Create a Telegram group and add all the members into the group and designate their roles properly(set members as admin), note that no members can be added later on and have their roles changed afterwards.',
+    image: '1.jpeg',
+  },
+  {
+    name: 'Step 2',
+    description: 'After the group details has been finalized, go to Telegram search bar and type GetIDs Bot',
+    image: '2.jpeg',
+  },
+  {
+    name: 'Step 3',
+    description: 'Tap on the top bar that shows the name GetIDs Bot',
+    image: '3.jpeg',
+  },
+  {
+    name: 'Step 4',
+    description: 'Click Add to Group or Channel',
+    image: '4.jpeg',
+  },
+  {
+    name: 'Step 5',
+    description: 'After that pick the Procon related channel and Add as Member',
+    image: '5.jpeg',
+  },
+  {
+    name: 'Step 6',
+    description: 'Go back to the group you created and copy the id generated by the bot in the message',
+    image: '6.jpeg',
+  },
+  {
+    name: 'Step 7',
+    description: 'Go to your project page in Procon and select Management',
+    image: '7.jpeg',
+  },
+  {
+    name: 'Step 8',
+    description: 'Click the settings button in the top right corner and click Update Project Information',
+    image: '8.jpeg',
+  },
+  {
+    name: 'Step 9',
+    description: 'Paste the ID copied into the Telegram Announcement Chat ID field',
+    image: '9.jpeg',
+  },
+  {
+    name: 'Step 10',
+    description: 'Go back to Telegram, search Procon Helper and select the option with @procon_um_bot',
+    image: '10.jpeg',
+  },
+  {
+    name: 'Step 11',
+    description: 'Click to view the details of this bot and add to the group similar to Step 5',
+    image: '11.jpeg',
+  },
+  {
+    name: 'Step 12',
+    description: 'There you have it! Now you have connected the procon bot to your project and it will notify you when new tasks are added!',
+    image: '12.jpeg',
+  },
+
+];
 
 const formatDate = (dateString) => {
   const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
@@ -727,6 +574,10 @@ const toggle = (event) => {
 
 const toggleChatPanel = (event) => {
   chatPanel.value.toggle(event);
+};
+
+const toggleGuide = (event) => {
+  guidePanel.value.toggle(event);
 };
 
 const openCreateGroupPanel = () => {
@@ -915,7 +766,7 @@ const toggleNotificationPanel = (event) => {
   notificationPanel.value.toggle(event);
 };
 
-const refreshNotification = (event) => {};
+const refreshNotification = (event) => { };
 
 const getNotification = async () => {
   var { data: notificationRes } = await useFetch("/api/get_notification", {
@@ -1133,7 +984,7 @@ const logout = async () => {
   max-width: 80%;
 }
 
-.chat.v3-input-picker-root > input.v3-emoji-picker-input {
+.chat.v3-input-picker-root>input.v3-emoji-picker-input {
   border-radius: 0.5rem;
 }
 </style>

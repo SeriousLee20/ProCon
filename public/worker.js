@@ -22,21 +22,22 @@ const handleInserts = async (payload) => {
   let index = payload.new.target.indexOf(userId);
 
   if (index > 0) {
-    if(payload.new.push_notification[index]){
-
+    if (payload.new.push_notification[index]) {
       new Notification(payload.new.title, { body: payload.new.content });
     }
   }
 
-  if(payload.new.telegram_chat_id){
+  if (payload.new.telegram_chat_id) {
     doPostRequest(payload.new.content, payload.new.telegram_chat_id);
   }
 };
 
 async function doPostRequest(content, chatID) {
-  const text = `'Check ProCon Now! For '${content}`;
+  const text = `Check ProCon Now! For ${content}`;
   // const chatID = -4016432921;
-  const token = "6703014884:AAFDX_jNeiyLV2chV_T9Y_MLWxwVRIaMe54";
+  //const token = "6703014884:AAFDX_jNeiyLV2chV_T9Y_MLWxwVRIaMe54";
+  //new token
+  const token = "6831148241:AAH-5FUmILQ2KWdjVBscrGtrp4KP9_jJX9s";
   let res = await axios.post(
     `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatID}&text=${text}`
   );
