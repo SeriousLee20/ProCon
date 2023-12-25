@@ -294,6 +294,7 @@ let announcements = [];
 // let filteredAnnouncements = [];
 let userOptions = [];
 
+const selectedProject = dstore.getSelectedProject;
 const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
 const { data: parameters } = await useFetch("/api/get_parameters");
 var { data: filters } = await useFetch("/api/get_filters");
@@ -670,7 +671,7 @@ const updateTask = async () => {
     getMainTaskList();
     sendNotification(
       "update_task",
-      `${dstore.selectedProject.name}: Task Updates`,
+      `Task Updates`,
       "Task Updates: " +
         selectedTask.value.task_name +
         (selectedTask.value.task_desc
@@ -693,6 +694,7 @@ const sendNotification = async (action, title, content, target) => {
       content: content,
       target: target,
       project_id: projectid,
+      telegram_chat_id: selectedProject.telegram_id
     },
     headers: { "cache-control": "no-cache" },
   });

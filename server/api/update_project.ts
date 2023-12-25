@@ -21,7 +21,8 @@ export default defineEventHandler(async (event) => {
           n_user_id: id,
           n_project_id: nData.project_id,
           n_project_description: nData.description,
-          n_project_name: nData.project_name
+          n_project_name: nData.project_name,
+          n_telegram_chat_id: nData.telegram_chat_id
         }
       );
 

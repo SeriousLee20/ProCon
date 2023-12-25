@@ -18,17 +18,24 @@ self.addEventListener(
 
 const handleInserts = async (payload) => {
   console.log(userId);
-  console.log(payload.new.target);
-  if (payload.new.target.includes(userId)) {
-    new Notification(payload.new.title, { body: payload.new.content });
+  console.log(payload.new);
+  let index = payload.new.target.indexOf(userId);
+
+  if (index > 0) {
+    if(payload.new.push_notification[index]){
+
+      new Notification(payload.new.title, { body: payload.new.content });
+    }
   }
 
-  doPostRequest(payload.new.content);
+  if(payload.new.telegram_chat_id){
+    doPostRequest(payload.new.content, payload.new.telegram_chat_id);
+  }
 };
 
-async function doPostRequest(content) {
-  const text = "Check Procon Now! For " + content;
-  const chatID = -4016432921;
+async function doPostRequest(content, chatID) {
+  const text = `'Check ProCon Now! For '${content}`;
+  // const chatID = -4016432921;
   const token = "6703014884:AAFDX_jNeiyLV2chV_T9Y_MLWxwVRIaMe54";
   let res = await axios.post(
     `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatID}&text=${text}`

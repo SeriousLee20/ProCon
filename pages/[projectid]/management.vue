@@ -333,6 +333,13 @@
                 cols="30"
               />
             </div>
+            <label for="telegram-id">Telegram Announcement Chat ID</label>
+            <Pinputtext
+                id="telegram-id"
+                class="w-full"
+                v-model="telegramId"
+                type="text"
+              />
           </div>
           <template #footer>
             <div class="w-full text-right pt-3">
@@ -378,6 +385,7 @@ const member = ref({});
 const selectedProject = ref(dstore.getSelectedProject);
 const projectName = ref(selectedProject.value?.name);
 const projectDescription = ref(selectedProject.value?.description);
+const telegramId = ref(selectedProject.value?.telegram_id);
 const boardDialog = ref(false);
 const editProjInfoDialog = ref(false);
 const departmentDialog = ref(false);
@@ -447,6 +455,7 @@ const updateProjInfo = async () => {
       project_id: selectedProject.value.id,
       project_name: projectName.value,
       description: projectDescription.value,
+      telegram_chat_id: telegramId.value
     };
     const { data: updateProjRes } = await useFetch("/api/update_project", {
       method: "POST",

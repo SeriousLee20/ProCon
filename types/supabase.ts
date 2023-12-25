@@ -305,6 +305,7 @@ export interface Database {
           notification_id: string
           project_id: string | null
           target: string[] | null
+          telegram_chat_id: string | null
           title: string
         }
         Insert: {
@@ -313,6 +314,7 @@ export interface Database {
           notification_id?: string
           project_id?: string | null
           target?: string[] | null
+          telegram_chat_id?: string | null
           title: string
         }
         Update: {
@@ -321,6 +323,7 @@ export interface Database {
           notification_id?: string
           project_id?: string | null
           target?: string[] | null
+          telegram_chat_id?: string | null
           title?: string
         }
         Relationships: [
@@ -363,6 +366,7 @@ export interface Database {
           id: string
           name: string
           positions: Json[] | null
+          telegram_chat_id: string | null
         }
         Insert: {
           creation_timestamp?: string
@@ -372,6 +376,7 @@ export interface Database {
           id?: string
           name: string
           positions?: Json[] | null
+          telegram_chat_id?: string | null
         }
         Update: {
           creation_timestamp?: string
@@ -381,6 +386,7 @@ export interface Database {
           id?: string
           name?: string
           positions?: Json[] | null
+          telegram_chat_id?: string | null
         }
         Relationships: [
           {
@@ -642,6 +648,7 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          telegram_chat_id: string
           grouped_members: Json
           task_list: Json
         }[]
@@ -656,6 +663,7 @@ export interface Database {
           id: string
           name: string
           positions: Json[] | null
+          telegram_chat_id: string | null
         }[]
       }
       get_announcement: {
@@ -709,6 +717,7 @@ export interface Database {
           id: string
           name: string
           positions: Json[] | null
+          telegram_chat_id: string | null
         }[]
       }
       get_filters: {
@@ -775,6 +784,7 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          telegram_chat_id: string
           grouped_members: Json
           task_list: Json
         }[]
@@ -972,6 +982,7 @@ export interface Database {
           n_target: string[]
           n_project_id: string
           n_user_id: string
+          n_telegram_chat_id: string
         }
         Returns: {
           notification_id: string
@@ -1102,6 +1113,7 @@ export interface Database {
           n_project_id: string
           n_project_name: string
           n_project_description: string
+          n_telegram_chat_id: string
         }
         Returns: {
           user_projects: Json
@@ -1177,6 +1189,7 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          telegram_chat_id: string
           grouped_members: Json
           task_list: Json
         }[]

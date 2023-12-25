@@ -97,7 +97,7 @@ export const useDataStore = defineStore("data", {
     setSelectedProject(id: string) {
       const project = this.getProject(id);
       this.selectedProject = project ? project : null;
-      console.log("ds set selected project", id);
+      console.log("ds set selected project", id, this.selectedProject);
     },
     setManagementBoard(managementBoard: ProjectMember[]){
       this.managementBoard = managementBoard;
@@ -131,6 +131,7 @@ interface Project {
   description: string;
   creator_id: string;
   is_show_project_in_overview: boolean;
+  telegram_chat_id: string
   //   tasks: [{
   //     id: string;
   //     name: string;
