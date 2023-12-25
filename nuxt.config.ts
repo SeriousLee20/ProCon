@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
     "@vee-validate/nuxt",
+    "@nuxt/image",
   ],
 
   css: [
@@ -34,5 +35,8 @@ export default defineNuxtConfig({
     },
   },
 
+  image: {
+    dir: "assets/",
+  },
   // components: false,
 });
