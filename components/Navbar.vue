@@ -445,10 +445,10 @@
                             <div class="pi pi-stopwatch mx-1"></div>
                             <div>
                               {{
-                                selectedChatroom.chat_target[0]?.start_working_hour ||
+                               formatTime(selectedChatroom.chat_target[0]?.start_working_hour ) ||
                                 "Not Provided"
                               }} - {{
-                                selectedChatroom.chat_target[0]?.end_working_hour ||
+                                formatTime(selectedChatroom.chat_target[0]?.end_working_hour ) ||
                                 "Not Provided"
                               }}
                             </div>
@@ -688,6 +688,13 @@ const formatDate = (dateString) => {
     locales: "en-US",
   });
   return formattedDate.value;
+};
+
+const formatTime = (dateString) => {
+  const formattedTime = useDateFormat(dateString, "HH:mm", {
+    locales: "en-US",
+  });
+  return formattedTime.value;
 };
 
 function configEditMenuList() {

@@ -304,6 +304,7 @@ export interface Database {
           created_at: string
           notification_id: string
           project_id: string | null
+          push_notification: boolean[] | null
           target: string[] | null
           telegram_chat_id: string | null
           title: string
@@ -313,6 +314,7 @@ export interface Database {
           created_at?: string
           notification_id?: string
           project_id?: string | null
+          push_notification?: boolean[] | null
           target?: string[] | null
           telegram_chat_id?: string | null
           title: string
@@ -322,6 +324,7 @@ export interface Database {
           created_at?: string
           notification_id?: string
           project_id?: string | null
+          push_notification?: boolean[] | null
           target?: string[] | null
           telegram_chat_id?: string | null
           title?: string
@@ -1203,15 +1206,7 @@ export interface Database {
           n_start_working_hour: string
           n_end_working_hour: string
         }
-        Returns: {
-          contact_number: string | null
-          created_at: string | null
-          email: string
-          end_working_hour: string | null
-          id: string
-          name: string | null
-          start_working_hour: string | null
-        }[]
+        Returns: Record<string, unknown>
       }
     }
     Enums: {
