@@ -16,6 +16,7 @@
             optionValue="id"
             @change="onChangeSelectedProject($event)"
             :placeholder="ddplaceholder"
+            :pt="{input: {class:'text-sm', style:'height:2.2rem; text-align:center'}}"
           >
           </Pdropdown>
         </ClientOnly>
