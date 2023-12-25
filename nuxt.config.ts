@@ -11,9 +11,11 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
-    "@vee-validate/nuxt",
+    "@nuxt/image"
   ],
-
+  image:{
+    dir:"assets/images/"
+  },
   css: [
     "@/assets/main.css",
     "primevue/resources/themes/mira/theme.css",

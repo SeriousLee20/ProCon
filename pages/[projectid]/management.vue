@@ -10,7 +10,6 @@
             <footer class="flex align-items-center">
               <div>Project ID: {{ projectid }}</div>
               <ClientOnly>
-
                 <span
                   class="pi pi-copy cursor-pointer pl-2"
                   v-if="isSupported"
@@ -21,26 +20,69 @@
             </footer>
             <footer>
               <ClientOnly>
-
                 <div>{{ selectedProject?.description }}</div>
               </ClientOnly>
             </footer>
           </div>
-          <div>
-            <Pbutton
-              type="button"
-              icon="pi pi-cog"
-              @click="toggle"
-              aria-label="edit_project"
-              aria-haspopup="true"
-              aria-controls="edit-board"
-            />
-            <Pmenu
-              ref="boardMenu"
-              id="edit-board"
-              :model="editBoardMenu"
-              :popup="true"
-            ></Pmenu>
+          <div class="flex gap-1">
+            <div>
+              <Pbutton
+                type="button"
+                icon="pi pi-question"
+                @click="toggleGuide"
+              />
+              <Poverlay-panel
+                ref="guidePanel"
+                appendTo="body"
+                style="width: 36rem; height: 40rem"
+                :showCloseIcon="true"
+              >
+                <Pcarousel
+                  :value="steps"
+                  :numVisible="1"
+                  :numScroll="1"
+                  circular
+                >
+                  <template #item="slotProps">
+                    <div
+                      class="border-1 surface-border border-round m-2 text-center py-5 px-3"
+                    >
+                      <div class="mb-3">
+                        <nuxt-img
+                          :src="`/${slotProps.data.image}`"
+                          :alt="slotProps.data.name"
+                          class="shadow-2"
+                          :width="slotProps.data.width"
+                          :height="slotProps.data.height"
+                        />
+                      </div>
+                      <div>
+                        <h4 class="mb-1">{{ slotProps.data.name }}</h4>
+                        <h6 class="mt-0 mb-3 text-left">
+                          {{ slotProps.data.description }}
+                        </h6>
+                      </div>
+                    </div>
+                  </template>
+                </Pcarousel>
+              </Poverlay-panel>
+            </div>
+            <div>
+              <Pbutton
+                type="button"
+                icon="pi pi-cog"
+                @click="toggle"
+                aria-label="edit_project"
+                aria-haspopup="true"
+                aria-controls="edit-board"
+              />
+              <Pmenu
+                ref="boardMenu"
+                id="edit-board"
+                :model="editBoardMenu"
+                :popup="true"
+              ></Pmenu>
+            </div>
           </div>
         </div>
       </template>
@@ -335,11 +377,11 @@
             </div>
             <label for="telegram-id">Telegram Announcement Chat ID</label>
             <Pinputtext
-                id="telegram-id"
-                class="w-full"
-                v-model="telegramId"
-                type="text"
-              />
+              id="telegram-id"
+              class="w-full"
+              v-model="telegramId"
+              type="text"
+            />
           </div>
           <template #footer>
             <div class="w-full text-right pt-3">
@@ -370,13 +412,14 @@ import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { useClipboard, usePermission } from "@vueuse/core";
 
-const {$emit} = useNuxtApp();
+const { $emit } = useNuxtApp();
 const dstore = useDataStore();
 const toast = useToast();
 const confirm = useConfirm();
 const { projectid } = useRoute().params;
 const { text, copy, copied, isSupported } = useClipboard();
 
+const guidePanel = ref(false);
 const board = ref();
 const positions = ref([]);
 const departments = ref([]);
@@ -421,6 +464,10 @@ const toggle = (event) => {
   boardMenu.value.toggle(event);
 };
 
+const toggleGuide = (event) => {
+  guidePanel.value.toggle(event);
+};
+
 const { data: projectMemberList } = await useFetch(
   "/api/get_management_board",
   {
@@ -455,7 +502,7 @@ const updateProjInfo = async () => {
       project_id: selectedProject.value.id,
       project_name: projectName.value,
       description: projectDescription.value,
-      telegram_chat_id: telegramId.value
+      telegram_chat_id: telegramId.value,
     };
     const { data: updateProjRes } = await useFetch("/api/update_project", {
       method: "POST",
@@ -463,12 +510,12 @@ const updateProjInfo = async () => {
       headers: { "cache-control": "no-cache" },
     });
 
-    console.log('updateproject', updateProjRes.value)
-    if(updateProjRes.value?.success){
+    console.log("updateproject", updateProjRes.value);
+    if (updateProjRes.value?.success) {
       editProjInfoDialog.value = false;
       let updatedProjectList = updateProjRes.value.response[0].user_projects;
       selectedProject.value = dstore.updateProjectList(updatedProjectList);
-      $emit('refresh-project-list');
+      $emit("refresh-project-list");
     }
   }
 };
@@ -976,6 +1023,93 @@ const findComponentIndex = (arr, key, value) => {
   console.log("findindex", indices);
   return indices;
 };
+
+const steps = [
+{
+    name: 'Step 1',
+    description: 'Create a Telegram group and add all the members into the group and designate their roles properly(set members as admin), note that no members can be added later on and have their roles changed afterwards.',
+    image: '1.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 2',
+    description: 'After the group details has been finalized, go to Telegram search bar and type GetIDs Bot',
+    image: '2.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 3',
+    description: 'Tap on the top bar that shows the name GetIDs Bot',
+    image: '3.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 4',
+    description: 'Click Add to Group or Channel',
+    image: '4.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 5',
+    description: 'After that pick the Procon related channel and Add as Member',
+    image: '5.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 6',
+    description: 'Go back to the group you created and copy the id generated by the bot in the message',
+    image: '6.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 7',
+    description: 'Go to your project page in Procon and select Management',
+    image: '7.jpeg',
+    width: '186',
+    height: '228',
+  },
+  {
+    name: 'Step 8',
+    description: 'Click the settings button in the top right corner and click Update Project Information',
+    image: '8.jpeg',
+    width: '120',
+    height: '200',
+  },
+  {
+    name: 'Step 9',
+    description: 'Paste the ID copied into the Telegram Announcement Chat ID field',
+    image: '9.jpeg',
+    width: '136',
+    height: '220',
+  },
+  {
+    name: 'Step 10',
+    description: 'Go back to Telegram, search Procon Helper and select the option with @procon_um_bot',
+    image: '10.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 11',
+    description: 'Click to view the details of this bot and add to the group similar to Step 5',
+    image: '11.jpeg',
+    width: '150',
+    height: '300',
+  },
+  {
+    name: 'Step 12',
+    description: 'There you have it! Now you have connected the procon bot to your project and it will notify you when new tasks are added!',
+    image: '12.jpeg',
+    width: '200',
+    height: '200',
+  },
+];
 
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("");
