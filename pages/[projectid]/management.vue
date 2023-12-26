@@ -1,8 +1,8 @@
 <template>
   <Ptoast />
   <Pconfirmpopup />
-  <div id="member-table">
-    <Pcard>
+  <div id="member-table" class="m-2">
+    <Pcard class="border-2 border-gray-200">
       <template #title>
         <div class="flex justify-content-between">
           <div class="flex flex-column">
@@ -28,7 +28,24 @@
             <div>
               <Pbutton
                 type="button"
+                icon="pi pi-cog"
+                @click="toggle"
+                aria-label="edit_project"
+                aria-haspopup="true"
+                aria-controls="edit-board"
+              />
+              <Pmenu
+                ref="boardMenu"
+                id="edit-board"
+                :model="editBoardMenu"
+                :popup="true"
+              ></Pmenu>
+            </div>
+            <div>
+              <Pbutton
+                type="button"
                 icon="pi pi-question"
+                severity="warning"
                 @click="toggleGuide"
               />
               <Poverlay-panel
@@ -67,22 +84,6 @@
                 </Pcarousel>
               </Poverlay-panel>
             </div>
-            <div>
-              <Pbutton
-                type="button"
-                icon="pi pi-cog"
-                @click="toggle"
-                aria-label="edit_project"
-                aria-haspopup="true"
-                aria-controls="edit-board"
-              />
-              <Pmenu
-                ref="boardMenu"
-                id="edit-board"
-                :model="editBoardMenu"
-                :popup="true"
-              ></Pmenu>
-            </div>
           </div>
         </div>
       </template>
@@ -95,11 +96,12 @@
           sortField="user_department"
           scrollHeight="23rem"
           scrollable
+          size="small"
         >
           <Pcolumn
             field="user_department"
             header="Department"
-            width="20%"
+            width="10%"
           ></Pcolumn>
           <Pcolumn
             field="username"
@@ -110,7 +112,7 @@
           <Pcolumn
             field="position"
             header="Position"
-            width="20%"
+            width="10%"
             sortable
           ></Pcolumn>
           <Pcolumn
@@ -119,14 +121,15 @@
             width="10%"
             sortable
           ></Pcolumn>
-          <Pcolumn field="user_id" header="ID" width="10%"></Pcolumn>
-          <Pcolumn width="10%">
+          <Pcolumn field="user_id" header="ID" width="10%" :pt="{column:{style:'width:10rem'}}"></Pcolumn>
+          <Pcolumn width="10%" header="Edit/Delete Member">
             <template #body="slotProps">
               <Pbutton
                 icon="pi pi-pencil"
                 outlined
                 rounded
                 severity="warn"
+                size="small"
                 @click="editMember(slotProps.data)"
               />
               <Pbutton
@@ -135,6 +138,7 @@
                 outlined
                 rounded
                 severity="danger"
+                size="small"
                 @click="deleteMember($event, slotProps.data)"
                 class="ml-2"
               />
@@ -175,9 +179,10 @@
             <label for="department">Department</label>
             <Pdropdown
               id="department"
-              v-model="member.user_department"
+              v-model="member.department_id"
               :options="departments"
               optionLabel="user_department"
+              optionValue="department_id"
             />
           </div>
           <div class="field">
@@ -403,6 +408,61 @@
         </Pdialog>
       </template>
     </Pcard>
+
+    <Pcard class="border-1 border-gray-200 mt-3">
+      <template #title>
+        <div class="flex">
+          <div>Resource Links</div>
+        </div>
+      </template>
+      <template #content>
+        <Pdatatable
+          v-model:editingRows="editingResources"
+          :value="resources"
+          dataKey="department_id"
+          size="small"
+          editMode="row"
+          @row-edit-save="saveResourceUpdate"
+          :pt="{
+            table: { style: 'min-width: 50rem' },
+            column: {
+              bodycell: ({ state }) => ({
+                style:
+                  state['d_editing'] &&
+                  'padding-top: 0.6rem; padding-bottom: 0.6rem',
+              }),
+            },
+          }"
+        >
+          <Pcolumn
+            field="user_department"
+            header="Department"
+            style="width: 50%"
+          >
+            <template #editor="{ data, field }">
+              <Pinputtext
+                v-model="data[field]"
+                class="w-full"
+                :pt="{ root: { style: 'border:none; opacity:1; padding:0;' } }"
+                disabled
+              />
+            </template>
+          </Pcolumn>
+
+          <Pcolumn field="resource" header="Link" style="width: 40%">
+            <template #editor="{ data, field }">
+              <Pinputtext v-model="data[field]" class="w-full" />
+            </template>
+          </Pcolumn>
+          <Pcolumn
+            :rowEditor="true"
+            style="width: 10%; min-width: 8rem"
+            bodyStyle="text-align:center"
+            header="Edit & Save"
+          ></Pcolumn>
+        </Pdatatable>
+      </template>
+    </Pcard>
   </div>
 </template>
 
@@ -423,6 +483,7 @@ const guidePanel = ref(false);
 const board = ref();
 const positions = ref([]);
 const departments = ref();
+const resources = ref();
 const roles = ref(["Admin", "Member"]);
 const member = ref({});
 const selectedProject = ref(dstore.getSelectedProject);
@@ -434,11 +495,13 @@ const editProjInfoDialog = ref(false);
 const departmentDialog = ref(false);
 const positionDialog = ref(false);
 const addMemberDialog = ref(false);
+const editingResources = ref([]);
 const disableRole = ref(false);
 const boardMenu = ref();
 const newDepartment = ref();
 const newPosition = ref();
 const newMember = ref();
+const newResource = ref();
 const editBoardMenu = ref([
   {
     label: "Add Member",
@@ -485,14 +548,36 @@ const { data: boardComponent } = await useFetch("/api/get_board_component", {
 
 board.value = projectMemberList.value.response;
 
-if (boardComponent.value.response[0].departments)
-  departments.value = boardComponent.value.response[0].departments;
-if (boardComponent.value.response[0].positions)
-  positions.value = boardComponent.value.response[0].positions;
+if (boardComponent.value.response)
+  departments.value = boardComponent.value.response[0]?.departments;
+positions.value = boardComponent.value.response[0]?.positions;
+resources.value = boardComponent.value.response[0]?.departments;
+
 console.log("projectmemberlist", projectMemberList.value.response);
 console.log("board value", board.value);
 console.log("boardcomponent", boardComponent);
 console.log("department, position", departments.value, positions.value);
+
+const saveResourceUpdate = async (event) => {
+  let { newData, index } = event;
+  resources.value[index] = newData;
+  console.log("new resource", newData, departments.value);
+
+  const { data: updateResourceRes } = await useFetch(
+    "/api/update_dpt_resource",
+    {
+      method: "POST",
+      body: {
+        project_id: selectedProject.value.id,
+        resource: newData.resource,
+        department_id: newData.department_id,
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
+
+  console.log("updateresourceres", updateResourceRes.value);
+};
 
 const updateProjInfo = async () => {
   console.log("udpate proj info", selectedProject.value);
@@ -555,7 +640,9 @@ const saveMemberDetails = async () => {
   // departments and positions array are object arrays
   // selection from edit member details affect value stored in main board
   udpatedMember.user_position = udpatedMember.user_position.user_position;
-  udpatedMember.user_department = udpatedMember.user_department.user_department;
+  udpatedMember.user_department = departments.value?.filter((dpt) => {
+    return dpt.department_id == udpatedMember.department_id;
+  })[0]?.user_department;
 
   const updatedData = {
     project_id: projectid,
@@ -576,11 +663,12 @@ const saveMemberDetails = async () => {
   );
 
   if (mapMemberRes.value.success) {
-    let editedMember = board.value.findIndex((member) => {
-      return member.user_id == udpatedMember.user_id;
-    });
-    console.log("edited member", editedMember, udpatedMember);
-    board.value[editedMember] = udpatedMember;
+    // let editedMember = board.value.findIndex((member) => {
+    //   return member.user_id == udpatedMember.user_id;
+    // });
+    // console.log("edited member", editedMember, udpatedMember);
+    // board.value[editedMember] = udpatedMember;
+    board.value = mapMemberRes.value.response;
     console.log("updated board", board.value);
   }
 };
@@ -743,14 +831,14 @@ const addDepartment = async () => {
   let hasNewDeprtment = false;
   let existedDepartment = [];
   let addedDepartment = [];
-  if (newDepartment.value.length > 0) {
+  if (newDepartment.value?.length > 0) {
     newDepartment.value.forEach((newDept) => {
       console.log("dept exist", newDept);
       if (
         !departments.value.find((oldDept) => oldDept.user_department == newDept)
       ) {
         hasNewDeprtment = true;
-        departments.value.push({ user_department: newDept });
+        // departments.value.push({ user_department: newDept });
         addedDepartment.push(newDept);
       } else {
         existedDepartment.push(newDept);
@@ -766,20 +854,18 @@ const addDepartment = async () => {
       });
     }
     if (hasNewDeprtment) {
-      let dptList = departments.value.map(dpt => {return dpt.user_department})
-      console.log('new dpt list', dptList);
-
       const { data: insertDepartmentRes } = await useFetch(
         "/api/insert_department",
         {
           method: "POST",
-          body: { project_id: projectid, departments: dptList },
+          body: { project_id: projectid, departments: addedDepartment },
           headers: { "cache-control": "no-cache" },
         }
       );
       console.log("updatedepartment", insertDepartmentRes);
 
       if (insertDepartmentRes.value.success) {
+        departments.value = insertDepartmentRes.value.response[0].departments;
         toast.add({
           severity: "success",
           summary: "Success",
@@ -812,55 +898,63 @@ const deleteDepartment = (event, department) => {
           (dept) => dept.user_department == department.user_department
         )
       );
-      departments.value.splice(
-        departments.value.findIndex(
-          (dept) => dept.user_department == department.user_department
-        ),
-        1
-      );
-      const { data: updateDepartmentRes } = await useFetch(
-        "/api/insert_department",
+
+      const { data: deleteDepartmentRes } = await useFetch(
+        "/api/delete_department",
         {
           method: "POST",
-          body: { project_id: projectid, departments: departments.value },
+          body: {
+            project_id: projectid,
+            department: department.user_department,
+            department_id: department.department_id,
+          },
           headers: { "cache-control": "no-cache" },
         }
       );
-      console.log("updatedepartment", updateDepartmentRes);
-      console.log("dlt dept", departments.value, updateDepartmentRes);
+      console.log("updatedepartment", deleteDepartmentRes);
+      console.log("dlt dept", departments.value, deleteDepartmentRes);
 
-      if (updateDepartmentRes.value.success) {
-        const affectedMember = findComponentIndex(
-          board.value,
-          "user_department",
-          department.user_department
+      if (deleteDepartmentRes.value?.success) {
+        board.value = deleteDepartmentRes.value.response;
+        console.log("deletedpt", board.value);
+
+        departments.value.splice(
+          departments.value.findIndex(
+            (dept) => dept.department_id == department.department_id
+          ),
+          1
         );
+        // const affectedMember = findComponentIndex(
+        //   board.value,
+        //   "user_department",
+        //   department.user_department
+        // );
 
-        affectedMember.forEach(async (index) => {
-          let memberDetails = board.value[index];
-          board.value[index].user_department = null;
-          console.log("memberdetails", memberDetails);
-          let updatedData = {
-            project_id: projectid,
-            department: null,
-            user_id: memberDetails.user_id,
-            position: memberDetails.user_position,
-            role: memberDetails.user_role,
-          };
-          const { data: mapResponse } = await useFetch(
-            "/api/update_project_user_map",
-            {
-              method: "POST",
-              body: updatedData,
-              headers: { "cache-control": "no-cache" },
-            }
-          );
-          console.log(
-            "affectedmember department",
-            affectedMember,
-            mapResponse.value
-          );
-        });
+        // affectedMember.forEach(async (index) => {
+        //   let memberDetails = board.value[index];
+        //   board.value[index].user_department = null;
+        //   console.log("memberdetails", memberDetails);
+        //   let updatedData = {
+        //     project_id: projectid,
+        //     department: null,
+        //     user_id: memberDetails.user_id,
+        //     position: memberDetails.user_position,
+        //     role: memberDetails.user_role,
+        //   };
+        //   const { data: mapResponse } = await useFetch(
+        //     "/api/update_project_user_map",
+        //     {
+        //       method: "POST",
+        //       body: updatedData,
+        //       headers: { "cache-control": "no-cache" },
+        //     }
+        //   );
+        //   console.log(
+        //     "affectedmember department",
+        //     affectedMember,
+        //     mapResponse.value
+        //   );
+        // });
       }
     },
     reject: () => {},
@@ -1028,89 +1122,97 @@ const findComponentIndex = (arr, key, value) => {
 };
 
 const steps = [
-{
-    name: 'Step 1',
-    description: 'Create a Telegram group and add all the members into the group and designate their roles properly(set members as admin), note that no members can be added later on and have their roles changed afterwards.',
-    image: '1.jpeg',
-    width: '150',
-    height: '300',
+  {
+    name: "Step 1",
+    description:
+      "Create a Telegram group and add all the members into the group and designate their roles properly(set members as admin), note that no members can be added later on and have their roles changed afterwards.",
+    image: "1.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 2',
-    description: 'After the group details has been finalized, go to Telegram search bar and type GetIDs Bot',
-    image: '2.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 2",
+    description:
+      "After the group details has been finalized, go to Telegram search bar and type GetIDs Bot",
+    image: "2.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 3',
-    description: 'Tap on the top bar that shows the name GetIDs Bot',
-    image: '3.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 3",
+    description: "Tap on the top bar that shows the name GetIDs Bot",
+    image: "3.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 4',
-    description: 'Click Add to Group or Channel',
-    image: '4.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 4",
+    description: "Click Add to Group or Channel",
+    image: "4.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 5',
-    description: 'After that pick the Procon related channel and Add as Member',
-    image: '5.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 5",
+    description: "After that pick the Procon related channel and Add as Member",
+    image: "5.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 6',
-    description: 'Go back to the group you created and copy the id generated by the bot in the message',
-    image: '6.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 6",
+    description:
+      "Go back to the group you created and copy the id generated by the bot in the message",
+    image: "6.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 7',
-    description: 'Go to your project page in Procon and select Management',
-    image: '7.jpeg',
-    width: '186',
-    height: '228',
+    name: "Step 7",
+    description: "Go to your project page in Procon and select Management",
+    image: "7.jpeg",
+    width: "186",
+    height: "228",
   },
   {
-    name: 'Step 8',
-    description: 'Click the settings button in the top right corner and click Update Project Information',
-    image: '8.jpeg',
-    width: '120',
-    height: '200',
+    name: "Step 8",
+    description:
+      "Click the settings button in the top right corner and click Update Project Information",
+    image: "8.jpeg",
+    width: "120",
+    height: "200",
   },
   {
-    name: 'Step 9',
-    description: 'Paste the ID copied into the Telegram Announcement Chat ID field',
-    image: '9.jpeg',
-    width: '136',
-    height: '220',
+    name: "Step 9",
+    description:
+      "Paste the ID copied into the Telegram Announcement Chat ID field",
+    image: "9.jpeg",
+    width: "136",
+    height: "220",
   },
   {
-    name: 'Step 10',
-    description: 'Go back to Telegram, search Procon Helper and select the option with @procon_um_bot',
-    image: '10.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 10",
+    description:
+      "Go back to Telegram, search Procon Helper and select the option with @procon_um_bot",
+    image: "10.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 11',
-    description: 'Click to view the details of this bot and add to the group similar to Step 5',
-    image: '11.jpeg',
-    width: '150',
-    height: '300',
+    name: "Step 11",
+    description:
+      "Click to view the details of this bot and add to the group similar to Step 5",
+    image: "11.jpeg",
+    width: "150",
+    height: "300",
   },
   {
-    name: 'Step 12',
-    description: 'There you have it! Now you have connected the procon bot to your project and it will notify you when new tasks are added!',
-    image: '12.jpeg',
-    width: '200',
-    height: '200',
+    name: "Step 12",
+    description:
+      "There you have it! Now you have connected the procon bot to your project and it will notify you when new tasks are added!",
+    image: "12.jpeg",
+    width: "200",
+    height: "200",
   },
 ];
 

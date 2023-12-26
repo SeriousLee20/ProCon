@@ -1,7 +1,6 @@
 import { Database } from "../../types/supabase";
 import { serverSupabaseUser } from "../../src/runtime/server/services/serverSupabaseUser";
 import { serverSupabaseClient } from "../../src/runtime/server/services/serverSupabaseClient";
-import { useDataStore } from "../../stores/datastore";
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
@@ -18,10 +17,11 @@ export default defineEventHandler(async (event) => {
 
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "insert_department2",
+        "update_dpt_resource",
         {
           n_project_id: nData.project_id,
-          n_departments: nData.departments,
+          n_resource_link: nData.resource,
+          n_department_id: nData.department_id
         }
       );
 
