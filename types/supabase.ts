@@ -764,6 +764,15 @@ export interface Database {
           user_projects: Json
         }[]
       }
+      get_gantt_data: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: {
+          department: string
+          rows: Json
+        }[]
+      }
       get_grouped_members: {
         Args: {
           n_project_id: string

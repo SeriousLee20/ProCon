@@ -422,7 +422,7 @@ const { text, copy, copied, isSupported } = useClipboard();
 const guidePanel = ref(false);
 const board = ref();
 const positions = ref([]);
-const departments = ref([]);
+const departments = ref();
 const roles = ref(["Admin", "Member"]);
 const member = ref({});
 const selectedProject = ref(dstore.getSelectedProject);
@@ -485,10 +485,10 @@ const { data: boardComponent } = await useFetch("/api/get_board_component", {
 
 board.value = projectMemberList.value.response;
 
-if (boardComponent.value.response.departments)
-  departments.value.push(...boardComponent.value.response.departments);
-if (boardComponent.value.response.positions)
-  positions.value.push(...boardComponent.value.response.positions);
+if (boardComponent.value.response[0].departments)
+  departments.value = boardComponent.value.response[0].departments;
+if (boardComponent.value.response[0].positions)
+  positions.value = boardComponent.value.response[0].positions;
 console.log("projectmemberlist", projectMemberList.value.response);
 console.log("board value", board.value);
 console.log("boardcomponent", boardComponent);
@@ -766,11 +766,14 @@ const addDepartment = async () => {
       });
     }
     if (hasNewDeprtment) {
+      let dptList = departments.value.map(dpt => {return dpt.user_department})
+      console.log('new dpt list', dptList);
+
       const { data: insertDepartmentRes } = await useFetch(
         "/api/insert_department",
         {
           method: "POST",
-          body: { project_id: projectid, departments: departments.value },
+          body: { project_id: projectid, departments: dptList },
           headers: { "cache-control": "no-cache" },
         }
       );

@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   plugins: [
     "~/plugins/event-bus.ts",
     { src: "~/plugins/primevue.ts", ssr: false },
+    "~/plugins/ganttastic.client.ts"
   ],
   modules: [
     "@nuxtjs/supabase",
