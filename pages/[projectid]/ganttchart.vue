@@ -130,7 +130,7 @@ const getTaskList = () => {
   });
 
   console.log("temptasklist", tempTaskList);
-  taskList.value = tempTaskList[0].rows ? tempTaskList[0]?.rows : null;
+  taskList.value = tempTaskList[0]?.rows ? tempTaskList[0]?.rows : null;
 
   console.log("dept list, task", departmentList, taskList.value);
   getChartStartEnd();
