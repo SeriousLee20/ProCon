@@ -187,11 +187,11 @@
                 Next
               </Pbutton>
             </div>
-            <div class="pt-2 h-17rem overflow-scroll">
+            <div class="mt-2 h-17rem overflow-scroll  border-top-1  border-gray-100">
               <div
                 v-for="department of groupedUsers"
                 :key="department"
-                class="overflow-scroll"
+                class="overflow-scroll border-bottom-1  border-x-1 border-gray-100 p-2"
               >
                 <div class="font-bold pb-2">{{ department.department }}</div>
                 <div
