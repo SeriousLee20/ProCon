@@ -2,7 +2,7 @@
   <Ptoast />
   <Pconfirmpopup />
   <div id="member-table" class="m-2">
-    <Pcard class="border-2 border-gray-200">
+    <Pcard class="border-1 border-gray-200">
       <template #title>
         <div class="flex justify-content-between">
           <div class="flex flex-column">
@@ -450,6 +450,12 @@
           </Pcolumn>
 
           <Pcolumn field="resource" header="Link" style="width: 40%">
+            <template #body="{data, field}">
+              <a :href="data.resource"  target="_blank" rel="noopener noreferrer">
+
+                <Pbutton :label="data.resource ? 'Click to Open' : 'Please Add Link'" :href="data.resource" link :disabled="data.resource == '' || data.resource == null"></Pbutton>
+              </a>
+            </template>
             <template #editor="{ data, field }">
               <Pinputtext v-model="data[field]" class="w-full" />
             </template>
