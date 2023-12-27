@@ -3,16 +3,14 @@
     <template #list="slotProps">
       <div
         v-for="(item, index) in slotProps.items"
-        class="w-full flex align-items-center justify-content-between"
+        class="w-full flex align-items-center justify-content-between hover:bg-primary-100 border-round border-none mb-2 px-3 pb-3"
+        @click="openAnnouncementDialog(item)"
       >
         <div class="flex gap-2 align-content-center">
           <p class="footnote-2">
             {{ item.name ?? "" }}
           </p>
-          <i
-            class="footnote flex pi pi-info-circle text-base text-color-secondary align-items-center"
-            v-tooltip.right="item.description ?? 'No description provided'"
-          ></i>
+
         </div>
 
         <p class="footnote">
@@ -31,6 +29,12 @@ const formatDate = (dateString) => {
     locales: "en-US",
   });
   return formattedDate.value;
+};
+
+const emit = defineEmits(["open-announcement-dialog"]);
+const openAnnouncementDialog = (props) => {
+  console.log("openannouncementdialog");
+  emit("open-announcement-dialog", props);
 };
 </script>
 

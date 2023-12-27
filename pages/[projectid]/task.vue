@@ -266,6 +266,14 @@
                 :pt="{
                   column: { class: 'border-none' },
                 }"
+                @open-announcement-dialog="openAnnouncementDialog($event)"
+              />
+              <AnnouncementDialog
+                v-model:visible="announcementDialog"
+                :announcementDialog="announcementDialog"
+                :selectedAnnouncement="selectedAnnouncement"
+                :isCreator="isAnnouncementCreator"
+                @delete-announcement="deleteAnnouncement"
               />
             </template>
           </Pcard>
@@ -347,8 +355,6 @@ const mainShowMyTaskOnly = ref(
   getFilter("main_task").thisFilter.show_my_task_only
 );
 const mainTaskSortOption = ref(getFilter("main_task").thisFilter.sort_option);
-const taskDueDatetime = ref();
-const taskUrgentDate = ref();
 const mainTaskList = ref({ q1: [], q2: [], q3: [], q4: [] });
 const myTaskList = ref();
 const myTaskSortOption = ref(getFilter("my_task").thisFilter.sort_option);
@@ -358,6 +364,9 @@ const taskShowCompleted = ref(
 );
 const projectMember = projectMemberRes.value.response;
 const isOpenAnnouncementModal = ref(false);
+const announcementDialog = ref(false);
+const selectedAnnouncement = ref();
+const isAnnouncementCreator = ref();
 const announcementTitle = ref(null);
 const announcementDesc = ref(null);
 const announcementReceivers = ref();
@@ -750,7 +759,8 @@ const insertTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [], true
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [],
+      true
     );
   }
 };
@@ -780,10 +790,43 @@ const deleteTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [], true
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [],
+      true
     );
   }
 };
+
+const openAnnouncementDialog = (props) => {
+  announcementDialog.value = true;
+  selectedAnnouncement.value = props;
+  isAnnouncementCreator.value = props.creator_id == userId;
+  console.log(
+    "announcementdialog",
+    selectedAnnouncement.value,
+    isAnnouncementCreator.value
+  );
+};
+
+const deleteAnnouncement = async () => {
+  announcementDialog.value = false;
+  const { data: deleteAnnouncementRes } = await useFetch(
+    "/api/delete_announcement",
+    {
+      method: "POST",
+      body: {
+        project_id: projectid,
+        announcement_id: selectedAnnouncement.value.id
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
+
+  console.log(deleteAnnouncementRes.value);
+  if(deleteAnnouncementRes.value?.success){
+    announcementList.value = deleteAnnouncementRes.value?.response;
+  }
+  console.log('updated ann list', announcementList.value)
+}
 
 async function addAnnouncement() {
   isOpenAnnouncementModal.value = false;
@@ -804,29 +847,12 @@ async function addAnnouncement() {
   );
 
   if (addAnnouncementRes.value.success) {
-
-    // const { data: announcementNotificationRes } = await useFetch(
-    //   "/api/insert_notification",
-    //   {
-    //     method: "POST",
-    //     body: {
-    //       title: "New Announcement Added! " + announcementTitle.value,
-    //       content:
-    //         "New announcement: " +
-    //         announcementTitle.value +
-    //         (announcementDesc.value ? " - " + announcementDesc.value : ""),
-    //       target: announcementReceivers.value,
-    //       project_id: projectid,
-    //     },
-    //     headers: { "cache-control": "no-cache" },
-    //   }
-    // );
-
-      sendNotification(
+    sendNotification(
       "add_announcement",
-      `${dstore.selectedProject.name}: Announcement ${ announcementTitle.value}`,
-      `Announcement: ${announcementDesc.value ? announcementDesc.value : ''}` ,
-      announcementReceivers.value, true
+      `${dstore.selectedProject.name}: Announcement ${announcementTitle.value}`,
+      `Announcement: ${announcementDesc.value ? announcementDesc.value : ""}`,
+      announcementReceivers.value,
+      true
     );
 
     projectAnnouncementRes = addAnnouncementRes;

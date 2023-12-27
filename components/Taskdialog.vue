@@ -200,7 +200,6 @@
 </template>
 
 <script setup>
-import { DatePickerEditCell } from "@syncfusion/ej2-vue-grids";
 import { useConfirm } from "primevue/useconfirm";
 
 const confirm = useConfirm();

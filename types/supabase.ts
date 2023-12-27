@@ -350,6 +350,7 @@ export interface Database {
           notification_id: string
           project_id: string | null
           push_notification: boolean[] | null
+          push_telegram_notification: boolean | null
           target: string[] | null
           telegram_chat_id: string | null
           title: string
@@ -360,6 +361,7 @@ export interface Database {
           notification_id?: string
           project_id?: string | null
           push_notification?: boolean[] | null
+          push_telegram_notification?: boolean | null
           target?: string[] | null
           telegram_chat_id?: string | null
           title: string
@@ -370,6 +372,7 @@ export interface Database {
           notification_id?: string
           project_id?: string | null
           push_notification?: boolean[] | null
+          push_telegram_notification?: boolean | null
           target?: string[] | null
           telegram_chat_id?: string | null
           title?: string
@@ -654,6 +657,22 @@ export interface Database {
           group_members: Json
           gp_member_ids: string[]
           chat_target: Json
+        }[]
+      }
+      delete_announcement: {
+        Args: {
+          n_user_id: string
+          n_project_id: string
+          n_announcement_id: string
+        }
+        Returns: {
+          creation_timestamp: string
+          creator_id: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          receiver_ids: string[]
         }[]
       }
       delete_department: {
@@ -1038,8 +1057,8 @@ export interface Database {
           n_chatroom_id: string
           n_project_id: string
           n_user_id: string
-          n_receiver_id: string
           n_text_content: string
+          n_receiver_id?: string
         }
         Returns: {
           chatroom_id: string
@@ -1099,7 +1118,7 @@ export interface Database {
           n_target: string[]
           n_project_id: string
           n_user_id: string
-          n_telegram_chat_id: string
+          n_telegram_chat_id?: string
         }
         Returns: {
           notification_id: string
@@ -1165,7 +1184,14 @@ export interface Database {
           n_project_id: string
           n_role: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          user_id: string
+          username: string
+          user_role: string
+          user_position: string
+          user_department: string
+          department_id: string
+        }[]
       }
       new_project: {
         Args: {
