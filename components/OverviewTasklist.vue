@@ -8,7 +8,7 @@
         <div
           v-for="(item, index) in slotProps.items"
           :key="index"
-          class="col-12 cursor-pointer hover:bg-primary-100 border-round border-none mb-2 shadow-2 px-3 pb-3"
+          class="col-12 cursor-pointer hover:bg-primary-100 border-round shadow-2 px-3 "
           @click="openTaskDialog(item)"
         >
           <div class="">

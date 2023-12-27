@@ -1,6 +1,6 @@
 <template>
   <Pbutton
-    class="no-shadow font-normal"
+    class="no-shadow font-normal text-sm"
     :icon="setShowCompletedIcon(showCompleted)"
     @click="handler"
     label="Completed"

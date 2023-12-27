@@ -57,7 +57,7 @@
           <div class="flex gap-5 w-full flex justify-content-between">
             <Pcalendar
               :disabled="disableDateFilter"
-              :pt="{ input: { style: 'box-shadow:none; border: none;' } }"
+              :pt="{ input: { style: 'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem' } }"
               id="filter-task-duedate-range"
               v-model="filterTaskDueDateRange"
               selectionMode="range"
@@ -115,7 +115,7 @@
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90">IMPORTANT</div>
+            <div class="-rotate-90 text-red-400">IMPORTANT</div>
           </div>
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
@@ -145,7 +145,7 @@
             />
           </div>
           <div
-            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto text-red-400"
           >
             URGENT
           </div>
@@ -239,6 +239,7 @@
           <!-- TODO:change to Pcard -->
           <Pcard
             class="border-round border-primary-200 border-2 bg-white w-full h-22rem"
+            :pt="{title:{style:'margin:0'}}"
           >
             <template #title>
               <div class="grid justify-content-evenly">
@@ -857,7 +858,7 @@ async function addAnnouncement() {
 
     projectAnnouncementRes = addAnnouncementRes;
     announcementList.value = projectAnnouncementRes.value.response;
-    console.log("announcementlist", announcementList.value);
+    console.log("announcementlist", announcementList.value, addAnnouncementRes.value);
   }
 }
 
@@ -891,6 +892,14 @@ definePageMeta({
 </script>
 
 <style lang="css" scoped>
+
+.p-card .p-card-content{
+  padding:0;
+}
+
+.p-card .p-card-body{
+  padding-top:0;
+}
 .show-completed-button {
   font-size: 0.75rem;
   border: none;

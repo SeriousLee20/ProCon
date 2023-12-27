@@ -1,5 +1,6 @@
 <template>
   <Pdropdown
+  :pt="{ input: { style: 'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem' } }"
     style="box-shadow: none; border: none"
     :options="props.sortOptions"
     optionLabel="desc"

@@ -8,22 +8,28 @@
     <div class="col flex justify-content-center align-content-center">
       <div class="flex gap-1">
         <ClientOnly>
-          <Pdropdown
-            id="project-ddlist"
-            v-model="selectedProject"
-            :options="project"
-            optionLabel="name"
-            optionValue="id"
-            @change="onChangeSelectedProject($event)"
-            :placeholder="ddplaceholder"
-            :pt="{
-              input: {
-                class: 'text-sm',
-                style: 'height:2.2rem; text-align:center',
-              },
-            }"
-          >
-          </Pdropdown>
+          <div class="w-12">
+
+            <Pdropdown
+              id="project-ddlist"
+              v-model="selectedProject"
+              :options="project"
+              optionLabel="name"
+              optionValue="id"
+              @change="onChangeSelectedProject($event)"
+              :placeholder="ddplaceholder"
+              :pt="{
+                root:{style:'background:var(--primary-100); box-shadow:none; border: none; padding-top:0.2rem'},
+                input: {
+                  class: 'text-sm',
+                  style: ' height:2.2rem; text-align:center; ',
+                },
+
+              }"
+              class="min-w-full"
+            >
+            </Pdropdown>
+          </div>
         </ClientOnly>
         <Pbutton
           type="button"
