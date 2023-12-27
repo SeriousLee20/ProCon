@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-bluegray-200 grid px-2 pt-1">
+  <div class="bg-primary-100 grid px-2 pt-1">
     <div class="col flex align-content-center">
       <div class="flex align-items-center">
         {{ dateToday }}
@@ -27,11 +27,12 @@
         </ClientOnly>
         <Pbutton
           type="button"
-          icon="pi pi-sliders-h"
+          icon="pi pi-plus"
           @click="toggle"
           aria-label="edit_project"
           aria-haspopup="true"
           aria-controls="edit_menu"
+          text
         />
         <Pmenu
           ref="menu"
@@ -40,10 +41,26 @@
           :popup="true"
         ></Pmenu>
         <Pbutton
-          v-if="showHomeButton"
+          v-if="isShowButton"
           type="button"
-          icon="pi pi-home"
+          icon="pi pi-chart-bar"
+          @click="switchPage('ganttchart', 'Gantt Chart')"
+          text
+        />
+
+        <Pbutton
+          v-if="showManagementButton"
+          type="button"
+          icon="pi pi-sitemap"
+          @click="switchPage(`management`, 'Management')"
+          text
+        />
+        <Pbutton
+          v-if="showBackToTaskButton"
+          type="button"
+          icon="pi pi-directions-alt"
           @click="switchPage(`task`, 'Task')"
+          text
         />
       </div>
     </div>
@@ -52,12 +69,13 @@
         v-if="isShowButton"
         class="flex justify-content-end align-content-center gap-1"
       >
+
         <Pbutton
           type="button"
-          icon="pi pi-chart-bar"
-          @click="switchPage('ganttchart', 'Gantt Chart')"
+          icon="pi pi-comment"
+          @click="toggleChatPanel"
+          text
         />
-        <Pbutton type="button" icon="pi pi-comment" @click="toggleChatPanel" />
         <Poverlay-panel
           ref="chatPanel"
           appendTo="body"
@@ -581,6 +599,7 @@
           @click="toggleNotificationPanel"
           @refresh-notification="refreshNotification($event)"
           :pt="{ content: { class: 'w-20rem h-20rem' } }"
+          text
         />
         <Poverlay-panel
           ref="notificationPanel"
@@ -619,13 +638,20 @@
             </template>
           </Pdataview>
         </Poverlay-panel>
+        <Pbutton
+          type="button"
+          icon="pi pi-home"
+          @click="switchPage('/overview', 'Overview')"
+          text
+        />
       </div>
       <Pbutton
         type="button"
         icon="pi pi-user"
         @click="switchPage('/profile', 'Profile')"
+        text
       />
-      <Pbutton type="button" icon="pi pi-sign-out" @click="logout" />
+      <Pbutton type="button" icon="pi pi-sign-out" @click="logout" text />
     </div>
   </div>
 </template>
@@ -654,10 +680,15 @@ const menu = ref();
 const isShowButton = ref(
   selectedProject.value && selectedProject.value != -1 ? true : false
 );
-const showHomeButton = ref(
+const showBackToTaskButton = ref(
   selectedProject.value &&
     selectedProject.value != -1 &&
     dstore.getCurrentPage != "Task"
+);
+const showManagementButton = ref(
+  selectedProject.value &&
+    selectedProject.value != -1 &&
+    dstore.getCurrentPage != "Management"
 );
 const menuItems = ref([]);
 
@@ -719,10 +750,6 @@ function configEditMenuList() {
   console.log("1", dstore.getSelectedProject);
   const editMenu = [];
   if (dstore.getSelectedProject?.role == "Admin") {
-    editMenu.push({
-      label: "Management",
-      command: () => switchPage("management", "Management"),
-    });
   }
   editMenu.push(
     {
@@ -1024,7 +1051,8 @@ function onChangeSelectedProject(event) {
     getNotification();
     getChatList();
   }
-  showHomeButton.value = false;
+  showBackToTaskButton.value = false;
+  showManagementButton.value = true;
   // setCurrentProject(event.value);
   // console.log("state currentproject", currentProject);
 
@@ -1067,9 +1095,8 @@ const switchPage = (routeName, pageName) => {
         navigateTo(routeName);
       }
     }
-    dstore.setCurrentPage(pageName);
     ddplaceholder.value = "";
-    showHomeButton.value = false;
+    showBackToTaskButton.value = false;
     console.log(
       "switchpage to task",
       dstore.getCurrentPage,
@@ -1077,25 +1104,34 @@ const switchPage = (routeName, pageName) => {
     );
   } else if (pageName == "Management" || pageName == "Gantt Chart") {
     navigateTo(routeName);
-    showHomeButton.value = true;
   } else if (pageName != "Overview" && pageName != "Management") {
     // pagename = Create project/Join Project
     ddplaceholder.value = pageName;
-    dstore.setCurrentPage(pageName);
     selectedProject.value = null;
     dstore.setSelectedProject("");
     navigateTo(routeName);
-    showHomeButton.value = false;
   } else {
     selectedProject.value = "-1";
     dstore.setSelectedProject("-1");
-    ddplaceholder.value = "";
-    dstore.setCurrentPage("");
+    ddplaceholder.value = "Overview";
     navigateTo(routeName);
   }
-  isShowButton.value = selectedProject.value ? true : false;
+  dstore.setCurrentPage(pageName);
+  isShowButton.value = selectedProject.value && selectedProject.value != -1;
+  showBackToTaskButton.value =
+    selectedProject.value &&
+    selectedProject.value != -1 &&
+    dstore.getCurrentPage != "Task";
+  showManagementButton.value =
+    selectedProject.value &&
+    selectedProject.value != -1 &&
+    dstore.getCurrentPage != "Management";
   menuItems.value = configEditMenuList().editMenu;
-  console.log(selectedProject.value, ddplaceholder.value);
+  console.log(
+    selectedProject.value,
+    ddplaceholder.value,
+    dstore.getCurrentPage
+  );
 };
 
 onNuxtReady(() => {
@@ -1132,7 +1168,6 @@ const logout = async () => {
 </script>
 
 <style lang="css" scoped>
-
 .chat.v3-input-picker-root > input.v3-emoji-picker-input {
   border-radius: 0.5rem;
 }

@@ -33,6 +33,7 @@
                 aria-label="edit_project"
                 aria-haspopup="true"
                 aria-controls="edit-board"
+                text
               />
               <Pmenu
                 ref="boardMenu"
@@ -43,10 +44,12 @@
             </div>
             <div>
               <Pbutton
+              class="font-bold"
                 type="button"
-                icon="pi pi-question"
+                icon="pi pi-question-circle"
                 severity="warning"
                 @click="toggleGuide"
+                text
               />
               <Poverlay-panel
                 ref="guidePanel"
@@ -1278,7 +1281,7 @@ const steps = [
 ];
 
 dstore.setSelectedProject(projectid);
-dstore.setCurrentPage("");
+dstore.setCurrentPage("Management");
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],
