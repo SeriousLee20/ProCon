@@ -698,6 +698,7 @@ const saveMemberDetails = async () => {
       ? udpatedMember.user_department
       : "",
     position: udpatedMember.user_position ? udpatedMember.user_position : "",
+    department_id: udpatedMember.department_id
   };
   const { data: mapMemberRes } = await useFetch(
     "/api/update_project_user_map",

@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
           n_role: nData.role,
           n_department: nData.department,
           n_position: nData.position,
+          n_department_id: nData.department_id
         }
       );
 

@@ -1282,6 +1282,7 @@ export interface Database {
           n_project_id: string
           n_role: string
           n_department: string
+          n_department_id: string
           n_position: string
         }
         Returns: {
