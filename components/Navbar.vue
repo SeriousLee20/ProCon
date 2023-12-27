@@ -42,7 +42,6 @@
       </div>
     </div>
     <div class="col flex justify-content-end align-content-center gap-1">
-
       <div
         v-if="isShowButton"
         class="flex justify-content-end align-content-center gap-1"
@@ -172,6 +171,7 @@
                     :inputId="member.user_id"
                     name="member"
                     :value="member.user_id"
+                    :disabled="member.user_id == user.id"
                   />
                   <label class="pl-2" :for="member.user_id">{{
                     member.username
@@ -672,7 +672,7 @@ const chatroomState = ref("home");
 const collapseChatroom = ref(false);
 // TODO: add notification list
 // TODO: add chat member list
-const { $listen } = useNuxtApp();
+const { $listen, $emit } = useNuxtApp();
 
 const supabase = createClient(
   "https://xlurkqcyxhrbxxtnrcdk.supabase.co",
@@ -694,8 +694,6 @@ console.log(worker);
 console.log("all project", project);
 console.log("all project", dstore.getAllProjects);
 console.log("selected project:", selectedProject.value);
-
-
 
 const formatDate = (dateString) => {
   const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {
@@ -735,6 +733,38 @@ function configEditMenuList() {
 menuItems.value = configEditMenuList().editMenu;
 console.log(menuItems.value);
 
+const sendNotification = async (
+  action,
+  title,
+  content,
+  target,
+  pushTelegramNoti
+) => {
+  console.log(action);
+
+  console.log(selectedProject.value)
+  const { data: notificationRes } = await useFetch("/api/insert_notification", {
+    method: "POST",
+    body: {
+      title: title,
+      content: content,
+      target: target,
+      project_id: selectedProject.value,
+      telegram_chat_id: pushTelegramNoti
+        ? selectedProject.value?.telegram_id
+        : null,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  if (notificationRes.value.success) {
+    console.log("refresh noti", notificationRes.value.response);
+    // emit("refresh-notification", announcementNotificationRes.value.response);
+    $emit("refresh-notification", notificationRes.value.response);
+    return true;
+  }
+};
+
 const toggle = (event) => {
   menu.value.toggle(event);
 };
@@ -743,14 +773,13 @@ const toggleChatPanel = (event) => {
   chatPanel.value.toggle(event);
 };
 
-
-
 const openCreateGroupPanel = () => {
-  selectedGroupMember.value = [];
+  selectedGroupMember.value = [user.value.id];
+  // selectedGroupMember.value.push(user.id)
   chatPanelState.value = "create_group";
   chatroomState.value = "home";
   groupedUsers.value = dstore.getManagementBoard;
-  console.log("chat grouped users", groupedUsers.value);
+  console.log("chat grouped users", groupedUsers.value, selectedGroupMember.value, user);
 };
 
 const cancelCreateGroup = () => {
@@ -783,6 +812,14 @@ const createChatGroup = async () => {
   if (createGroupRes.value.success) {
     chatlist.value = createGroupRes.value.response;
     chatPanelState.value = "home";
+    let target = selectedGroupMember.value.splice(selectedGroupMember.value.findIndex(id => id == user.value.id))
+    sendNotification(
+      "create_chatgroup",
+      `${dstore.selectedProject.name}: Added to Group`,
+      `You are added to ${chatGroupName?.value}`,
+      target,
+      false
+    );
   }
 };
 
@@ -906,17 +943,26 @@ const insert_chatlog = async () => {
         chatroom_id: chatroom.chatroom_id,
         project_id: selectedProject.value,
         receiver_id: chatroom.chat_target
-          ? chatroom.chat_target[0].user_id
+          ? chatroom.chat_target[0].id
           : null,
         text_content: chatInput.value,
       },
       headers: { "cache-control": "no-cache" },
     });
 
-    if (insertChatlogRes.value.success) {
+    if (insertChatlogRes.value?.success) {
       chatlist.value = insertChatlogRes.value.response;
       selectedChatroom.value = chatlist.value[0];
-      chatInput.value = "";
+      let target = chatroom.chat_target? [chatroom.chat_target[0].id ]: chatroom.group_members.map(mb => {if(mb.id != user.value.id) {return mb.id}});
+      target = target.filter(id => {return id })
+      console.log('message target', target)
+      sendNotification(
+        "message",
+        `${dstore.selectedProject.name}: Message from ${chatroom.chat_target? dstore.getUserName : chatroom.group_info.group_name}`,
+        `${chatInput.value}`,
+        target, false
+        );
+        chatInput.value = "";
     }
     console.log(
       "insertchatlogres",

@@ -121,7 +121,12 @@
             width="10%"
             sortable
           ></Pcolumn>
-          <Pcolumn field="user_id" header="ID" width="10%" :pt="{column:{style:'width:10rem'}}"></Pcolumn>
+          <Pcolumn
+            field="user_id"
+            header="ID"
+            width="10%"
+            :pt="{ column: { style: 'width:10rem' } }"
+          ></Pcolumn>
           <Pcolumn width="10%" header="Edit/Delete Member">
             <template #body="slotProps">
               <Pbutton
@@ -450,10 +455,18 @@
           </Pcolumn>
 
           <Pcolumn field="resource" header="Link" style="width: 40%">
-            <template #body="{data, field}">
-              <a :href="data.resource"  target="_blank" rel="noopener noreferrer">
-
-                <Pbutton :label="data.resource ? 'Click to Open' : 'Please Add Link'" :href="data.resource" link :disabled="data.resource == '' || data.resource == null"></Pbutton>
+            <template #body="{ data, field }">
+              <a
+                :href="data.resource"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Pbutton
+                  :label="data.resource ? 'Click to Open' : 'Please Add Link'"
+                  :href="data.resource"
+                  link
+                  :disabled="data.resource == '' || data.resource == null"
+                ></Pbutton>
               </a>
             </template>
             <template #editor="{ data, field }">
@@ -485,6 +498,7 @@ const confirm = useConfirm();
 const { projectid } = useRoute().params;
 const { text, copy, copied, isSupported } = useClipboard();
 
+dstore.setManagementBoardByProject(projectid);
 const guidePanel = ref(false);
 const board = ref();
 const positions = ref([]);
@@ -563,6 +577,29 @@ console.log("projectmemberlist", projectMemberList.value.response);
 console.log("board value", board.value);
 console.log("boardcomponent", boardComponent);
 console.log("department, position", departments.value, positions.value);
+
+const sendNotification = async (action, title, content, target) => {
+  console.log(action);
+
+  const { data: notificationRes } = await useFetch("/api/insert_notification", {
+    method: "POST",
+    body: {
+      title: title,
+      content: content,
+      target: target,
+      project_id: projectid,
+      telegram_chat_id: selectedProject.value.telegram_id,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+
+  if (notificationRes.value.success) {
+    console.log("refresh noti", notificationRes.value.response);
+    // emit("refresh-notification", announcementNotificationRes.value.response);
+    $emit("refresh-notification", notificationRes.value.response);
+    return true;
+  }
+};
 
 const saveResourceUpdate = async (event) => {
   let { newData, index } = event;
@@ -687,19 +724,7 @@ const deleteMember = (event, clickedMember) => {
     icon: "pi pi-info-circle",
     acceptClass: "p-button-danger",
     accept: async () => {
-      console.log(
-        "member index",
-        board.value.findIndex(
-          (member) => member.user_id == clickedMember.user_id
-        )
-      );
-      board.value.splice(
-        board.value.findIndex(
-          (member) => member.user_id == clickedMember.user_id
-        ),
-        1
-      );
-      updateDbDepartment();
+      // updateDbDepartment();
       console.log("dlt member", board.value);
 
       const { data: deleteMemberRes } = await useFetch("/api/delete_member", {
@@ -708,6 +733,21 @@ const deleteMember = (event, clickedMember) => {
         headers: { "cache-control": "no-cache" },
       });
       console.log(deleteMemberRes.value);
+
+      if (deleteMemberRes.value?.success) {
+        board.value.splice(
+          board.value.findIndex(
+            (member) => member.user_id == clickedMember.user_id
+          ),
+          1
+        );
+        sendNotification(
+          "delete_member",
+          `${dstore.selectedProject.name}: Removed From Project`,
+          `You are removed from ${selectedProject.value?.name}`,
+          [clickedMember.user_id]
+        );
+      }
     },
     reject: () => {},
   });
@@ -720,8 +760,10 @@ const addMember = async () => {
   let hasNewMember = false;
   let existedMember = [];
   let addedMember = [];
+  let addedMemberId = [];
   let userName = "";
   let invalidUser = [];
+  let addMemberResTemp = board.value;
 
   const { data: getUserRes } = await useFetch("/api/get_user", {
     method: "POST",
@@ -776,9 +818,13 @@ const addMember = async () => {
             }
           );
 
+          if (addMemberRes.value?.success) {
+            hasNewMember = true;
+            addedMember.push(userName);
+            addedMemberId.push(newMb);
+            addMemberResTemp = addMemberRes.value?.response;
+          }
           console.log("addmemberres", addMemberRes.value);
-          hasNewMember = true;
-          addedMember.push(userName);
           console.log("updated board", board.value);
         } else {
           existedMember.push(userName);
@@ -803,6 +849,15 @@ const addMember = async () => {
         detail: `Added ${addedMember.join(", ")} to the project.`,
         life: 5000,
       });
+
+      board.value = addMemberResTemp;
+
+      sendNotification(
+        "add_member",
+        `Added to New Project`,
+        `You are added to ${selectedProject.value?.name}`,
+        addedMemberId
+      );
     }
     if (invalidUser.length > 0) {
       toast.add({

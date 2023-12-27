@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       const { data: queryResponse, error: queryError } = await client.rpc(
         "insert_chatlog",
         {
-          n_chatroom_id: nData.chatroom_id,
+          n_chatroom_id: nData.chatroom_id ? nData.chatroom_id : null,
           n_project_id: nData.project_id,
           n_user_id: id,
           n_receiver_id: nData.receiver_id,

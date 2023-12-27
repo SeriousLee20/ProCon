@@ -362,7 +362,7 @@ const announcementTitle = ref(null);
 const announcementDesc = ref(null);
 const announcementReceivers = ref();
 var announcementList = ref(projectAnnouncementRes.value.response);
-dstore.setManagementBoard(groupedUsers.value)
+dstore.setManagementBoard(groupedUsers.value);
 
 console.log("mytask", tasksRes.value.response, myTaskList);
 console.log("param", parameters);
@@ -407,7 +407,6 @@ if (Array.isArray(projectMember)) {
     value: projectMember.user_id,
   };
 }
-
 
 console.log("useroption", userOptions);
 
@@ -477,7 +476,9 @@ const sortList = (filteredList, listName, sortOptionName) => {
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
     due_date: task?.due_date ? new Date(task?.due_date) : null,
-    start_date_time: task?.start_date_time ? new Date(task?.start_date_time) : null,
+    start_date_time: task?.start_date_time
+      ? new Date(task?.start_date_time)
+      : null,
     start_date: task?.start_date ? new Date(task?.start_date) : null,
   }));
 
@@ -678,14 +679,21 @@ const updateTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : []
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [],
+      true
     );
   }
 
   //TODO:input validation:required name, today<=urgent date<=duedate
 };
 
-const sendNotification = async (action, title, content, target) => {
+const sendNotification = async (
+  action,
+  title,
+  content,
+  target,
+  pushTelegramNoti
+) => {
   console.log(action);
 
   const { data: notificationRes } = await useFetch("/api/insert_notification", {
@@ -695,7 +703,7 @@ const sendNotification = async (action, title, content, target) => {
       content: content,
       target: target,
       project_id: projectid,
-      telegram_chat_id: selectedProject.telegram_id
+      telegram_chat_id: pushTelegramNoti ? selectedProject.telegram_id : null,
     },
     headers: { "cache-control": "no-cache" },
   });
@@ -743,7 +751,7 @@ const insertTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : []
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [], true
     );
   }
 };
@@ -765,6 +773,16 @@ const deleteTask = async () => {
     tasksRes = deleteTask;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
+    sendNotification(
+      "delete_task",
+      `${dstore.selectedProject.name}: Deleted Task`,
+      "Deleted task: " +
+        selectedTask.value.task_name +
+        (selectedTask.value.task_desc
+          ? " - " + formatNotification(selectedTask.value.task_desc)
+          : ""),
+      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [], true
+    );
   }
 };
 

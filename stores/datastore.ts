@@ -102,6 +102,10 @@ export const useDataStore = defineStore("data", {
     setManagementBoard(managementBoard: ProjectMember[]){
       this.managementBoard = managementBoard;
     },
+    setManagementBoardByProject(projectId: string){
+      let managementBoard = this.projects?.filter(project => {return project.id == projectId})[0].grouped_members;
+      this.managementBoard = managementBoard ? managementBoard : null;
+    },
     clearData() {
       this.user = null;
       this.projects = null;
@@ -131,7 +135,8 @@ interface Project {
   description: string;
   creator_id: string;
   is_show_project_in_overview: boolean;
-  telegram_chat_id: string
+  telegram_chat_id: string,
+  grouped_members: ProjectMember[]
   //   tasks: [{
   //     id: string;
   //     name: string;
