@@ -104,7 +104,7 @@
                 class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q4"
                 :pt="{
-                  content: { class: 'bg-primary-100' },
+                  content: { class: 'bg-primary-100 align-self-center', style:'align-items-center'},
                   column: { class: 'border-none' },
                   emptyMessage: { content: 'No Task' },
                 }"
@@ -891,7 +891,7 @@ definePageMeta({
 });
 </script>
 
-<style lang="css" scoped>
+<style lang="css">
 
 .p-card .p-card-content{
   padding:0;

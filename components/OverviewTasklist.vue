@@ -16,36 +16,40 @@
               {{ item.task_name }}
             </p>
 
-            <div class="flex gap-1">
-              <Ptag
-                v-if="item.status_name"
-                :value="item.status_name"
-                rounded
-                :icon="item.status_icon"
-                :severity="item.status_severity"
-                class="max-h-1rem"
-              />
-              <Ptag
-                v-if="item.due_date_time"
-                :value="formatDate(item.due_date_time)"
-                rounded
-                icon="pi pi-stopwatch"
-                class="max-h-1rem"
-              />
-              <Ptag
-                v-if="item.importance_desc"
-                :value="item.importance_desc"
-                rounded
-                icon="pi pi-exclamation-triangle"
-                class="max-h-1rem"
-              />
-              <Ptag
-                v-if="item.importance_rate"
-                :value="item.importance_rate"
-                rounded
-                icon="pi pi-flag"
-                class="max-h-1rem"
-              />
+            <div class="flex justify-content-between">
+
+              <div class="flex gap-1 align-items-end ">
+                <Ptag
+                  v-if="item.status_name"
+                  :value="item.status_name"
+                  rounded
+                  :icon="item.status_icon"
+                  :severity="item.status_severity"
+                  class="max-h-1rem"
+                />
+                <Ptag
+                  v-if="item.due_date_time"
+                  :value="formatDate(item.due_date_time)"
+                  rounded
+                  icon="pi pi-stopwatch"
+                  class="max-h-1rem"
+                />
+
+                <Ptag
+                    v-if="item.importance == 1"
+                    :value="item.importance_rate"
+                    rounded
+                    icon="pi pi-exclamation-triangle"
+                    class="max-h-1rem font-normal"
+                  />
+              </div>
+              <div>
+                  <Pavatargroup >
+                    <div v-for="dpt in item.dept_abbr">
+                      <Pavatar :label="dpt" size="small" shape="circle" style="font-size:x-small; background-color: var(--primary-500); border-color:var(--primary-500); color:white;" />
+                    </div>
+                  </Pavatargroup>
+                </div>
             </div>
           </div>
         </div>

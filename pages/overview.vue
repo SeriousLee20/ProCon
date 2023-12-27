@@ -64,7 +64,6 @@ const projectid = ref(dstore.getSelectedProject?.id);
 const { data: parameters } = await useFetch("/api/get_parameters");
 
 var { data: filters } = await useFetch("/api/get_filters");
-var { data: all_project_tasks } = await useFetch("/api/get_task_by_user");
 var { data: projectMemberAndTaskRes } = await useFetch(
   "/api/get_management_boards"
 );

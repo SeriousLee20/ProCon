@@ -46,6 +46,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pdropdown", Dropdown);
   nuxtApp.vueApp.component("Pmenu", Menu);
   nuxtApp.vueApp.component("Pavatar", Avatar);
+  nuxtApp.vueApp.component("Pavatargroup", AvatarGroup);
   nuxtApp.vueApp.component("Pinputtext", InputText);
   nuxtApp.vueApp.component("Pinputmask", InputMask);
   nuxtApp.vueApp.component("Ptoast", Toast);
