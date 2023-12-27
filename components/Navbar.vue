@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="col flex justify-content-center align-content-center">
-      <div>
+      <div class="flex gap-1">
         <ClientOnly>
           <Pdropdown
             id="project-ddlist"
@@ -39,6 +39,12 @@
           :model="menuItems"
           :popup="true"
         ></Pmenu>
+        <Pbutton
+          v-if="showHomeButton"
+          type="button"
+          icon="pi pi-home"
+          @click="switchPage(`task`, 'Task')"
+        />
       </div>
     </div>
     <div class="col flex justify-content-end align-content-center gap-1">
@@ -614,11 +620,6 @@
           </Pdataview>
         </Poverlay-panel>
       </div>
-      <!-- <Pbutton
-          type="button"
-          icon="pi pi-home"
-          @click="switchPage('/overview', 'Overview')"
-        /> -->
       <Pbutton
         type="button"
         icon="pi pi-user"
@@ -652,6 +653,11 @@ const dateToday = useDateFormat(useNow(), "MMM DD, YYYY", {
 const menu = ref();
 const isShowButton = ref(
   selectedProject.value && selectedProject.value != -1 ? true : false
+);
+const showHomeButton = ref(
+  selectedProject.value &&
+    selectedProject.value != -1 &&
+    dstore.getCurrentPage != "Task"
 );
 const menuItems = ref([]);
 
@@ -742,7 +748,7 @@ const sendNotification = async (
 ) => {
   console.log(action);
 
-  console.log(selectedProject.value)
+  console.log(selectedProject.value);
   const { data: notificationRes } = await useFetch("/api/insert_notification", {
     method: "POST",
     body: {
@@ -779,7 +785,12 @@ const openCreateGroupPanel = () => {
   chatPanelState.value = "create_group";
   chatroomState.value = "home";
   groupedUsers.value = dstore.getManagementBoard;
-  console.log("chat grouped users", groupedUsers.value, selectedGroupMember.value, user);
+  console.log(
+    "chat grouped users",
+    groupedUsers.value,
+    selectedGroupMember.value,
+    user
+  );
 };
 
 const cancelCreateGroup = () => {
@@ -812,7 +823,9 @@ const createChatGroup = async () => {
   if (createGroupRes.value.success) {
     chatlist.value = createGroupRes.value.response;
     chatPanelState.value = "home";
-    let target = selectedGroupMember.value.splice(selectedGroupMember.value.findIndex(id => id == user.value.id))
+    let target = selectedGroupMember.value.splice(
+      selectedGroupMember.value.findIndex((id) => id == user.value.id)
+    );
     sendNotification(
       "create_chatgroup",
       `${dstore.selectedProject.name}: Added to Group`,
@@ -942,9 +955,7 @@ const insert_chatlog = async () => {
       body: {
         chatroom_id: chatroom.chatroom_id,
         project_id: selectedProject.value,
-        receiver_id: chatroom.chat_target
-          ? chatroom.chat_target[0].id
-          : null,
+        receiver_id: chatroom.chat_target ? chatroom.chat_target[0].id : null,
         text_content: chatInput.value,
       },
       headers: { "cache-control": "no-cache" },
@@ -953,16 +964,29 @@ const insert_chatlog = async () => {
     if (insertChatlogRes.value?.success) {
       chatlist.value = insertChatlogRes.value.response;
       selectedChatroom.value = chatlist.value[0];
-      let target = chatroom.chat_target? [chatroom.chat_target[0].id ]: chatroom.group_members.map(mb => {if(mb.id != user.value.id) {return mb.id}});
-      target = target.filter(id => {return id })
-      console.log('message target', target)
+      let target = chatroom.chat_target
+        ? [chatroom.chat_target[0].id]
+        : chatroom.group_members.map((mb) => {
+            if (mb.id != user.value.id) {
+              return mb.id;
+            }
+          });
+      target = target.filter((id) => {
+        return id;
+      });
+      console.log("message target", target);
       sendNotification(
         "message",
-        `${dstore.selectedProject.name}: Message from ${chatroom.chat_target? dstore.getUserName : chatroom.group_info.group_name}`,
+        `${dstore.selectedProject.name}: Message from ${
+          chatroom.chat_target
+            ? dstore.getUserName
+            : chatroom.group_info.group_name
+        }`,
         `${chatInput.value}`,
-        target, false
-        );
-        chatInput.value = "";
+        target,
+        false
+      );
+      chatInput.value = "";
     }
     console.log(
       "insertchatlogres",
@@ -1000,13 +1024,13 @@ function onChangeSelectedProject(event) {
     getNotification();
     getChatList();
   }
-
+  showHomeButton.value = false;
   // setCurrentProject(event.value);
   // console.log("state currentproject", currentProject);
 
   dstore.setSelectedProject(event.value);
   menuItems.value = configEditMenuList().editMenu;
-  dstore.setCurrentPage(event.value);
+  dstore.setCurrentPage("Task");
 
   console.log("changed Project", event);
   console.log("updated selected project", dstore.getSelectedProject);
@@ -1022,24 +1046,38 @@ function onChangeSelectedProject(event) {
 const switchPage = (routeName, pageName) => {
   console.log(routeName, pageName);
   if (pageName == "Task") {
-    console.log("split route name", routeName.split("/"));
-    const projectId = routeName.split("/")[0];
-    console.log(projectId);
-    if (projectId) {
-      selectedProject.value = projectId;
-      ddplaceholder.value = "";
-      project.value = dstore.getAllProjects;
-      console.log(
-        "redirect to project management",
-        projectId,
-        selectedProject.value,
-        ddplaceholder.value,
-        project.value
-      );
+    if (routeName == "task") {
+      // from management to task
       navigateTo(routeName);
+      selectedProject.value = selectedProject.value;
+    } else {
+      console.log("split route name", routeName.split("/"));
+      const projectId = routeName.split("/")[0];
+      console.log(projectId);
+      if (projectId) {
+        selectedProject.value = projectId;
+        project.value = dstore.getAllProjects;
+        console.log(
+          "redirect to project management",
+          projectId,
+          selectedProject.value,
+          ddplaceholder.value,
+          project.value
+        );
+        navigateTo(routeName);
+      }
     }
+    dstore.setCurrentPage(pageName);
+    ddplaceholder.value = "";
+    showHomeButton.value = false;
+    console.log(
+      "switchpage to task",
+      dstore.getCurrentPage,
+      selectedProject.value
+    );
   } else if (pageName == "Management" || pageName == "Gantt Chart") {
     navigateTo(routeName);
+    showHomeButton.value = true;
   } else if (pageName != "Overview" && pageName != "Management") {
     // pagename = Create project/Join Project
     ddplaceholder.value = pageName;
@@ -1047,6 +1085,7 @@ const switchPage = (routeName, pageName) => {
     selectedProject.value = null;
     dstore.setSelectedProject("");
     navigateTo(routeName);
+    showHomeButton.value = false;
   } else {
     selectedProject.value = "-1";
     dstore.setSelectedProject("-1");
@@ -1092,108 +1131,7 @@ const logout = async () => {
 };
 </script>
 
-<script>
-//TODO: avoid pinia error when refresh create
-// const dstore = useDataStore();
-// const menu = ref();
-// const isShowButton = ref(false);
-// const menuItems = ref([]);
-// var ddplaceholder = ref(dstore.getCurrentPage);
-// var project = ref(dstore.getAllProjects);
-// var selectedProject = ref(dstore.getSelectedProject?.id);
-
-// export const switchPage = (routeName, pageName) => {
-//   console.log(routeName, pageName);
-//   if (pageName == "Edit Project" || pageName == "Project") {
-//     console.log("split route name", routeName.split("/"));
-//     const projectId = routeName.split("/")[2];
-//     console.log(projectId);
-//     if (projectId) {
-//       selectedProject.value = projectId;
-//       ddplaceholder.value = "";
-//       project.value = dstore.getAllProjects;
-//       console.log(
-//         "redirect to project management",
-//         projectId,
-//         selectedProject.value,
-//         ddplaceholder.value,
-//         project.value
-//       );
-//       navigateTo(routeName);
-//     } else {
-//       var finalRouteName = routeName + "/" + selectedProject?.value;
-//       navigateTo(finalRouteName);
-//     }
-//   } else if (pageName != "Overview" && pageName != "Edit Project") {
-//     ddplaceholder.value = pageName;
-//     dstore.setCurrentPage(pageName);
-//     selectedProject.value = null;
-//     dstore.setSelectedProject("");
-//     navigateTo(routeName);
-//   } else {
-//     selectedProject.value = "-1";
-//     dstore.setSelectedProject("-1");
-//     ddplaceholder.value = "";
-//     dstore.setCurrentPage("");
-//     navigateTo(routeName);
-//   }
-//   isShowButton.value = false;
-//   console.log(selectedProject.value, ddplaceholder.value);
-// };
-
-// export const onChangeSelectedProject = (event) => {
-//   if (event.value == "-1") {
-//     isShowButton.value = false;
-//     navigateTo("/overview");
-//   } else {
-//     isShowButton.value = true;
-//     navigateTo(`/project/${event.value}`);
-//   }
-
-//   dstore.setSelectedProject(event.value);
-//   menuItems.value = configEditMenuList().editMenu;
-//   dstore.setCurrentPage(event.value);
-
-//   console.log("changed project", event);
-//   console.log("updated selected project", dstore.getSelectedProject);
-//   console.log(
-//     "selectedproject value",
-//     selectedProject.value,
-//     "showbutton",
-//     isShowButton.value
-//   );
-//   console.log("placeholder", ddplaceholder.value);
-// };
-
-// const configEditMenuList = () => {
-//   console.log("1", dstore.getSelectedProject);
-//   const editMenu = [];
-//   if (dstore.getSelectedProject?.role == "Admin") {
-//     editMenu.push({
-//       label: "Edit Project",
-//       command: () => switchPage("/projectManagement", "Edit Project"),
-//     });
-//   }
-//   editMenu.push(
-//     {
-//       label: "Create New Project",
-//       command: () => switchPage("/createProject", "Create Project"),
-//     },
-//     {
-//       label: "Join Project",
-//       command: () => switchPage("/joinProject", "Join Project"),
-//     }
-//   );
-//   return { editMenu };
-// };
-// menuItems.value = configEditMenuList().editMenu;
-// console.log(menuItems.value);
-</script>
-
 <style lang="css" scoped>
-#project-ddlist {
-  max-width: 80%;
-}
 
 .chat.v3-input-picker-root > input.v3-emoji-picker-input {
   border-radius: 0.5rem;

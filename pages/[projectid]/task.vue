@@ -285,7 +285,7 @@ const { auth } = useSupabaseAuthClient();
 const dstore = useDataStore();
 const userId = dstore.getUserId;
 dstore.setSelectedProject(projectid);
-dstore.setCurrentPage("");
+dstore.setCurrentPage("Task");
 
 const emit = defineEmits(["refresh-notification"]);
 const { $emit } = useNuxtApp();
