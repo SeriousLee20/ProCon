@@ -10,6 +10,7 @@
         <Pcard class="surface-100">
           <template #content>
             <Pbutton
+            class="mt-3"
               type="button"
               label="Login with Github"
               icon="pi pi-github"

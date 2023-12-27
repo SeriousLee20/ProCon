@@ -76,7 +76,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pinplace", Inplace);
   nuxtApp.vueApp.component("Pcarousel", Carousel);
 
-  // Quill.register(Editor, true);
+  Quill.register(Editor, true);
 
   //other components that you need
 

@@ -1,7 +1,7 @@
 <template>
   <div class="bg-primary-100 grid px-2 pt-1">
     <div class="col flex align-content-center">
-      <div class="flex align-items-center">
+      <div class="flex align-items-center text-primary-600">
         {{ dateToday }}
       </div>
     </div>
@@ -9,7 +9,6 @@
       <div class="flex gap-1">
         <ClientOnly>
           <div class="w-12">
-
             <Pdropdown
               id="project-ddlist"
               v-model="selectedProject"
@@ -19,12 +18,17 @@
               @change="onChangeSelectedProject($event)"
               :placeholder="ddplaceholder"
               :pt="{
-                root:{style:'background:var(--primary-100); box-shadow:none; border: none; padding-top:0.2rem'},
-                input: {
-                  class: 'text-sm',
-                  style: ' height:2.2rem; text-align:center; ',
+                root: {
+                  style:
+                    'background:var(--primary-100); box-shadow:none; border: none; padding-top:0.2rem; ',
                 },
-
+                input: {
+                  class: 'text-sm font-bold',
+                  style: ' height:2.2rem; text-align:center; color:var(--primary-500);',
+                },
+                trigger:{
+                  style:'color: var(--primary-500)'
+                }
               }"
               class="min-w-full"
             >
@@ -48,6 +52,7 @@
         ></Pmenu>
         <Pbutton
           v-if="isShowButton"
+          class="shadow-none"
           type="button"
           icon="pi pi-chart-bar"
           @click="switchPage('ganttchart', 'Gantt Chart')"
@@ -57,6 +62,7 @@
 
         <Pbutton
           v-if="showManagementButton"
+          class="shadow-none"
           type="button"
           icon="pi pi-sitemap"
           @click="switchPage(`management`, 'Management')"
@@ -65,6 +71,7 @@
         />
         <Pbutton
           v-if="showBackToTaskButton"
+          class="shadow-none"
           type="button"
           icon="pi pi-directions-alt"
           @click="switchPage(`task`, 'Task')"
@@ -78,8 +85,8 @@
         v-if="isShowButton"
         class="flex justify-content-end align-content-center gap-1"
       >
-
         <Pbutton
+          class="shadow-none"
           type="button"
           icon="pi pi-comment"
           @click="toggleChatPanel"
@@ -260,7 +267,7 @@
           :style="{ width: '28rem', height: '15rem', shadow: 'none' }"
           position="bottomright"
           :draggable="false"
-          class=" border-1 border-primary shadow-none bg-white h-max"
+          class="border-1 border-primary shadow-none bg-white h-max"
           :pt="{ transition: { class: 'transition-none' } }"
         >
           <template #container>
@@ -268,7 +275,10 @@
               <div
                 class="flex align-items-center justify-content-between bg-primary w-full px-2 border-round-bottom"
               >
-                <span class="pi pi-chevron-down cursor-pointer" @click="toggleChatroom"></span>
+                <span
+                  class="pi pi-chevron-down cursor-pointer"
+                  @click="toggleChatroom"
+                ></span>
                 <div
                   class="flex h6 h-2rem align-items-center text-lg hover:underline cursor-pointer"
                   @click="seeChatroomInfo"
@@ -417,7 +427,6 @@
                                   class="text-xs max-h-1rem font-normal"
                                   rounded
                                 />
-
                               </div>
                             </div>
                           </div>
@@ -604,6 +613,7 @@
           </template>
         </Pdialog>
         <Pbutton
+        class="shadow-none"
           type="button"
           icon="pi pi-inbox"
           @click="toggleNotificationPanel"
@@ -648,22 +658,30 @@
             </template>
           </Pdataview>
         </Poverlay-panel>
-        <Pbutton
-          type="button"
-          icon="pi pi-home"
-          @click="switchPage('/overview', 'Overview')"
-          text
-        />
       </div>
       <Pbutton
+        class="shadow-none"
+        type="button"
+        icon="pi pi-home"
+        @click="switchPage('/overview', 'Overview')"
+        text
+      />
+      <Pbutton
+        class="shadow-none"
         type="button"
         icon="pi pi-user"
         @click="switchPage('/profile', 'Profile')"
         text
       />
       <div class="border-left-1 border-gray-300 border-round">
-
-        <Pbutton type="button" icon="pi pi-sign-out" @click="logout" severity="danger" text />
+        <Pbutton
+          class="shadow-none"
+          type="button"
+          icon="pi pi-sign-out"
+          @click="logout"
+          severity="danger"
+          text
+        />
       </div>
     </div>
   </div>

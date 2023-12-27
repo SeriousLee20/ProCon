@@ -118,7 +118,7 @@
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90 text-red-400">IMPORTANT</div>
+            <div class="-rotate-90 text-red-400 font-bold">IMPORTANT</div>
           </div>
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
@@ -133,7 +133,7 @@
         </div>
         <div class="flex">
           <div
-            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto"
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto text-primary-600 font-bold"
           >
             NOT URGENT
           </div>
@@ -148,7 +148,7 @@
             />
           </div>
           <div
-            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto text-red-400"
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto text-red-400 font-bold"
           >
             URGENT
           </div>
@@ -167,7 +167,7 @@
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90 w-21rem" style="white-space: nowrap">
+            <div class="-rotate-90 w-21rem  text-primary-600 font-bold" style="white-space: nowrap">
               NOT IMPORTANT
             </div>
           </div>
