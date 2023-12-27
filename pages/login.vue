@@ -12,8 +12,8 @@
             <Pbutton
             class="mt-3"
               type="button"
-              label="Login with Github"
-              icon="pi pi-github"
+              label="Login with Google"
+              icon="pi pi-google"
               @click="login"
             />
           </template>
@@ -35,7 +35,7 @@ watchEffect(() => {
 });
 
 const login = async () => {
-  const { data, error } = await auth.signInWithOAuth({ provider: "github" });
+  const { data, error } = await auth.signInWithOAuth({ provider: "google" });
   console.log(data);
   if (error) createError(error);
 };
