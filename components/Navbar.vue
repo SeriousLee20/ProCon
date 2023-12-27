@@ -262,7 +262,7 @@
               <div
                 class="flex align-items-center justify-content-between bg-primary w-full px-2"
               >
-                <span class="pi pi-chevron-down" @click="toggleChatroom"></span>
+                <span class="pi pi-chevron-down cursor-pointer" @click="toggleChatroom"></span>
                 <div
                   class="flex h6 h-2rem align-items-center text-lg hover:underline cursor-pointer"
                   @click="seeChatroomInfo"
@@ -274,7 +274,7 @@
                   }}
                 </div>
                 <span
-                  class="flex pi pi-times justify-content-end"
+                  class="flex pi pi-times justify-content-end cursor-pointer"
                   @click="closeChatRoom"
                 ></span>
               </div>
@@ -882,6 +882,7 @@ const getChatList = async () => {
 
 const openChatRoom = (chatroom) => {
   chatDialog.value = true;
+  collapseChatroom.value = false;
   chatPanel.value.toggle(true);
   selectedChatroom.value = chatroom;
   selectedGroupMember.value = [];
