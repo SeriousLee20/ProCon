@@ -55,26 +55,29 @@
       <div class="col-8">
         <div class="flex justify-content-center">
           <div class="flex gap-5 w-full flex justify-content-between">
-            <Pcalendar
-              :disabled="disableDateFilter"
-              :pt="{ input: { style: 'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem' } }"
-              id="filter-task-duedate-range"
-              v-model="filterTaskDueDateRange"
-              selectionMode="range"
-              dateFormat="M dd, y"
-              placeholder="Filter Due Date(s)"
-              :hideOnRangeSelection="true"
-              class="min-w-max"
-              showButtonBar
-              @clear-click="getDefaultDueDateRange(true)"
-              @hide="
-                updateFilter(
-                  'due_date_range',
-                  filterTaskDueDateRange,
-                  'main_task'
-                )
-              "
-            />
+            <div class="flex align-items-center">
+              <div class="text-sm text-primary-500">Due Date:</div>
+              <Pcalendar
+                :disabled="disableDateFilter"
+                :pt="{ input: { style: 'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem' } }"
+                id="filter-task-duedate-range"
+                v-model="filterTaskDueDateRange"
+                selectionMode="range"
+                dateFormat="M dd, y"
+                placeholder="Filter Due Date(s)"
+                :hideOnRangeSelection="true"
+                class="min-w-max"
+                showButtonBar
+                @clear-click="getDefaultDueDateRange(true)"
+                @hide="
+                  updateFilter(
+                    'due_date_range',
+                    filterTaskDueDateRange,
+                    'main_task'
+                  )
+                "
+              />
+            </div>
             <!-- sort by importance rate, status -->
             <Sortoption
               :sort-options="mainTaskSortOptions"
