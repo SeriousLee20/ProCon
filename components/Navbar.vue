@@ -187,11 +187,11 @@
                 Next
               </Pbutton>
             </div>
-            <div class="mt-2 h-17rem overflow-scroll  border-top-1  border-gray-100">
+            <div class="mt-2 h-17rem overflow-scroll">
               <div
                 v-for="department of groupedUsers"
                 :key="department"
-                class="overflow-scroll border-bottom-1  border-x-1 border-gray-100 p-2"
+                class="overflow-scroll border-1 border-round-sm border-gray-100 p-2 mb-1"
               >
                 <div class="font-bold pb-2">{{ department.department }}</div>
                 <div
@@ -260,13 +260,13 @@
           :style="{ width: '28rem', height: '15rem', shadow: 'none' }"
           position="bottomright"
           :draggable="false"
-          class="border-round border-1 border-primary shadow-none bg-white h-max"
+          class=" border-1 border-primary shadow-none bg-white h-max"
           :pt="{ transition: { class: 'transition-none' } }"
         >
           <template #container>
             <div class="w-full bg-primary-100 h-full">
               <div
-                class="flex align-items-center justify-content-between bg-primary w-full px-2"
+                class="flex align-items-center justify-content-between bg-primary w-full px-2 border-round-bottom"
               >
                 <span class="pi pi-chevron-down cursor-pointer" @click="toggleChatroom"></span>
                 <div
@@ -385,11 +385,11 @@
                         <div>
                           <div class="font-bold text-sm">Group Members</div>
                           <div
-                            class="border-top-1 border-x-1 border-round border-gray-300 mt-1"
+                            class="border-top-1 border-x-1 border-round-sm border-gray-300 mt-1"
                           >
                             <div
                               v-for="member in selectedChatroom.group_members"
-                              class="border-bottom-1 border-gray-300 p-2 flex align-items-center justify-content-between"
+                              class="border-round-sm border-bottom-1 border-gray-300 p-2 flex align-items-center justify-content-between"
                             >
                               <div class="flex align-items-center">
                                 <Pavatar
@@ -553,7 +553,7 @@
                       <div
                         v-for="department of groupedUsers"
                         :key="department"
-                        class="overflow-scroll border-1 border-round border-gray-200 p-2 my-1"
+                        class="overflow-scroll border-1 border-round-sm border-gray-200 p-2 my-1"
                       >
                         <div class="font-bold pb-2">
                           {{ department.department }}
