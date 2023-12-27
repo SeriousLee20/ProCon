@@ -402,7 +402,13 @@
                               </div>
                               <div class="flex gap-1 align-items-center">
                                 <Ptag
-                                  :value="member.department_abbr"
+                                  v-if="member.is_owner"
+                                  value="Owner"
+                                  class="text-xs max-h-1rem font-normal"
+                                  rounded
+                                />
+                                <Ptag
+                                  :value="member.department_abbr || 'N/A'"
                                   class="text-xs max-h-1rem font-normal"
                                   rounded
                                 />
@@ -411,12 +417,7 @@
                                   class="text-xs max-h-1rem font-normal"
                                   rounded
                                 />
-                                <Ptag
-                                  v-if="member.is_owner"
-                                  value="Owner"
-                                  class="text-xs max-h-1rem font-normal"
-                                  rounded
-                                />
+
                               </div>
                             </div>
                           </div>
