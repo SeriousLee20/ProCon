@@ -29,7 +29,7 @@
         optionValue="user_id"
         optionGroupLabel="department"
         filter
-        optionGroupChildren="users"
+        optionGroupChildren="members"
         display="chip"
         placeholder="Select members to notify"
         class="w-full md:w-20rem"
@@ -710,7 +710,6 @@ const sendNotification = async (
 
   if (notificationRes.value.success) {
     console.log("refresh noti", notificationRes.value.response);
-    // emit("refresh-notification", announcementNotificationRes.value.response);
     $emit("refresh-notification", notificationRes.value.response);
     return true;
   }
@@ -805,27 +804,29 @@ async function addAnnouncement() {
   );
 
   if (addAnnouncementRes.value.success) {
-    // toast.add({
-    //   severity: "success",
-    //   summary: "Hurray!",
-    //   detail: "Profile Updated Successfully",
-    //   life: 50000,
-    // });
-    const { data: announcementNotificationRes } = await useFetch(
-      "/api/insert_notification",
-      {
-        method: "POST",
-        body: {
-          title: "New Announcement Added! " + announcementTitle.value,
-          content:
-            "New announcement: " +
-            announcementTitle.value +
-            (announcementDesc.value ? " - " + announcementDesc.value : ""),
-          target: announcementReceivers.value,
-          project_id: projectid,
-        },
-        headers: { "cache-control": "no-cache" },
-      }
+
+    // const { data: announcementNotificationRes } = await useFetch(
+    //   "/api/insert_notification",
+    //   {
+    //     method: "POST",
+    //     body: {
+    //       title: "New Announcement Added! " + announcementTitle.value,
+    //       content:
+    //         "New announcement: " +
+    //         announcementTitle.value +
+    //         (announcementDesc.value ? " - " + announcementDesc.value : ""),
+    //       target: announcementReceivers.value,
+    //       project_id: projectid,
+    //     },
+    //     headers: { "cache-control": "no-cache" },
+    //   }
+    // );
+
+      sendNotification(
+      "add_announcement",
+      `${dstore.selectedProject.name}: Announcement ${ announcementTitle.value}`,
+      `Announcement: ${announcementDesc.value ? announcementDesc.value : ''}` ,
+      announcementReceivers.value, true
     );
 
     projectAnnouncementRes = addAnnouncementRes;
