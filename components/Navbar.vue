@@ -46,6 +46,7 @@
           icon="pi pi-chart-bar"
           @click="switchPage('ganttchart', 'Gantt Chart')"
           text
+          v-tooltip.bottom="`Gantt Chart`"
         />
 
         <Pbutton
@@ -54,6 +55,7 @@
           icon="pi pi-sitemap"
           @click="switchPage(`management`, 'Management')"
           text
+          v-tooltip.bottom="`Management Board`"
         />
         <Pbutton
           v-if="showBackToTaskButton"
@@ -61,6 +63,7 @@
           icon="pi pi-directions-alt"
           @click="switchPage(`task`, 'Task')"
           text
+          v-tooltip.bottom="`Back to Task`"
         />
       </div>
     </div>
@@ -651,7 +654,10 @@
         @click="switchPage('/profile', 'Profile')"
         text
       />
-      <Pbutton type="button" icon="pi pi-sign-out" @click="logout" text />
+      <div class="border-left-1 border-gray-300 border-round">
+
+        <Pbutton type="button" icon="pi pi-sign-out" @click="logout" severity="danger" text />
+      </div>
     </div>
   </div>
 </template>
