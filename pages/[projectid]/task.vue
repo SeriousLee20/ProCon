@@ -51,10 +51,10 @@
   </Pdialog>
 
   <div>
-    <div class="h-screen grid p-4 pt-2">
+    <div class="h-screen grid py-2 px-2 pt-2">
       <div class="col-8">
         <div class="flex justify-content-center">
-          <div class="flex gap-5 w-full flex justify-content-between">
+          <div class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-1">
             <div class="flex align-items-center">
               <div class="text-sm text-primary-500">Due Date:</div>
               <Pcalendar
@@ -189,7 +189,7 @@
         <div>
           <!-- TODO:edit card styling -->
           <Pcard
-            class="border-round border-primary-200 border-2 bg-white w-full mb-2 h-24rem"
+            class="border-round border-primary-500 border-2 bg-white w-full mb-2 h-24rem"
           >
             <template #title>
               <div class="text-center">
@@ -239,9 +239,8 @@
             </template>
           </Pcard>
 
-          <!-- TODO:change to Pcard -->
           <Pcard
-            class="border-round border-primary-200 border-2 bg-white w-full h-22rem"
+            class="border-round border-primary-500 border-2 bg-white w-full h-22rem"
             :pt="{title:{style:'margin:0'}}"
           >
             <template #title>
@@ -251,15 +250,12 @@
                 </div>
 
                 <div class="col-4 flex justify-content-end align-self-center">
-                  <Pbutton
+                  <div
                     v-if="isAdmin"
                     @click="openAnnouncementModal()"
-                    icon="pi pi-plus"
-                    rounded
-                    outlined
+                    class="pi pi-plus text-lg cursor-pointer hover:bg-primary-100 p-2 border-round"
                     aria-label="Filter"
-                    size="small"
-                  />
+                  ></div>
                 </div>
               </div>
             </template>

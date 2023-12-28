@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-primary-100 grid px-2 pt-1">
+  <div class="bg-primary-100 grid px-2 pt-1 mx-1 border-round-sm">
     <div class="col flex align-content-center">
       <div class="flex align-items-center text-primary-600">
         {{ dateToday }}
