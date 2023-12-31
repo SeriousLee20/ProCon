@@ -835,6 +835,7 @@ const toggle = (event) => {
 
 const toggleChatPanel = (event) => {
   chatPanel.value.toggle(event);
+  chatPanelState.value = 'home'
 };
 
 const openCreateGroupPanel = () => {
