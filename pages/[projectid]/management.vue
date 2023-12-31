@@ -897,18 +897,13 @@ const addDepartment = async () => {
   let existedDepartment = [];
   let addedDepartment = [];
   if (newDepartment.value?.length > 0) {
-    newDepartment.value.forEach((newDept) => {
-      console.log("dept exist", newDept);
-      if (
-        !departments.value.find((oldDept) => oldDept.user_department == newDept)
-      ) {
-        hasNewDeprtment = true;
-        // departments.value.push({ user_department: newDept });
-        addedDepartment.push(newDept);
-      } else {
-        existedDepartment.push(newDept);
-      }
+    addedDepartment = newDepartment.value.filter(newDep => {
+      return !departments.value.some(oldDep => oldDep.user_department == newDep)
     });
+
+    existedDepartment = newDepartment.value.filter(newDep => {
+      return departments.value.some(oldDep => oldDep.user_department == newDep)
+    })
 
     if (existedDepartment.length > 0) {
       toast.add({
@@ -918,7 +913,8 @@ const addDepartment = async () => {
         life: 5000,
       });
     }
-    if (hasNewDeprtment) {
+    if (addedDepartment.length > 0) {
+
       const { data: insertDepartmentRes } = await useFetch(
         "/api/insert_department",
         {
@@ -1048,16 +1044,15 @@ const addPosition = async () => {
   let addedPosition = [];
 
   console.log(newPosition.value);
-  if (newPosition.value.length > 0) {
-    newPosition.value.forEach((newPos) => {
-      if (!positions.value.find((oldPos) => oldPos.user_position == newPos)) {
-        hasNewPosition = true;
-        positions.value.push({ user_position: newPos });
-        addedPosition.push(newPos);
-      } else {
-        existedPosition.push(newPos);
-      }
+  if (newPosition.value?.length > 0) {
+
+    addedPosition = newPosition.value.filter(newPos => {
+      return !positions.value.some(oldPos => oldPos.user_position == newPos)
     });
+
+    existedPosition = newPosition.value.filter(newPos => {
+      return positions.value.some(oldPos => oldPos.user_position == newPos)
+    })
 
     if (existedPosition.length > 0) {
       toast.add({
@@ -1067,7 +1062,11 @@ const addPosition = async () => {
         life: 5000,
       });
     }
-    if (hasNewPosition) {
+    if (addedPosition.length > 0) {
+      addedPosition = addedPosition.map(pos =>({
+        user_position: pos
+      }))
+      positions.value.push(...addedPosition)
       const { data: insertPositionRes } = await useFetch(
         "/api/insert_positions",
         {
