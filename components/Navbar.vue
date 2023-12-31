@@ -187,7 +187,7 @@
                 :pt="{
                   root: { style: 'box-shadow:none; border: none; padding:0;' },
                 }"
-                :disabled="!selectedGroupMember.length > 0"
+                :disabled="selectedGroupMember.length == 1"
                 @click="doneSelectGroupMember"
                 text
               >
@@ -839,6 +839,7 @@ const toggleChatPanel = (event) => {
 
 const openCreateGroupPanel = () => {
   selectedGroupMember.value = [user.value.id];
+  // selectedGroupMember.value.push(user.id)
   // selectedGroupMember.value.push(user.id)
   chatPanelState.value = "create_group";
   chatroomState.value = "home";
