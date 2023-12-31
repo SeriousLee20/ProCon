@@ -167,8 +167,6 @@ const selectedTask = ref();
 const groupedUsers = ref([]);
 const isAdmin = ref(false);
 const isEditTask = ref(false);
-const taskDueDatetime = ref();
-const taskUrgentDate = ref();
 const taskDialog = ref(false);
 const taskOptions = {
   importance: getSortOptions("importance"),
@@ -229,6 +227,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
         due_date: props.due_date ? new Date(props.due_date) : null,
         urgent_date: props.urgent_date ? new Date(props.urgent_date) : null,
         start_date: props.start_date ? new Date(props.start_date) : null,
+        start_date_time: props.start_date_time ? new Date(props.start_date_time) : null,
       };
 
       selectedTask.value = { ...props };
@@ -307,7 +306,7 @@ const updateTask = async () => {
     overviewTaskLists.value = sortTasks().taskList;
     sendNotification(
       "update_task",
-      `${dstore.selectedProject.name}: Task Updates`,
+      `${dstore.getProject(selectedTask.project_id).name}: Task Updates`,
       "Task Updates: " +
         selectedTask.value.task_name +
         (selectedTask.value.task_desc
