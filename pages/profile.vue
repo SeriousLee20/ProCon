@@ -7,9 +7,9 @@
     class="flex flex-column gap-5 align-items-center justify-content-center mt-3"
     style="font-family: sans-serif"
   >
-    <div class="flex">
-      <div class="text-gray-500">User ID:</div>
-      <div class="text-sm px-1 text-gray-500">{{ userId }}</div>
+    <div class="flex mb-2">
+      <div class="text-gray-300">User ID:</div>
+      <div class="text-sm px-1 text-gray-300">{{ userId }}</div>
       <div
         class="pi pi-copy text-gray-500 cursor-pointer"
         @click="copy(userId)"
