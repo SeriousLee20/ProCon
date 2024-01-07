@@ -54,7 +54,7 @@ import { useDateFormat } from "@vueuse/core";
 const { projectid } = useRoute().params;
 const dstore = useDataStore();
 dstore.setSelectedProject(projectid);
-dstore.setCurrentPage("");
+dstore.setCurrentPage("Gantt Chart");
 console.log("gantt proj id", projectid);
 
 const { data: getGanttDataRes } = await useFetch("/api/get_gantt_data", {

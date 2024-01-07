@@ -1138,7 +1138,7 @@ const switchPage = (routeName, pageName) => {
     );
   } else if (pageName == "Management" || pageName == "Gantt Chart") {
     navigateTo(routeName);
-    if(routeName != 'management'){
+    if(routeName != 'management' && routeName != 'ganttchart'){
       // create project
       // not redirect from management button
       const projectId = routeName.split("/")[0];
