@@ -24,11 +24,12 @@
                 },
                 input: {
                   class: 'text-sm font-bold',
-                  style: ' height:2.2rem; text-align:center; color:var(--primary-500);',
+                  style:
+                    ' height:2.2rem; text-align:center; color:var(--primary-500);',
                 },
-                trigger:{
-                  style:'color: var(--primary-500)'
-                }
+                trigger: {
+                  style: 'color: var(--primary-500)',
+                },
               }"
               class="min-w-full"
             >
@@ -343,14 +344,27 @@
                   </div>
                   <div class="flex align-items-end w-full p-2">
                     <!-- <Pfileupload /> -->
-                    <EmojiPicker
+
+                    <div class="text-2xl text-primary-700 flex align-self-center mr-2 cursor-pointer hover:text-primary-400" @click="showEmoji">☺︎</div>
+                      <EmojiPicker
+                        v-if="emojiPopup"
+                        appendTo="body"
+                        :native="true"
+                        class="mb-6"
+                        style="position: absolute;"
+                        @select="appendChatInput"
+                        @mouseleave="closeEmojiPopup"
+                      />
+                    <Ptextarea
+                      autoResize
+                      rows="1"
                       class="chat w-full"
-                      :native="true"
-                      v-model:text="chatInput"
-                      picker-type="input"
+                      type="text"
+                      v-model="chatInput"
                     />
+
                     <span
-                      class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer"
+                      class="pi pi-send flex align-self-center text-lg pl-2 cursor-pointer text-primary-700 hover:text-primary-400"
                       @click="insert_chatlog"
                     ></span>
                   </div>
@@ -613,7 +627,7 @@
           </template>
         </Pdialog>
         <Pbutton
-        class="shadow-none"
+          class="shadow-none"
           type="button"
           icon="pi pi-inbox"
           @click="toggleNotificationPanel"
@@ -738,6 +752,7 @@ const chatGroupDescription = ref();
 const selectedChatroom = ref();
 const chatroomState = ref("home");
 const collapseChatroom = ref(false);
+const emojiPopup = ref(false);
 // TODO: add notification list
 // TODO: add chat member list
 const { $listen, $emit } = useNuxtApp();
@@ -835,7 +850,7 @@ const toggle = (event) => {
 
 const toggleChatPanel = (event) => {
   chatPanel.value.toggle(event);
-  chatPanelState.value = 'home'
+  chatPanelState.value = "home";
 };
 
 const openCreateGroupPanel = () => {
@@ -906,6 +921,14 @@ const getChatList = async () => {
   chatlist.value = chatlistRes.value.response;
   console.log("chat", chatlistRes, chatlist.value);
 };
+
+const showEmoji = () => {
+  emojiPopup.value = true;
+};
+
+const closeEmojiPopup = () => {
+  emojiPopup.value = false;
+}
 
 const openChatRoom = (chatroom) => {
   chatDialog.value = true;
@@ -992,8 +1015,9 @@ const toggleChatroom = () => {
   collapseChatroom.value = !collapseChatroom.value;
 };
 
-function onSelectEmoji(emoji) {
+function appendChatInput(emoji) {
   console.log(emoji);
+  chatInput.value += emoji.i;
   /*
     // result
     {
@@ -1138,12 +1162,12 @@ const switchPage = (routeName, pageName) => {
     );
   } else if (pageName == "Management" || pageName == "Gantt Chart") {
     navigateTo(routeName);
-    if(routeName != 'management' && routeName != 'ganttchart'){
+    if (routeName != "management" && routeName != "ganttchart") {
       // create project
       // not redirect from management button
       const projectId = routeName.split("/")[0];
       console.log(projectId);
-      if(projectId){
+      if (projectId) {
         selectedProject.value = projectId;
       }
     }
@@ -1171,7 +1195,7 @@ const switchPage = (routeName, pageName) => {
     dstore.getCurrentPage != "Management";
   menuItems.value = configEditMenuList().editMenu;
   console.log(
-    'switch page',
+    "switch page",
     selectedProject.value,
     ddplaceholder.value,
     dstore.getCurrentPage
@@ -1201,7 +1225,7 @@ onNuxtReady(() => {
   $listen("refresh-navbar", (action) => {
     project.value = dstore.getAllProjects;
     selectedProject.value = dstore.getSelectedProject?.id;
-  })
+  });
 });
 
 watchEffect(() => {
