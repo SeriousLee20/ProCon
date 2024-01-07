@@ -771,8 +771,9 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
-          dept_abbr: string[]
+          dept_abbr: Json[]
           comments: Json
+          due: boolean
           project_id: string
         }[]
       }
@@ -1009,8 +1010,9 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
-          dept_abbr: string[]
+          dept_abbr: Json[]
           comments: Json
+          due: boolean
           project_id: string
         }[]
       }
@@ -1235,8 +1237,9 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
-          dept_abbr: string[]
+          dept_abbr: Json[]
           comments: Json
+          due: boolean
           project_id: string
         }[]
       }
@@ -1271,8 +1274,9 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
-          dept_abbr: string[]
+          dept_abbr: Json[]
           comments: Json
+          due: boolean
           project_id: string
         }[]
       }
@@ -1336,6 +1340,13 @@ export interface Database {
           gp_member_ids: string[]
           chat_target: Json
         }[]
+      }
+      quit_project: {
+        Args: {
+          n_project_id: string
+          n_user_id: string
+        }
+        Returns: number
       }
       update_dpt_resource: {
         Args: {
@@ -1457,8 +1468,9 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
-          dept_abbr: string[]
+          dept_abbr: Json[]
           comments: Json
+          due: boolean
           project_id: string
         }[]
       }

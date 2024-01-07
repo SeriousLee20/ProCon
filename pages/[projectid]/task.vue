@@ -137,7 +137,7 @@
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90 text-red-400 font-bold">IMPORTANT</div>
+            <div class="-rotate-90 text-red-500 font-bold">IMPORTANT</div>
           </div>
           <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
             <template #content>
@@ -167,7 +167,7 @@
             />
           </div>
           <div
-            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto text-red-400 font-bold"
+            class="col-5 bg-secondary h-2rem flex justify-content-center align-items-center flex-auto text-red-500 font-bold"
           >
             URGENT
           </div>
@@ -321,6 +321,7 @@ dstore.setCurrentPage("Task");
 
 const { $emit } = useNuxtApp();
 const toast = useToast();
+$emit('refresh-navbar')
 let announcements = [];
 // let filteredAnnouncements = [];
 let userOptions = [];

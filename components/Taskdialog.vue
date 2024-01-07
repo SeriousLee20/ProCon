@@ -31,6 +31,7 @@
         v-model="props.selectedTask.task_desc"
         class="h-15rem"
         @text-change="enableSave"
+        :readonly="!props.isAdmin"
       ></Peditor>
     </div>
 
@@ -107,6 +108,7 @@
           optionLabel="status_name"
           optionValue="status_code"
           class="w-12rem"
+          :disabled="!props.selectedTask.due_date_time || !props.isAdmin && !props.isTaskOwner "
           @update:model-value="enableSave"
         ></Pdropdown>
       </div>

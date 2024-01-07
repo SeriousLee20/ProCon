@@ -4,7 +4,7 @@
   <div id="member-table" class="m-2">
     <Pcard class="border-1 border-gray-200 h-25rem">
       <template #title>
-        <div class="flex justify-content-between">
+        <div class="flex justify-content-between align-items-center">
           <div class="flex flex-column mt-1 gap-1">
             <div>Management Board</div>
             <footer v-if="isAdmin" class="flex align-items-center">
@@ -97,7 +97,7 @@
                 text
                 v-tooltip.bottom="{
                   value: 'Dispose Project',
-                  pt: { text: 'bg-red-500 text-xs font-medium text-center', },
+                  pt: { text: 'bg-red-500 text-xs font-medium text-center' },
                 }"
               />
             </div>
@@ -132,6 +132,53 @@
                       severity="danger"
                       text
                       @click="confirmDeleteProject"
+                    />
+                  </div>
+                </div>
+              </template>
+            </Pdialog>
+          </div>
+          <div v-if="!isCreator">
+            <Pbutton
+              icon="pi pi-minus-circle"
+              severity="danger"
+              text
+              v-tooltip.bottom="{
+                  value: 'Quit Project',
+                  pt: { text: 'bg-red-500 text-xs font-medium text-center' },
+                }"
+                @click="quitProject"
+            />
+            <Pdialog
+              v-model:visible="quitProjectDialog"
+              :style="{ width: '28.5rem' }"
+              header="Confirm Quit Project"
+              :modal="true"
+              class="p-fluid"
+            >
+              <div>
+                <div class="text-md mb-3">
+                  You will no longer see any information about this project if you quit.
+                </div>
+                <div class="text-md font-bold text-red-500">
+                  Please think again.
+                </div>
+              </div>
+              <template #footer>
+                <div class="w-full flex justify-content-end">
+                  <div class="w-8">
+                    <Pbutton
+                      label="Cancel"
+                      icon="pi pi-times"
+                      text
+                      @click="quitProjectDialog = false"
+                    />
+                    <Pbutton
+                      label="Confirm"
+                      icon="pi pi-check"
+                      severity="danger"
+                      text
+                      @click="confirmQuitProject"
                     />
                   </div>
                 </div>
@@ -469,7 +516,7 @@
 
     <Pcard class="border-1 border-gray-200 mt-3 h-21rem">
       <template #title>
-        <div class="flex">
+        <div class="flex align-items-center mt-1">
           <div>Resource Links</div>
         </div>
       </template>
@@ -553,6 +600,7 @@ const { projectid } = useRoute().params;
 const { text, copy, copied, isSupported } = useClipboard();
 
 dstore.setManagementBoardByProject(projectid);
+const userId = dstore.getUserId;
 const guidePanel = ref(false);
 const board = ref();
 const positions = ref([]);
@@ -571,6 +619,7 @@ const departmentDialog = ref(false);
 const positionDialog = ref(false);
 const addMemberDialog = ref(false);
 const deleteProjectDialog = ref(false);
+const quitProjectDialog = ref(false);
 const editingResources = ref([]);
 const disableRole = ref(false);
 const boardMenu = ref();
@@ -684,6 +733,40 @@ const confirmDeleteProject = async () => {
   if (deleteProjectRes.value?.success) {
     board.value = null;
     console.log("deletedpt", board.value);
+    $emit("switch-page", {
+      routeName: `/overview`,
+      pageName: "Overview",
+    });
+  }
+};
+
+const quitProject = (event) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: "Quit this project?",
+    icon: "pi pi-info-circle",
+    acceptClass: "p-button-danger",
+    accept: async () => {
+      quitProjectDialog.value = true;
+    },
+    reject: () => {},
+  });
+};
+
+const confirmQuitProject = async () => {
+  const { data: quitProjectRes } = await useFetch("/api/quit_project", {
+    method: "POST",
+    body: {
+      project_id: projectid,
+      user_id: userId
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+  console.log("quitprojres", quitProjectRes);
+
+  if (quitProjectRes.value?.success) {
+    board.value = null;
+    console.log("quitproj", board.value);
     $emit("switch-page", {
       routeName: `/overview`,
       pageName: "Overview",
@@ -1371,7 +1454,7 @@ const steps = [
 
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("Management");
-$emit('refresh-navbar');
+$emit("refresh-project-list");
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],

@@ -31,6 +31,7 @@
                   rounded
                   icon="pi pi-stopwatch"
                   class="max-h-1rem font-normal"
+                  :class="{'bg-red-500': item.due}"
                 />
                 <Ptag
                   v-if="item.importance == 1"

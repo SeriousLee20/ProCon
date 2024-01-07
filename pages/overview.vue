@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="flex justify-content-end gap-4 vertical-align-middle py-2 w-full"
+      class="flex justify-content-end gap-4 vertical-align-middle py-2 w-full pr-2"
     >
       <Showcompleted
         :showCompleted="showCompletedTask"
@@ -21,7 +21,7 @@
         :boardName="'overview'"
       />
     </div>
-    <div class="flex justify-content-between p-2 overflow-x-auto">
+    <div class="flex gap-2 p-2 overflow-x-auto">
       <div v-for="list in overviewTaskLists" class="w-12 px-2" style="max-width: 30rem;">
         <div class="font-semibold text-lg bg-white pb-3">
           {{ list.project_name }}

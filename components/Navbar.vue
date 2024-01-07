@@ -1244,6 +1244,8 @@ onNuxtReady(() => {
   $listen("refresh-navbar", (action) => {
     project.value = dstore.getAllProjects;
     selectedProject.value = dstore.getSelectedProject?.id;
+    getNotification();
+    getChatList();
   });
 });
 

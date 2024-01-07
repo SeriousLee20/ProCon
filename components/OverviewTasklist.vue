@@ -32,6 +32,7 @@
                   rounded
                   icon="pi pi-stopwatch"
                   class="max-h-1rem"
+                  :class="{'bg-red-500': item.due}"
                 />
 
                 <Ptag
