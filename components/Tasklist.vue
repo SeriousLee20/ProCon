@@ -60,8 +60,7 @@
 
 <script setup>
 const props = defineProps(["taskList", "pt"]);
-console.log("tasklist", props.taskList, props.taskList.length);
-const showList = ref(props.taskList.length > 0);
+console.log("tasklist", props.taskList, props.taskList?.length);
 
 const formatDate = (dateString) => {
   const formattedDate = useDateFormat(dateString, "MMM DD, YYYY HH:mm", {

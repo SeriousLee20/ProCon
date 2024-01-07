@@ -63,13 +63,13 @@ const userId = dstore.getUserId;
 const projectid = ref(dstore.getSelectedProject?.id);
 const { data: parameters } = await useFetch("/api/get_parameters");
 
-var { data: filters } = await useFetch("/api/get_filters");
+// var { data: filters } = await useFetch("/api/get_filters");
 var { data: projectMemberAndTaskRes } = await useFetch(
   "/api/get_management_boards"
 );
-
+const filters = dstore.getFilters;
 const projectMember = projectMemberAndTaskRes.value.response;
-// TODO: ***add new api, return grouped members for all project
+$emit('refresh-project-list');
 // TODO: new api, return project with sorted tasklist
 console.log("ov param", parameters.value.response);
 console.log(

@@ -71,7 +71,7 @@
                 v-model="filterTaskDueDateRange"
                 selectionMode="range"
                 dateFormat="M dd, y"
-                placeholder="Filter Due Date(s)"
+                placeholder="No Due Dates"
                 :hideOnRangeSelection="true"
                 class="min-w-max"
                 showButtonBar
@@ -308,7 +308,6 @@ const userId = dstore.getUserId;
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("Task");
 
-const emit = defineEmits(["refresh-notification"]);
 const { $emit } = useNuxtApp();
 const toast = useToast();
 let announcements = [];
@@ -456,14 +455,14 @@ const getDefaultDueDateRange = (isClearClick) => {
 
   console.log("initial daterange", dateRange);
 
-  let due_date_list = temp_list.reduce((result, task) => {
+  let due_date_list = temp_list?.reduce((result, task) => {
     if (task.due_date) {
       result.push(new Date(task.due_date));
     }
     return result;
   }, []);
 
-  if (due_date_list.length == 0) {
+  if (due_date_list?.length == 0 || !due_date_list) {
     filterTaskDueDateRange.value = [...dateRange];
     disableDateFilter.value = true;
     return { dateRange };
@@ -497,7 +496,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
   )[0]?.col;
 
   // convert date time field to date object
-  filteredList = filteredList.map((task) => ({
+  filteredList = filteredList?.map((task) => ({
     ...task,
     urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
     due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
@@ -511,19 +510,19 @@ const sortList = (filteredList, listName, sortOptionName) => {
   // filter show completed
   filteredList = filter.show_completed
     ? filteredList
-    : filteredList.filter((item) => item.status_name != "Completed");
+    : filteredList?.filter((item) => item.status_name != "Completed");
 
   // sort list
   filteredList =
     sortOption == "importance_rate"
-      ? filteredList.sort((t1, t2) =>
+      ? filteredList?.sort((t1, t2) =>
           t1[sortOption] < t2[sortOption]
             ? 1
             : t1[sortOption] > t2[sortOption]
             ? -1
             : 0
         )
-      : filteredList.sort((t1, t2) =>
+      : filteredList?.sort((t1, t2) =>
           t1[sortOption] > t2[sortOption]
             ? 1
             : t1[sortOption] < t2[sortOption]
@@ -555,7 +554,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     console.log("filter", filteredList, dateRange);
 
     // TODO: show task w/o due date?
-    filteredList = filteredList.filter((task) => {
+    filteredList = filteredList?.filter((task) => {
       return (
         !task?.due_date ||
         (task?.due_date >= dateRange[0] && task?.due_date <= dateRange[1])
@@ -564,12 +563,12 @@ const sortList = (filteredList, listName, sortOptionName) => {
     console.log("filterlist2", filteredList);
 
     filteredList = filter.show_my_task_only
-      ? filteredList.filter((task) => task.owner_ids?.includes(userId))
+      ? filteredList?.filter((task) => task.owner_ids?.includes(userId))
       : filteredList;
 
     console.log(mainTaskList.value);
     let tempTaskList = { q1: [], q2: [], q3: [], q4: [] };
-    filteredList.forEach((task) => {
+    filteredList?.forEach((task) => {
       // urgent
       if (task.urgent_date && task.urgent_date <= today) {
         if (task.importance == 1) {
@@ -595,26 +594,26 @@ const sortList = (filteredList, listName, sortOptionName) => {
 };
 
 const getMainTaskList = () => {
-  const filteredList = sortList(
-    tasks,
-    "main_task",
-    "main_task_sort_option"
-  );
-  console.log("daterange", filterTaskDueDateRange.value);
-  console.log(filteredList);
+    const filteredList = sortList(
+      tasks,
+      "main_task",
+      "main_task_sort_option"
+    );
+    console.log("daterange", filterTaskDueDateRange.value);
+    console.log(filteredList);
 
-  return { filteredList };
+    return { filteredList };
 };
 getMainTaskList();
 
 const getMyTaskList = () => {
-  var filteredList = tasks.filter((task) =>
-    task.owner_ids?.includes(userId)
-  );
+    var filteredList = tasks?.filter((task) =>
+      task.owner_ids?.includes(userId)
+    );
 
-  filteredList = sortList(filteredList, "my_task", "sort_option");
-  console.log("sort", filteredList);
-  return { filteredList };
+    filteredList = sortList(filteredList, "my_task", "sort_option");
+    console.log("sort", filteredList);
+    return { filteredList };
 };
 myTaskList.value = getMyTaskList().filteredList;
 
