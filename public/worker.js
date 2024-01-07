@@ -19,7 +19,7 @@ self.addEventListener(
 const handleInserts = async (payload) => {
   console.log(userId);
   console.log(payload.new);
-  let index = payload.new.target.indexOf(userId);
+  let index = payload.new.target?.indexOf(userId);
 
   console.log(index)
   if (index > -1) {

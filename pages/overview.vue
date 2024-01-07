@@ -44,6 +44,7 @@
       @update-task="updateTask()"
       @close-task-dialog="toggleTaskDialog(null, false)"
       @delete-task="deleteTask"
+      @add-comment="insertComment"
     />
   </div>
 </template>
@@ -165,6 +166,7 @@ const overviewSortOptions = getSortOptions("sort_option");
 const selectedTask = ref();
 const groupedUsers = ref([]);
 const isAdmin = ref(false);
+const isTaskOwner = ref();
 const isEditTask = ref(false);
 const taskDialog = ref(false);
 const taskOptions = {
@@ -216,6 +218,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
 
   // TODO: get members for all projects (param: list of projectid)
   if (!taskDialog.value) {
+    isTaskOwner.value = props.owner_ids?.includes(userId);
     groupedUsers.value = projectMember.filter(
       (project) => (project.project_id = props.project_id)
     )[0].grouped_members;
@@ -370,6 +373,59 @@ const deleteTask = async () => {
     );
   }
 };
+
+const insertComment = async (event) => {
+  console.log("comment", event);
+  const { data: insertCommentRes } = await useFetch(
+    "/api/insert_task_comment_from_ov",
+    {
+      method: "POST",
+      body: {
+        task_id: event.task_id,
+        sender_id: userId,
+        content: event.comment,
+        project_id: selectedTask.value.project_id,
+        page: 'overview'
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
+
+  if (insertCommentRes.value?.success) {
+    projectMemberAndTaskRes = insertCommentRes;
+    overviewTaskLists.value = sortTasks().taskList;
+    let taskList = overviewTaskLists.value.filter((project) => {
+      return project.project_id == selectedTask.value.project_id;
+    })[0].tasks;
+
+    let updateSelectedTask = taskList.filter(task => {
+      return task.task_id = event.task_id
+    });
+
+    updateSelectedTask = updateSelectedTask?.map((task) => ({
+      ...task,
+      urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
+      due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
+      due_date: task?.due_date ? new Date(task?.due_date) : null,
+      start_date_time: task?.start_date_time
+        ? new Date(task?.start_date_time)
+        : null,
+      start_date: task?.start_date ? new Date(task?.start_date) : null,
+    }));
+    selectedTask.value = updateSelectedTask[0];
+
+    let projectInfo = dstore.getProject(selectedTask.value.project_id);
+    sendNotification(
+      "Task Comment",
+      `${projectInfo.name}: Task Comment`,
+      `Task Comment for ${selectedTask.value.task_name}: ${event.content}`,
+      selectedTask.value.owner_ids,
+      projectInfo.telegram_chat_id
+    );
+  }
+  console.log("insertcomment", projectMemberAndTaskRes.value, selectedTask.value);
+};
+
 // const groupMember = projectMember.reduce((result, item) => {
 //   const department = item.user_department;
 

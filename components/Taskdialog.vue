@@ -65,7 +65,7 @@
           :min="props.selectedTask.start_date_time"
           :overlayVisible="true"
           :selectOtherMonths="true"
-          :disabled="!props.isAdmin || disableDueDate"
+          :disabled="!props.isAdmin || disableDueDate || !props.selectedTask.start_date_time"
           aria-labelledby="invalid-due-date"
           @hide="checkValidDates($event)"
           @update:model-value="enableSave"
@@ -86,7 +86,7 @@
           dateFormat="M dd, yy"
           :maxDate="props.selectedTask.due_date_time"
           :selectOtherMonths="true"
-          :disabled="!props.isAdmin || disableUrgentDate"
+          :disabled="!props.isAdmin || disableUrgentDate || !props.selectedTask.due_date_time"
           showButtonBar
           @hide="checkValidDates"
           @update:model-value="enableSave"
@@ -165,6 +165,29 @@
         </template>
       </Pmultiselect>
     </div>
+    <div v-if="props.isEditTask">
+      <div class="flex gap-2 align-items-center  my-3 border-bottom-1 border-gray-200">
+
+        <div class="text-lg font-bold">
+          Comments
+        </div>
+        <div class="text-sm text-gray-200">Only Assignees/Admins can post comment.</div>
+      </div>
+      <div v-for="comment in props.selectedTask.comments">
+        <div class="mb-2">
+          <div class="flex gap-1 align-items-center">
+
+            <div class="font-bold text-sm">{{ comment.sender_name }}</div>
+            <div class="text-xs">{{ formatDate(comment.created_at) }}</div>
+          </div>
+          <div>{{ comment.content }}</div>
+        </div>
+      </div>
+      <div v-if="props.isTaskOwner || props.isAdmin" class="flex border-top-1 border-gray-200 pt-3 mt-3">
+        <Pinputtext v-model="comment" />
+        <Pbutton label="Post Comment" size="small" class="w-10rem text-xs" text @click="addComment"/>
+      </div>
+    </div>
     <template #footer>
       <div class="w-full flex justify-content-between align-items-end">
         <div class="w-full text-left footnote text-xs text-gray-300" v-if="props.isEditTask">
@@ -224,6 +247,7 @@ const props = defineProps({
   taskOptions: {},
   isEditTask: {},
   isAdmin: {},
+  isTaskOwner: {}
 });
 
 // const taskDialogRef = toRef(props, "taskDialog");
@@ -240,6 +264,7 @@ const invalidUrgentDateMessage = ref();
 const disableDueDate = ref(false);
 const disableUrgentDate = ref(false);
 const enableSaveButton = ref(false);
+const comment = ref();
 
 console.log("dialog", isEditTask, props.taskDialog);
 
@@ -314,7 +339,13 @@ const emit = defineEmits([
   "update-task",
   "insert-task",
   "delete-task",
+  "add-comment"
 ]);
+
+const addComment = () => {
+  emit("add-comment", {task_id:props.selectedTask.task_id, comment:comment.value})
+  comment.value = null;
+}
 
 const closeTaskDialog = () => {
   enableSaveButton.value = false;

@@ -253,10 +253,12 @@
                 :taskOptions="taskOptions"
                 :isEditTask="isEditTask"
                 :isAdmin="isAdmin"
+                :isTaskOwner="isTaskOwner"
                 @update-task="updateTask()"
                 @insert-task="insertTask()"
                 @close-task-dialog="toggleTaskDialog(null, false)"
                 @delete-task="deleteTask"
+                @add-comment="insertComment($event)"
               />
             </template>
           </Pcard>
@@ -373,6 +375,7 @@ const myTaskSortOptions = getSortOptions("sort_option");
 const mainTaskSortOptions = getSortOptions("main_task_sort_option");
 const taskDialog = ref(false);
 const isEditTask = ref(false);
+const isTaskOwner = ref(false);
 const selectedTask = ref();
 const filterTaskDueDateRange = ref();
 const disableDateFilter = ref(false);
@@ -624,9 +627,10 @@ const getMyTaskList = () => {
 
   filteredList = sortList(filteredList, "my_task", "sort_option");
   console.log("sort", filteredList);
+  myTaskList.value = filteredList;
   return { filteredList };
 };
-myTaskList.value = getMyTaskList().filteredList;
+getMyTaskList();
 
 const toggleTaskDialog = (props, isToEditTask) => {
   console.log("edit", props, taskDialog);
@@ -635,6 +639,7 @@ const toggleTaskDialog = (props, isToEditTask) => {
   console.log(taskDialog.value, isToEditTask);
   if (!taskDialog.value) {
     if (isToEditTask) {
+      isTaskOwner.value = props.owner_ids?.includes(userId);
       selectedTask.value = { ...props };
       // taskDueDatetime.value = props.items[0].due_date_time
       //   ? new Date(props.items[0].due_date_time)
@@ -678,7 +683,7 @@ const updateFilter = async (filterName, filterValue, boardName) => {
 
   switch (boardName) {
     case "my_task":
-      myTaskList.value = getMyTaskList().filteredList;
+      getMyTaskList();
       break;
 
     case "main_task":
@@ -709,7 +714,7 @@ const updateTask = async () => {
 
   if (updateTaskRes.value.success) {
     tasks = updateTaskRes.value.response;
-    myTaskList.value = getMyTaskList().filteredList;
+    getMyTaskList();
     getMainTaskList();
     let target = selectedTask.value.owner_ids
       ? selectedTask.value.owner_ids.filter((id) => {
@@ -749,7 +754,9 @@ const sendNotification = async (
       content: content,
       target: target,
       project_id: projectid,
-      telegram_chat_id: pushTelegramNoti ? selectedProject.telegram_chat_id : null,
+      telegram_chat_id: pushTelegramNoti
+        ? selectedProject.telegram_chat_id
+        : null,
     },
     headers: { "cache-control": "no-cache" },
   });
@@ -786,7 +793,7 @@ const insertTask = async () => {
 
   if (insertTaskRes.value.success) {
     tasks = insertTaskRes.value.response;
-    myTaskList.value = getMyTaskList().filteredList;
+    getMyTaskList();
     getMainTaskList();
 
     let target = selectedTask.value.owner_ids
@@ -823,7 +830,7 @@ const deleteTask = async () => {
   console.log("dlt task", deleteTask.value, selectedTask.value);
   if (deleteTask.value.success) {
     tasks = deleteTask.value.response;
-    myTaskList.value = getMyTaskList().filteredList;
+    getMyTaskList();
     getMainTaskList();
 
     let target = selectedTask.value.owner_ids
@@ -843,6 +850,54 @@ const deleteTask = async () => {
       true
     );
   }
+};
+
+const insertComment = async (event) => {
+  console.log("comment", event);
+  const { data: insertCommentRes } = await useFetch(
+    "/api/insert_task_comment",
+    {
+      method: "POST",
+      body: {
+        task_id: event.task_id,
+        sender_id: userId,
+        content: event.comment,
+        project_id: projectid,
+        page: 'task'
+      },
+      headers: { "cache-control": "no-cache" },
+    }
+  );
+
+  if (insertCommentRes.value?.success) {
+    tasks.value = insertCommentRes.value.response;
+    getMainTaskList();
+    getMyTaskList();
+    let updateSelectedTask = tasks.value.filter((task) => {
+      return task.task_id == event.task_id;
+    });
+
+    updateSelectedTask = updateSelectedTask?.map((task) => ({
+      ...task,
+      urgent_date: task?.urgent_date ? new Date(task?.urgent_date) : null,
+      due_date_time: task?.due_date_time ? new Date(task?.due_date_time) : null,
+      due_date: task?.due_date ? new Date(task?.due_date) : null,
+      start_date_time: task?.start_date_time
+        ? new Date(task?.start_date_time)
+        : null,
+      start_date: task?.start_date ? new Date(task?.start_date) : null,
+    }));
+    selectedTask.value = updateSelectedTask[0];
+
+    sendNotification(
+      "Task Comment",
+      `${dstore.selectedProject.name}: Task Comment`,
+      `Task Comment for ${selectedTask.value.task_name}: ${event.content}`,
+      selectedTask.value.owner_ids,
+      true
+    );
+  }
+  console.log("insertcomment", tasks.value, selectedTask.value);
 };
 
 const openAnnouncementDialog = (props) => {

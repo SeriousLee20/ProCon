@@ -120,6 +120,12 @@ export const useDataStore = defineStore("data", {
         this.user['has_profile_photo'] = has as any as boolean;
       }
     },
+    setTaskListByProjectId(taskList: JSON, projectId: string){
+      this.projects = this.projects?.map(project => {
+        project.task_list = project.id == projectId ? taskList : project.task_list
+      }) as any as Project[];
+
+    },
     clearData() {
       this.user = null;
       this.projects = null;

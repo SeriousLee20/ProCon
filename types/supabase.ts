@@ -531,6 +531,45 @@ export interface Database {
           }
         ]
       }
+      task_comments: {
+        Row: {
+          comment_id: string
+          content: string | null
+          created_at: string
+          sender_id: string | null
+          task_id: string | null
+        }
+        Insert: {
+          comment_id?: string
+          content?: string | null
+          created_at?: string
+          sender_id?: string | null
+          task_id?: string | null
+        }
+        Update: {
+          comment_id?: string
+          content?: string | null
+          created_at?: string
+          sender_id?: string | null
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "task"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       task_status: {
         Row: {
           created_at: string
@@ -733,6 +772,7 @@ export interface Database {
           status_icon: string
           status_severity: string
           dept_abbr: string[]
+          comments: Json
           project_id: string
         }[]
       }
@@ -970,6 +1010,7 @@ export interface Database {
           status_icon: string
           status_severity: string
           dept_abbr: string[]
+          comments: Json
           project_id: string
         }[]
       }
@@ -1195,7 +1236,63 @@ export interface Database {
           status_icon: string
           status_severity: string
           dept_abbr: string[]
+          comments: Json
           project_id: string
+        }[]
+      }
+      insert_task_comment: {
+        Args: {
+          n_sender_id: string
+          n_task_id: string
+          n_content: string
+          n_project_id: string
+        }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creator_name: string
+          creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
+          owner_ids: string[]
+          status_name: string
+          status_code: number
+          start_date_time: string
+          start_date: string
+          due_date_time: string
+          due_date: string
+          urgent_date: string
+          importance: number
+          importance_desc: string
+          importance_rate: number
+          owner_info: Json
+          status_icon: string
+          status_severity: string
+          dept_abbr: string[]
+          comments: Json
+          project_id: string
+        }[]
+      }
+      insert_task_comment_from_ov: {
+        Args: {
+          n_sender_id: string
+          n_task_id: string
+          n_content: string
+          n_project_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          role: string
+          description: string
+          creator_id: string
+          telegram_chat_id: string
+          grouped_members: Json
+          task_list: Json
+          user_id: string
         }[]
       }
       map_user_project: {
@@ -1361,6 +1458,7 @@ export interface Database {
           status_icon: string
           status_severity: string
           dept_abbr: string[]
+          comments: Json
           project_id: string
         }[]
       }
@@ -1535,7 +1633,7 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "objects_bucketId_fkey"
+            foreignKeyName: "objects_bucket_id_fkey"
             columns: ["bucket_id"]
             isOneToOne: false
             referencedRelation: "buckets"
