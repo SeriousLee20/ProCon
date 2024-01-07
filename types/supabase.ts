@@ -564,6 +564,7 @@ export interface Database {
           created_at: string | null
           email: string
           end_working_hour: string | null
+          has_profile_photo: boolean | null
           id: string
           name: string | null
           start_working_hour: string | null
@@ -573,6 +574,7 @@ export interface Database {
           created_at?: string | null
           email?: string
           end_working_hour?: string | null
+          has_profile_photo?: boolean | null
           id?: string
           name?: string | null
           start_working_hour?: string | null
@@ -582,6 +584,7 @@ export interface Database {
           created_at?: string | null
           email?: string
           end_working_hour?: string | null
+          has_profile_photo?: boolean | null
           id?: string
           name?: string | null
           start_working_hour?: string | null
@@ -1029,6 +1032,7 @@ export interface Database {
           created_at: string | null
           email: string
           end_working_hour: string | null
+          has_profile_photo: boolean | null
           id: string
           name: string | null
           start_working_hour: string | null
@@ -1280,6 +1284,12 @@ export interface Database {
           chat_target: Json
         }[]
       }
+      update_profile_photo_status: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: undefined
+      }
       update_project: {
         Args: {
           n_user_id: string
@@ -1392,6 +1402,12 @@ export interface Database {
           n_end_working_hour: string
         }
         Returns: Record<string, unknown>
+      }
+      upload_profile_photo: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
