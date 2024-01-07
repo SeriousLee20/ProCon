@@ -1,50 +1,25 @@
 <template>
   <div>
-    <div
-      class="flex justify-content-end gap-4 vertical-align-middle py-2 w-full"
-    >
-      <Showcompleted
-        :showCompleted="showCompletedTask"
-        :handler="toggleTaskShowCompleted"
-      />
+    <div class="flex justify-content-end gap-4 vertical-align-middle py-2 w-full">
+      <Showcompleted :showCompleted="showCompletedTask" :handler="toggleTaskShowCompleted" />
 
-      <Showmytask
-        :showMyTaskOnly="showMyTaskOnly"
-        :handler="toggleShowMyTaskOnly"
-      />
+      <Showmytask :showMyTaskOnly="showMyTaskOnly" :handler="toggleShowMyTaskOnly" />
 
-      <Sortoption
-        :sortOptions="overviewSortOptions"
-        v-model="overviewSortOption"
-        :handler="updateSortOption"
-        :filterName="'sort_option'"
-        :boardName="'overview'"
-      />
+      <Sortoption :sortOptions="overviewSortOptions" v-model="overviewSortOption" :handler="updateSortOption"
+        :filterName="'sort_option'" :boardName="'overview'" />
     </div>
-    <div class="flex justify-content-between p-2">
-      <div v-for="list in overviewTaskLists" class="w-12 px-2">
+    <div class="flex justify-content-start p-2 overflow-x-auto">
+      <div v-for="list in overviewTaskLists" class="px-2" style="min-width: 30rem;">
         <div class="font-semibold text-lg bg-white pb-3">
           {{ list.project_name }}
         </div>
-        <OverviewTasklist
-          :taskList="list.tasks"
-          :pt="{ content: { class: 'p-0' }, column: { class: 'border-none' } }"
-          @open-ov-task-dialog="toggleTaskDialog($event, true)"
-        />
+        <OverviewTasklist :taskList="list.tasks" :pt="{ content: { class: 'p-0' }, column: { class: 'border-none' } }"
+          @open-ov-task-dialog="toggleTaskDialog($event, true)" />
       </div>
     </div>
-    <Taskdialog
-      v-model:visible="taskDialog"
-      :taskDialog="taskDialog"
-      :selectedTask="selectedTask"
-      :groupedUsers="groupedUsers"
-      :taskOptions="taskOptions"
-      :isEditTask="isEditTask"
-      :isAdmin="isAdmin"
-      @update-task="updateTask()"
-      @close-task-dialog="toggleTaskDialog(null, false)"
-      @delete-task="deleteTask"
-    />
+    <Taskdialog v-model:visible="taskDialog" :taskDialog="taskDialog" :selectedTask="selectedTask"
+      :groupedUsers="groupedUsers" :taskOptions="taskOptions" :isEditTask="isEditTask" :isAdmin="isAdmin"
+      @update-task="updateTask()" @close-task-dialog="toggleTaskDialog(null, false)" @delete-task="deleteTask" />
   </div>
 </template>
 
@@ -127,26 +102,26 @@ const sortTasks = () => {
     list.tasks =
       sortOption == "due_date_time"
         ? list.tasks?.sort((t1, t2) =>
-            new Date(t1[sortOption]) < new Date(t2[sortOption])
-              ? 1
-              : new Date(t1[sortOption]) > new Date(t2[sortOption])
+          new Date(t1[sortOption]) < new Date(t2[sortOption])
+            ? 1
+            : new Date(t1[sortOption]) > new Date(t2[sortOption])
               ? -1
               : 0
-          )
+        )
         : "importance_rate"
-        ? list.tasks?.sort((t1, t2) =>
+          ? list.tasks?.sort((t1, t2) =>
             t1[sortOption] < t2[sortOption]
               ? 1
               : t1[sortOption] > t2[sortOption]
-              ? -1
-              : 0
+                ? -1
+                : 0
           )
-        : list.tasks?.sort((t1, t2) =>
+          : list.tasks?.sort((t1, t2) =>
             t1[sortOption] > t2[sortOption]
               ? 1
               : t1[sortOption] < t2[sortOption]
-              ? -1
-              : 0
+                ? -1
+                : 0
           );
 
     list.tasks = list.tasks ? list.tasks : [];
@@ -312,17 +287,17 @@ const updateTask = async () => {
     overviewTaskLists.value = sortTasks().taskList;
     let target = selectedTask.value.owner_ids
       ? selectedTask.value.owner_ids.filter((id) => {
-          return id != userId;
-        })
+        return id != userId;
+      })
       : [];
     sendNotification(
       "update_task",
       `${projectInfo?.name}: Task Updates`,
       "Task Updates: " +
-        selectedTask.value.task_name +
-        (selectedTask.value.task_desc
-          ? " - " + formatNotification(selectedTask.value.task_desc)
-          : ""),
+      selectedTask.value.task_name +
+      (selectedTask.value.task_desc
+        ? " - " + formatNotification(selectedTask.value.task_desc)
+        : ""),
       target,
       projectInfo?.telegram_chat_id
     );
@@ -354,17 +329,17 @@ const deleteTask = async () => {
     let projectInfo = dstore.getProject(selectedTask.value.project_id);
     let target = selectedTask.value.owner_ids
       ? selectedTask.value.owner_ids.filter((id) => {
-          return id != userId;
-        })
+        return id != userId;
+      })
       : [];
     sendNotification(
       "delete_task",
       `${projectInfo.name}: Deleted Task`,
       "Deleted task: " +
-        selectedTask.value.task_name +
-        (selectedTask.value.task_desc
-          ? " - " + formatNotification(selectedTask.value.task_desc)
-          : ""),
+      selectedTask.value.task_name +
+      (selectedTask.value.task_desc
+        ? " - " + formatNotification(selectedTask.value.task_desc)
+        : ""),
       target,
       projectInfo.telegram_chat_id
     );
