@@ -57,50 +57,59 @@
           <div
             class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-1"
           >
-            <div class="flex align-items-center">
-              <div class="text-sm text-primary-500 pl-2">Due Date:</div>
-              <Pcalendar
-                :disabled="disableDateFilter"
-                :pt="{
-                  input: {
-                    style:
-                      'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem',
-                  },
-                }"
-                id="filter-task-duedate-range"
-                v-model="filterTaskDueDateRange"
-                selectionMode="range"
-                dateFormat="M dd, y"
-                placeholder="No Due Dates"
-                :hideOnRangeSelection="true"
-                class="min-w-max"
-                showButtonBar
-                @clear-click="getDefaultDueDateRange(true)"
-                @hide="
-                  updateFilter(
-                    'due_date_range',
-                    filterTaskDueDateRange,
-                    'main_task'
-                  )
-                "
+            <div class="flex gap-1">
+              <div class="flex align-items-center">
+                <div class="text-xs text-primary-500 pl-3">Due Date:</div>
+                <Pcalendar
+                  :disabled="disableDateFilter"
+                  :pt="{
+                    class: 'text-xs',
+                    input: {
+                      style:
+                        'box-shadow:none; border: none; color:var(--primary-500);  font-size:0.75rem',
+                    },
+                  }"
+                  id="filter-task-duedate-range"
+                  v-model="filterTaskDueDateRange"
+                  selectionMode="range"
+                  dateFormat="M dd, y"
+                  placeholder="No Due Dates"
+                  :hideOnRangeSelection="true"
+                  class="min-w-max"
+                  showButtonBar
+                  @clear-click="getDefaultDueDateRange(true)"
+                  @hide="
+                    updateFilter(
+                      'due_date_range',
+                      filterTaskDueDateRange,
+                      'main_task'
+                    )
+                  "
+                />
+              </div>
+              <!-- sort by importance rate, status -->
+              <Sortoption
+                :sort-options="mainTaskSortOptions"
+                v-model="mainTaskSortOption"
+                :handler="updateFilter"
+                :filterName="'sort_option'"
+                :boardName="'main_task'"
               />
             </div>
-            <!-- sort by importance rate, status -->
-            <Sortoption
-              :sort-options="mainTaskSortOptions"
-              v-model="mainTaskSortOption"
-              :handler="updateFilter"
-              :filterName="'sort_option'"
-              :boardName="'main_task'"
-            />
-            <Showcompleted
-              :showCompleted="taskShowCompleted"
-              :handler="toggleTaskShowCompleted"
-            />
-            <Showmytask
-              :showMyTaskOnly="mainShowMyTaskOnly"
-              :handler="toggleShowMyTaskOnly"
-            />
+            <div class="flex gap-1">
+              <ShowUnscheduled
+                :showCompleted="taskShowUnscheduled"
+                :handler="toggleTaskShowUnscheduled"
+              />
+              <Showcompleted
+                :showCompleted="taskShowCompleted"
+                :handler="toggleTaskShowCompleted"
+              />
+              <Showmytask
+                :showMyTaskOnly="mainShowMyTaskOnly"
+                :handler="toggleShowMyTaskOnly"
+              />
+            </div>
           </div>
 
           <!-- <div class="flex gap-5">
@@ -205,10 +214,7 @@
             class="border-round border-primary-500 border-2 bg-white w-full mb-2 h-24rem"
           >
             <template #title>
-              <div class="text-center">
-                <h5>My Tasks</h5>
-              </div>
-              <div class="grid justify-content-between -mt-5">
+              <div class="grid justify-content-between -mt-2 pb-0">
                 <div
                   class="col-4 flex align-items-center justify-content-start"
                 >
@@ -216,6 +222,9 @@
                     :showCompleted="myTaskShowCompleted"
                     :handler="toggleMyTaskShowCompleted"
                   />
+                </div>
+                <div class="text-center">
+                  <h5>My Tasks</h5>
                 </div>
 
                 <div class="col-4 flex justify-content-end align-items-center">
@@ -378,6 +387,9 @@ const myTaskShowCompleted = ref(getFilter("my_task").thisFilter.show_completed);
 const taskShowCompleted = ref(
   getFilter("main_task").thisFilter?.show_completed
 );
+const taskShowUnscheduled = ref(
+  getFilter("main_task").thisFilter.show_unscheduled
+);
 // const projectMember = groupedUsers.value;
 const isOpenAnnouncementModal = ref(false);
 const announcementDialog = ref(false);
@@ -447,6 +459,11 @@ const toggleTaskShowCompleted = () => {
 const toggleMyTaskShowCompleted = () => {
   myTaskShowCompleted.value = !myTaskShowCompleted.value;
   updateFilter("show_completed", myTaskShowCompleted.value, "my_task");
+};
+
+const toggleTaskShowUnscheduled = () => {
+  taskShowUnscheduled.value = !taskShowUnscheduled.value;
+  updateFilter("show_unscheduled", taskShowUnscheduled.value, "main_task");
 };
 
 const getDefaultDueDateRange = (isClearClick) => {
@@ -556,7 +573,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
     // TODO: show task w/o due date?
     filteredList = filteredList?.filter((task) => {
       return (
-        !task?.due_date ||
+        (filter.show_unscheduled && !task?.due_date) ||
         (task?.due_date >= dateRange[0] && task?.due_date <= dateRange[1])
       );
     });

@@ -1,13 +1,26 @@
 <template>
   <Pdropdown
-  :pt="{ input: { style: 'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem' } }"
+    :pt="{
+      input: {
+        class:'text-xs flex align-self-center',
+        style:
+          'box-shadow:none; border: none; color:var(--primary-500);',
+      },
+      trigger:{
+        class:'text-xs flex align-self-center',
+        style:'display:none; width: 0.8rem; height:0.8rem;'
+      }
+    }"
     style="box-shadow: none; border: none"
     :options="props.sortOptions"
     optionLabel="desc"
     optionValue="id"
     @change="handler(filterName, $event.value, boardName)"
-    class="w-12rem"
-  />
+    class="w-9rem"
+  >
+  <tempate #dropdownicon>
+  </tempate>
+  </Pdropdown>
 </template>
 
 <script setup>
