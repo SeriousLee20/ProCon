@@ -2,7 +2,7 @@
   <Pavatar v-if="!props.hasProfile" class="profile" icon="pi pi-user" shape="circle" :pt="{
     icon: { style: 'font-size: 2.563rem' },
   }" />
-  <Pavatar v-if="props.hasProfile" class="profile" image="https://www.imghippo.com/images/1704637836.png" shape="circle"
+  <Pavatar v-if="props.hasProfile" class="profile" image="https://www.imghippo.com/images/1704640025.jpg" shape="circle"
     :pt="{
       icon: { style: 'font-size: 2.563rem' },
     }" />

@@ -749,7 +749,7 @@ const sendNotification = async (
       content: content,
       target: target,
       project_id: projectid,
-      telegram_chat_id: pushTelegramNoti ? selectedProject.telegram_id : null,
+      telegram_chat_id: pushTelegramNoti ? selectedProject.telegram_chat_id : null,
     },
     headers: { "cache-control": "no-cache" },
   });

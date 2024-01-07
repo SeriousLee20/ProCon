@@ -77,12 +77,6 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
 
-const supabase2 = createClient(
-  "https://hvzzpfhyghxvhtfvtivo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2enpwZmh5Z2h4dmh0ZnZ0aXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDMzMjI2MTUsImV4cCI6MjAxODg5ODYxNX0.ndFqLUSq - Urz2oaEsnAZlVdSCQIJUs3U710O1NANT7k"
-);
-
-
 const visible = ref(false);
 const toast = useToast();
 const dstore = useDataStore();

@@ -21,13 +21,17 @@ const handleInserts = async (payload) => {
   console.log(payload.new);
   let index = payload.new.target.indexOf(userId);
 
-  if (index > 0) {
+  console.log(index)
+  if (index > -1) {
+    console.log(payload.new.push_notification[index])
     if (payload.new.push_notification[index]) {
+       console.log('push')
       new Notification(payload.new.title, { body: payload.new.content });
     }
   }
 
   if (payload.new.telegram_chat_id) {
+    console.log('post')
     doPostRequest(payload.new.content, payload.new.telegram_chat_id);
   }
 };
@@ -42,7 +46,7 @@ async function doPostRequest(content, chatID) {
     `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatID}&text=${text}`
   );
   let data = res.data;
-  console.log(data);
+  console.log(res, data);
 }
 
 supabase
