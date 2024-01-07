@@ -8,7 +8,7 @@
         <div
           v-for="(item, index) in slotProps.items"
           :key="index"
-          class="col-12 cursor-pointer hover:bg-primary-100 border-round shadow-2 px-3 "
+          class="col-12 cursor-pointer hover:bg-primary-100 border-round shadow-2 px-3 mb-2"
           @click="openTaskDialog(item)"
         >
           <div class="">
@@ -17,8 +17,7 @@
             </p>
 
             <div class="flex justify-content-between">
-
-              <div class="flex gap-1 align-items-end ">
+              <div class="flex gap-1 align-items-end">
                 <Ptag
                   v-if="item.status_name"
                   :value="item.status_name"
@@ -36,20 +35,36 @@
                 />
 
                 <Ptag
-                    v-if="item.importance == 1"
-                    :value="item.importance_rate"
-                    rounded
-                    icon="pi pi-exclamation-triangle"
-                    class="max-h-1rem font-normal"
-                  />
+                  v-if="item.importance == 1"
+                  :value="item.importance_rate"
+                  rounded
+                  icon="pi pi-exclamation-triangle"
+                  class="max-h-1rem font-normal"
+                />
               </div>
               <div>
-                  <Pavatargroup >
-                    <div v-for="dpt in item.dept_abbr">
-                      <Pavatar :label="dpt" size="small" shape="circle" style="font-size:x-small; background-color: var(--primary-500); border-color:var(--primary-500); color:white;" />
-                    </div>
-                  </Pavatargroup>
-                </div>
+                <Pavatargroup>
+                  <div v-for="dpt in item.dept_abbr">
+                    <Pavatar
+                      :label="dpt.department_abbr"
+                      size="small"
+                      shape="circle"
+                      style="
+                        font-size: x-small;
+                        background-color: var(--primary-500);
+                        border-color: var(--primary-500);
+                        color: white;
+                      "
+                      v-tooltip.top="{
+                        value: dpt.department_name,
+                        pt: {
+                          text: 'bg-primary-500 text-xs font-medium text-center',
+                        },
+                      }"
+                    />
+                  </div>
+                </Pavatargroup>
+              </div>
             </div>
           </div>
         </div>

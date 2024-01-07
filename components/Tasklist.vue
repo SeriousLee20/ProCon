@@ -16,7 +16,6 @@
             </p>
 
             <div class="flex justify-content-between">
-
               <div class="flex gap-1 align-self-end">
                 <Ptag
                   v-if="item.status_name"
@@ -46,7 +45,23 @@
               <div>
                 <Pavatargroup>
                   <div v-for="dpt in item.dept_abbr">
-                    <Pavatar :label="dpt" size="small" shape="circle" style="font-size:x-small; background-color: var(--primary-500); border-color:var(--primary-500); color:white;" />
+                    <Pavatar
+                      :label="dpt.department_abbr"
+                      size="small"
+                      shape="circle"
+                      style="
+                        font-size: x-small;
+                        background-color: var(--primary-500);
+                        border-color: var(--primary-500);
+                        color: white;
+                      "
+                      v-tooltip.left="{
+                        value: dpt.department_name,
+                        pt: {
+                          text: 'bg-primary-500 text-xs font-medium text-center',
+                        },
+                      }"
+                    />
                   </div>
                 </Pavatargroup>
               </div>

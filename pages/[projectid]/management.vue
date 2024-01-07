@@ -97,7 +97,7 @@
                 text
                 v-tooltip.bottom="{
                   value: 'Dispose Project',
-                  pt: { text: 'bg-red-500 text-xs font-medium text-center' },
+                  pt: { text: 'bg-red-500 text-xs font-medium text-center', },
                 }"
               />
             </div>

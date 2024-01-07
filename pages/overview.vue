@@ -21,12 +21,14 @@
         :boardName="'overview'"
       />
     </div>
-    <div class="flex justify-content-between p-2">
-      <div v-for="list in overviewTaskLists" class="w-12 px-2">
+    <div class="flex justify-content-between p-2 overflow-x-auto">
+      <div v-for="list in overviewTaskLists" class="w-12 px-2" style="min-width: 30rem;">
         <div class="font-semibold text-lg bg-white pb-3">
           {{ list.project_name }}
         </div>
         <OverviewTasklist
+        class="overflow-y-auto p-1"
+        style="height: 80vh;"
           :taskList="list.tasks"
           :pt="{ content: { class: 'p-0' }, column: { class: 'border-none' } }"
           @open-ov-task-dialog="toggleTaskDialog($event, true)"

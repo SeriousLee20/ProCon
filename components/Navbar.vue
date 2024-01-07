@@ -52,13 +52,32 @@
           :popup="true"
         ></Pmenu>
         <Pbutton
+          v-if="showHomeButton"
+          class="shadow-none"
+          type="button"
+          icon="pi pi-home"
+          @click="switchPage('/overview', 'Overview')"
+          text
+          v-tooltip.top="{
+            value: 'Overview',
+            pt: {
+              text: 'bg-primary-500 text-xs font-medium text-center',
+            },
+          }"
+        />
+        <Pbutton
           v-if="isShowButton"
           class="shadow-none"
           type="button"
           icon="pi pi-chart-bar"
           @click="switchPage('ganttchart', 'Gantt Chart')"
           text
-          v-tooltip.bottom="`Gantt Chart`"
+          v-tooltip.top="{
+            value: 'Gantt Chart',
+            pt: {
+              text: 'bg-primary-500 text-xs font-medium text-center',
+            },
+          }"
         />
 
         <Pbutton
@@ -68,7 +87,12 @@
           icon="pi pi-sitemap"
           @click="switchPage(`management`, 'Management')"
           text
-          v-tooltip.bottom="`Management Board`"
+          v-tooltip.top="{
+            value: 'Management Board',
+            pt: {
+              text: 'bg-primary-500 text-xs font-medium text-center',
+            },
+          }"
         />
         <Pbutton
           v-if="showBackToTaskButton"
@@ -345,16 +369,21 @@
                   <div class="flex align-items-end w-full p-2">
                     <!-- <Pfileupload /> -->
 
-                    <div class="text-2xl text-primary-700 flex align-self-center mr-2 cursor-pointer hover:text-primary-400" @click="showEmoji">☺︎</div>
-                      <EmojiPicker
-                        v-if="emojiPopup"
-                        appendTo="body"
-                        :native="true"
-                        class="mb-6"
-                        style="position: absolute;"
-                        @select="appendChatInput"
-                        @mouseleave="closeEmojiPopup"
-                      />
+                    <div
+                      class="text-2xl text-primary-700 flex align-self-center mr-2 cursor-pointer hover:text-primary-400"
+                      @click="showEmoji"
+                    >
+                      ☺︎
+                    </div>
+                    <EmojiPicker
+                      v-if="emojiPopup"
+                      appendTo="body"
+                      :native="true"
+                      class="mb-6"
+                      style="position: absolute"
+                      @select="appendChatInput"
+                      @mouseleave="closeEmojiPopup"
+                    />
                     <Ptextarea
                       autoResize
                       rows="1"
@@ -676,13 +705,6 @@
       <Pbutton
         class="shadow-none"
         type="button"
-        icon="pi pi-home"
-        @click="switchPage('/overview', 'Overview')"
-        text
-      />
-      <Pbutton
-        class="shadow-none"
-        type="button"
         icon="pi pi-user"
         @click="switchPage('/profile', 'Profile')"
         text
@@ -735,6 +757,7 @@ const showManagementButton = ref(
     selectedProject.value != -1 &&
     dstore.getCurrentPage != "Management"
 );
+const showHomeButton = ref(dstore.getCurrentPage != "Overview");
 const menuItems = ref([]);
 
 // const selectedProject = ref(currentProject);
@@ -928,7 +951,7 @@ const showEmoji = () => {
 
 const closeEmojiPopup = () => {
   emojiPopup.value = false;
-}
+};
 
 const openChatRoom = (chatroom) => {
   chatDialog.value = true;
@@ -1099,18 +1122,15 @@ const getNotification = async () => {
 };
 
 function onChangeSelectedProject(event) {
-  if (event.value == "-1") {
-    isShowButton.value = false;
-    navigateTo("/overview");
-  } else {
-    isShowButton.value = true;
-    navigateTo(`/${event.value}/task`);
-
-    getNotification();
-    getChatList();
-  }
+  isShowButton.value = true;
+  showHomeButton.value = true;
   showBackToTaskButton.value = false;
   showManagementButton.value = true;
+  navigateTo(`/${event.value}/task`);
+
+  getNotification();
+  getChatList();
+
   // setCurrentProject(event.value);
   // console.log("state currentproject", currentProject);
 
@@ -1186,13 +1206,12 @@ const switchPage = (routeName, pageName) => {
   dstore.setCurrentPage(pageName);
   isShowButton.value = selectedProject.value && selectedProject.value != -1;
   showBackToTaskButton.value =
-    selectedProject.value &&
-    selectedProject.value != -1 &&
-    dstore.getCurrentPage != "Task";
+    selectedProject.value && selectedProject.value != -1 && pageName != "Task";
   showManagementButton.value =
     selectedProject.value &&
     selectedProject.value != -1 &&
-    dstore.getCurrentPage != "Management";
+    pageName != "Management";
+  showHomeButton.value = pageName != "Overview";
   menuItems.value = configEditMenuList().editMenu;
   console.log(
     "switch page",
