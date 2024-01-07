@@ -7,7 +7,7 @@
     class="p-fluid"
   >
     <div class="field">
-      <label for="task-name">Task</label>
+      <label for="task-name" class="text-sm text-primary-500">Task</label>
       <Pinputtext
         type="text"
         id="task-name"
@@ -25,7 +25,7 @@
       >
     </div>
     <div class="field overflow-scroll h-20rem">
-      <label for="task-desc">Description</label>
+      <label for="task-desc" class="text-sm text-primary-500">Description</label>
       <Peditor
         id="task-desc"
         v-model="props.selectedTask.task_desc"
@@ -36,7 +36,7 @@
 
     <div class="flex justify-content-between">
       <div class="field">
-        <label for="task-start-date">Start Datetime</label>
+        <label for="task-start-date" class="text-sm text-primary-500">Start Datetime</label>
         <Pcalendar
           id="task-start-date"
           :class="{ 'p-invalid': invalidStartDate }"
@@ -52,7 +52,7 @@
         ></Pcalendar>
       </div>
       <div class="field">
-        <label for="task-due-datetime">Due Datetime</label>
+        <label for="task-due-datetime" class="text-sm text-primary-500">Due Datetime</label>
 
         <Pcalendar
           id="task-due-datetime"
@@ -78,7 +78,7 @@
         >
       </div>
       <div class="field">
-        <label for="task-urgent-date">Urgent Date</label>
+        <label for="task-urgent-date" class="text-sm text-primary-500">Urgent Date</label>
         <Pcalendar
           id="task-urgent-date"
           :class="{ 'p-invalid': invalidUrgentDate }"
@@ -99,7 +99,7 @@
         >
       </div>
       <div class="field">
-        <label for="task-status">Status</label>
+        <label for="task-status" class="text-sm text-primary-500">Status</label>
         <Pdropdown
           id="task-status"
           v-model="props.selectedTask.status_code"
@@ -111,7 +111,7 @@
         ></Pdropdown>
       </div>
       <div class="field">
-        <label for="task-importance">Importance</label>
+        <label for="task-importance" class="text-sm text-primary-500">Importance</label>
         <Pdropdown
           id="task-importance"
           v-model="props.selectedTask.importance"
@@ -124,7 +124,7 @@
         ></Pdropdown>
       </div>
       <div class="field" v-if="props.selectedTask.importance == 1">
-        <label for="task-importanceRate">Importance Rate</label>
+        <label for="task-importanceRate" class="text-sm text-primary-500">Importance Rate</label>
         <Prating
           v-model="props.selectedTask.importance_rate"
           :stars="4"
@@ -167,7 +167,7 @@
     </div>
     <template #footer>
       <div class="w-full flex justify-content-between align-items-end">
-        <div class="w-full text-left footnote text-xs" v-if="props.isEditTask">
+        <div class="w-full text-left footnote text-xs text-gray-300" v-if="props.isEditTask">
           <div>
             Created by {{ props.selectedTask.creator_name }} at
             {{ formatDate(props.selectedTask.creation_timestamp) }}
