@@ -1,7 +1,24 @@
 <template>
   <Ptoast />
-  <div class="flex align-items-center justify-content-center mt-8">
-    <Avatar />
+  <div>
+    <div class="flex align-items-center justify-content-center mt-8 mb-2">
+      <Avatar />
+    </div>
+
+    <div class="flex justify-content-center">
+      <Pfileupload
+        mode="basic"
+        name="profile[]"
+        url="/api/upload"
+        accept="image/*"
+        :maxFileSize="3000000"
+        @upload="uploadProfilePhoto"
+        :auto="true"
+        chooseLabel="Browse"
+        style="max-height: 1rem"
+        :pt="{chooseButton: {class:'text-xs bg-white border-none text-primary-700 hover:text-primary-400'}}"
+      />
+    </div>
   </div>
   <div
     class="flex flex-column gap-5 align-items-center justify-content-center mt-3"
@@ -56,7 +73,7 @@
       </span>
     </div>
     <div>
-      <Pbutton :loading="loading" @click="updateProfile" label="Save" />
+      <Pbutton :loading="loading" @click="updateProfile" label="Save" text/>
     </div>
   </div>
 </template>
@@ -90,8 +107,14 @@ const updateProfile = async () => {
   loading.value = true;
 
   var startTime = starttime.value;
-  var endTime = endtime.value ;
-  console.log('startend time', starttime.value, endtime.value, startTime, endTime)
+  var endTime = endtime.value;
+  console.log(
+    "startend time",
+    starttime.value,
+    endtime.value,
+    startTime,
+    endTime
+  );
 
   const newProfile = {
     name: name.value ? name.value : user.name,
@@ -108,10 +131,9 @@ const updateProfile = async () => {
     headers: { "cache-control": "no-cache" },
   });
 
-  console.log('updateuserres', updateUserRes.value, newProfile)
-  if(updateUserRes.value.success){
+  console.log("updateuserres", updateUserRes.value, newProfile);
+  if (updateUserRes.value.success) {
     dstore.createUser(updateUserRes.value.response);
-
 
     loading.value = false;
     toast.add({
@@ -122,8 +144,6 @@ const updateProfile = async () => {
     });
   }
   // dstore.createUser(newProfile);
-
-
 };
 
 dstore.setSelectedProject(null);
