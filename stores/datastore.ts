@@ -114,6 +114,12 @@ export const useDataStore = defineStore("data", {
     setFilters(filters: JSON){
       this.filters = filters as any as Filter[];
     },
+    setHasProfilePhoto(has: keyof User){
+      if(this.user){
+
+        this.user['has_profile_photo'] = has as any as boolean;
+      }
+    },
     clearData() {
       this.user = null;
       this.projects = null;
