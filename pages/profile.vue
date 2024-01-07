@@ -2,35 +2,20 @@
   <Ptoast />
   <div>
     <div class="flex align-items-center justify-content-center mt-8 mb-2">
-      <Avatar />
+      <Avatar :hasProfile="user.has_profile_photo" :userId="user.id" />
     </div>
 
     <div class="flex justify-content-center">
-      <Pfileupload
-        mode="basic"
-        name="profile[]"
-        url="/api/upload"
-        accept="image/*"
-        :maxFileSize="3000000"
-        @upload="uploadProfilePhoto"
-        :auto="true"
-        chooseLabel="Browse"
-        style="max-height: 1rem"
-        :pt="{chooseButton: {class:'text-xs bg-white border-none text-primary-700 hover:text-primary-400'}}"
-      />
+      <Pfileupload mode="basic" name="profile[]" accept="image/*" :maxFileSize="3000000" @upload="uploadProfilePhoto"
+        :auto="true" chooseLabel="Upload Profile Picture" style="max-height: 1rem"
+        :pt="{ chooseButton: { class: 'text-xs bg-white border-none text-primary-700 hover:text-primary-400' } }" />
     </div>
   </div>
-  <div
-    class="flex flex-column gap-5 align-items-center justify-content-center mt-3"
-    style="font-family: sans-serif"
-  >
+  <div class="flex flex-column gap-5 align-items-center justify-content-center mt-3" style="font-family: sans-serif">
     <div class="flex mb-2">
       <div class="text-gray-300">User ID:</div>
       <div class="text-sm px-1 text-gray-300">{{ userId }}</div>
-      <div
-        class="pi pi-copy text-gray-500 cursor-pointer"
-        @click="copy(userId)"
-      ></div>
+      <div class="pi pi-copy text-gray-500 cursor-pointer" @click="copy(userId)"></div>
       <div v-if="copied" class="text-primary text-sm pl-1">Copied!</div>
     </div>
     <div>
@@ -42,12 +27,7 @@
 
     <div>
       <span class="p-float-label">
-        <Pinputmask
-          id="phone"
-          v-model="phone"
-          placeholder="+60 10-12345678"
-          mask="+99 99-99999999?9999"
-        />
+        <Pinputmask id="phone" v-model="phone" placeholder="+60 10-12345678" mask="+99 99-99999999?9999" />
         <label for="phone">Contact Number</label>
       </span>
     </div>
@@ -73,7 +53,7 @@
       </span>
     </div>
     <div>
-      <Pbutton :loading="loading" @click="updateProfile" label="Save" text/>
+      <Pbutton :loading="loading" @click="updateProfile" label="Save" text />
     </div>
   </div>
 </template>
