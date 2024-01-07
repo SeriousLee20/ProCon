@@ -6,9 +6,22 @@
     </div>
 
     <div class="flex justify-content-center">
-      <Pfileupload mode="basic" name="profile[]" accept="image/*" :maxFileSize="3000000" @upload="uploadProfilePhoto"
+      <!-- <Pfileupload mode="basic" name="profile[]" accept="image/*" :maxFileSize="3000000" @upload="uploadProfilePhoto"
         :auto="true" chooseLabel="Upload Profile Picture" style="max-height: 1rem"
-        :pt="{ chooseButton: { class: 'text-xs bg-white border-none text-primary-700 hover:text-primary-400' } }" />
+        :pt="{ chooseButton: { class: 'text-xs bg-white border-none text-primary-700 hover:text-primary-400' } }" /> -->
+      <Pbutton label="Upload Profile Photo" icon="pi pi-external-link" @click="visible = true"
+        class="'text-xs bg-white border-none text-primary-700 hover:text-primary-400'" />
+
+      <Pdialog v-model:visible="visible" modal header="Header" :style="{ width: '50rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+          consequat.
+          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+      </Pdialog>
     </div>
   </div>
   <div class="flex flex-column gap-5 align-items-center justify-content-center mt-3" style="font-family: sans-serif">
@@ -69,6 +82,8 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
 
+
+const visible = ref(false);
 const toast = useToast();
 const dstore = useDataStore();
 const loading = ref(false);
