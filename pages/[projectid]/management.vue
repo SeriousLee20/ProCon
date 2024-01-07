@@ -5,10 +5,10 @@
     <Pcard class="border-1 border-gray-200 h-25rem">
       <template #title>
         <div class="flex justify-content-between">
-          <div class="flex flex-column">
+          <div class="flex flex-column mt-1 gap-1">
             <div>Management Board</div>
-            <footer class="flex align-items-center">
-              <div>Project ID: {{ projectid }}</div>
+            <footer v-if="isAdmin" class="flex align-items-center">
+              <div class="text-gray-300">Project ID: {{ projectid }}</div>
               <ClientOnly>
                 <span
                   class="pi pi-copy cursor-pointer pl-2"
@@ -24,7 +24,7 @@
               </ClientOnly>
             </footer>
           </div>
-          <div class="flex gap-1">
+          <div v-if="isAdmin" class="flex gap-1">
             <div>
               <Pbutton
                 type="button"
@@ -564,6 +564,7 @@ const selectedProject = ref(dstore.getSelectedProject);
 const projectName = ref(selectedProject.value?.name);
 const projectDescription = ref(selectedProject.value?.description);
 const telegramId = ref(selectedProject.value?.telegram_id);
+const isAdmin = ref(selectedProject.value?.role == "Admin");
 const boardDialog = ref(false);
 const editProjInfoDialog = ref(false);
 const departmentDialog = ref(false);

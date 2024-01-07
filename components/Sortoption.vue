@@ -18,8 +18,9 @@
     @change="handler(filterName, $event.value, boardName)"
     class="w-9rem"
   >
-  <tempate #dropdownicon>
-  </tempate>
+  <template #dropdownicon>
+    <!-- <div class="min-w-0"></div> -->
+  </template>
   </Pdropdown>
 </template>
 

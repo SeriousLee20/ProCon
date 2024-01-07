@@ -3,7 +3,7 @@
     <template #list="slotProps">
       <div
         v-for="(item, index) in slotProps.items"
-        class="w-full flex align-items-center justify-content-between hover:bg-primary-100 border-round border-none mb-2 px-3 pb-3"
+        class="w-full flex align-items-center justify-content-between hover:bg-primary-200 border-round border-none mb-2 px-3 pb-3 cursor-pointer"
         @click="openAnnouncementDialog(item)"
       >
         <div class="flex gap-2 align-content-center">
