@@ -413,7 +413,6 @@ export interface Database {
           creation_timestamp: string
           creator_id: string | null
           departments: string[] | null
-          dept_resource: Json[] | null
           description: string | null
           id: string
           name: string
@@ -424,7 +423,6 @@ export interface Database {
           creation_timestamp?: string
           creator_id?: string | null
           departments?: string[] | null
-          dept_resource?: Json[] | null
           description?: string | null
           id?: string
           name: string
@@ -435,7 +433,6 @@ export interface Database {
           creation_timestamp?: string
           creator_id?: string | null
           departments?: string[] | null
-          dept_resource?: Json[] | null
           description?: string | null
           id?: string
           name?: string
@@ -697,6 +694,12 @@ export interface Database {
         }
         Returns: Record<string, unknown>
       }
+      delete_project: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: number
+      }
       delete_task: {
         Args: {
           n_task_id: string
@@ -713,7 +716,7 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
           start_date_time: string
           start_date: string
@@ -726,6 +729,8 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: string[]
+          project_id: string
         }[]
       }
       delete_task_from_ov: {
@@ -748,7 +753,6 @@ export interface Database {
           creation_timestamp: string
           creator_id: string | null
           departments: string[] | null
-          dept_resource: Json[] | null
           description: string | null
           id: string
           name: string
@@ -806,7 +810,6 @@ export interface Database {
           creation_timestamp: string
           creator_id: string | null
           departments: string[] | null
-          dept_resource: Json[] | null
           description: string | null
           id: string
           name: string
@@ -848,6 +851,7 @@ export interface Database {
         }
         Returns: {
           user_info: Json
+          filters: Json
           user_projects: Json
         }[]
       }
@@ -888,9 +892,13 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          role: string
+          description: string
+          creator_id: string
           telegram_chat_id: string
           grouped_members: Json
           task_list: Json
+          user_id: string
         }[]
       }
       get_notification: {
@@ -941,7 +949,7 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
           start_date_time: string
           start_date: string
@@ -954,6 +962,8 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: string[]
+          project_id: string
         }[]
       }
       get_task_by_user: {
@@ -1163,7 +1173,7 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
           start_date_time: string
           start_date: string
@@ -1176,6 +1186,8 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: string[]
+          project_id: string
         }[]
       }
       map_user_project: {
@@ -1321,7 +1333,7 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
           start_date_time: string
           start_date: string
@@ -1334,6 +1346,8 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: string[]
+          project_id: string
         }[]
       }
       update_task_from_ov: {

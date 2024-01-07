@@ -130,10 +130,10 @@ const createProject = async () => {
           lifetime: 3000,
         });
 
-        const doneRefresh = await refreshDatastore("", createdProject.id);
-        console.log("donrefresh ds", doneRefresh);
-        if (doneRefresh.doneRefreshDs) {
-          console.log("ds after refresh", dstore.getFullData());
+        // const doneRefresh = await refreshDatastore("", createdProject.id);
+        // console.log("donrefresh ds", doneRefresh);
+        // if (doneRefresh.doneRefreshDs) {
+          // console.log("ds after refresh", dstore.getFullData());
           loading.value = false;
           setCurrentProject(createdProject.id);
           //   navigateTo(`/projectManagement/${createdProject.id}`);
@@ -142,7 +142,8 @@ const createProject = async () => {
             routeName: `${createdProject.id}/management`,
             pageName: "Management",
           });
-        }
+
+        // }
       } else {
         toast.add({
           severity: "danger",

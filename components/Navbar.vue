@@ -1137,7 +1137,16 @@ const switchPage = (routeName, pageName) => {
       selectedProject.value
     );
   } else if (pageName == "Management" || pageName == "Gantt Chart") {
-    navigateTo(routeName);
+    if(routeName != 'management'){
+      // create project
+      // not redirect from management button
+      navigateTo(routeName);
+      const projectId = routeName.split("/")[0];
+      console.log(projectId);
+      if(projectId){
+        selectedProject.value = projectId;
+      }
+    }
   } else if (pageName != "Overview" && pageName != "Management") {
     // pagename = Create project/Join Project
     ddplaceholder.value = pageName;
@@ -1162,6 +1171,7 @@ const switchPage = (routeName, pageName) => {
     dstore.getCurrentPage != "Management";
   menuItems.value = configEditMenuList().editMenu;
   console.log(
+    'switch page',
     selectedProject.value,
     ddplaceholder.value,
     dstore.getCurrentPage
@@ -1187,6 +1197,11 @@ onNuxtReady(() => {
     project.value = dstore.getAllProjects;
     selectedProject.value = dstore.getSelectedProject.id;
   });
+
+  $listen("refresh-navbar", (action) => {
+    project.value = dstore.getAllProjects;
+    selectedProject.value = dstore.getSelectedProject.id;
+  })
 });
 
 watchEffect(() => {

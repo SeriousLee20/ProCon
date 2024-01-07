@@ -7,7 +7,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   //TODO: add api to get project list separately, error when no project joined
   const dstore = useDataStore();
   const userData = data.value?.response[0];
+  const currProj = to.params?.projectid;
 
+  console.log('initiate route', to, from)
   console.log("middleware", data);
   console.log("initiate: selectedproject", dstore.getSelectedProject);
 
@@ -19,6 +21,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   if (userData) {
     dstore.createUser(userData.user_info as any as JSON);
     dstore.initializeProjectList(userData.user_projects as any as JSON);
+    dstore.setFilters(userData.filters as any as JSON);
     // dstore.createProject({
     //   id: "-1",
     //   name: "Overview",
@@ -54,6 +57,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     if (from.name == "index") {
       dstore.setSelectedProject("-1");
       dstore.setCurrentPage("");
+    }else if(currProj){
+      dstore.setSelectedProject(currProj as string);
     }
     console.log(dstore.getFullData());
   }

@@ -9,7 +9,7 @@ export const useDataStore = defineStore("data", {
     selectedProject: null as Project | null,
     currentPage: "",
     managementBoard: null as ProjectMember[] | null,
-
+    filters: null as Filter[] | null
   }),
   getters: {
     getUserId: (state) => state.user?.id,
@@ -19,7 +19,8 @@ export const useDataStore = defineStore("data", {
     getSelectedProject: (state) => state.selectedProject,
     getAllProjects: (state) => state.projects,
     getCurrentPage: (state) => state.currentPage,
-    getManagementBoard: (state) => state.managementBoard
+    getManagementBoard: (state) => state.managementBoard,
+    getFilters: (state) => state.filters
   },
   actions: {
     createUser(user: JSON) {
@@ -85,11 +86,15 @@ export const useDataStore = defineStore("data", {
         this.projects,
         this.announcement,
         this.selectedProject,
+        this.filters
       ];
     },
     getLatestProject() {
       console.log(this.projects?.pop());
       return this.projects?.pop();
+    },
+    getFilterByBoardName(boardName: string){
+      return this.filters?.filter(filter => { return filter.board_name == boardName})[0].filter;
     },
     setCurrentPage(page: string) {
       this.currentPage = page;
@@ -105,6 +110,9 @@ export const useDataStore = defineStore("data", {
     setManagementBoardByProject(projectId: string){
       let managementBoard = this.projects?.filter(project => {return project.id == projectId})[0].grouped_members;
       this.managementBoard = managementBoard ? managementBoard : null;
+    },
+    setFilters(filters: JSON){
+      this.filters = filters as any as Filter[];
     },
     clearData() {
       this.user = null;
@@ -134,9 +142,10 @@ interface Project {
   role: string;
   description: string;
   creator_id: string;
-  is_show_project_in_overview: boolean;
+  // is_show_project_in_overview: boolean;
   telegram_chat_id: string,
-  grouped_members: ProjectMember[]
+  grouped_members: ProjectMember[],
+  task_list: JSON,
   //   tasks: [{
   //     id: string;
   //     name: string;
@@ -175,4 +184,9 @@ interface Announcement {
   creation_date_time: string;
   description: string;
   receiver_id: string[];
+}
+
+interface Filter {
+  board_name: string;
+  filter: JSON;
 }

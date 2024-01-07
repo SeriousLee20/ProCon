@@ -54,12 +54,19 @@
     <div class="h-screen grid py-2 px-2 pt-2">
       <div class="col-8">
         <div class="flex justify-content-center">
-          <div class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-1">
+          <div
+            class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-1"
+          >
             <div class="flex align-items-center">
               <div class="text-sm text-primary-500">Due Date:</div>
               <Pcalendar
                 :disabled="disableDateFilter"
-                :pt="{ input: { style: 'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem' } }"
+                :pt="{
+                  input: {
+                    style:
+                      'box-shadow:none; border: none; color:var(--primary-500); font-size:0.9rem',
+                  },
+                }"
                 id="filter-task-duedate-range"
                 v-model="filterTaskDueDateRange"
                 selectionMode="range"
@@ -107,7 +114,10 @@
                 class="h-17rem overflow-scroll"
                 :taskList="mainTaskList.q4"
                 :pt="{
-                  content: { class: 'bg-primary-100 align-self-center', style:'align-items-center'},
+                  content: {
+                    class: 'bg-primary-100 align-self-center',
+                    style: 'align-items-center',
+                  },
                   column: { class: 'border-none' },
                   emptyMessage: { content: 'No Task' },
                 }"
@@ -167,7 +177,10 @@
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90 w-21rem  text-primary-600 font-bold" style="white-space: nowrap">
+            <div
+              class="-rotate-90 w-21rem text-primary-600 font-bold"
+              style="white-space: nowrap"
+            >
               NOT IMPORTANT
             </div>
           </div>
@@ -241,7 +254,7 @@
 
           <Pcard
             class="border-round border-primary-500 border-2 bg-white w-full h-22rem"
-            :pt="{title:{style:'margin:0'}}"
+            :pt="{ title: { style: 'margin:0' } }"
           >
             <template #title>
               <div class="grid justify-content-evenly">
@@ -305,22 +318,26 @@ let userOptions = [];
 const selectedProject = dstore.getSelectedProject;
 const isAdmin = ref(dstore.getSelectedProject?.role == "Admin");
 const { data: parameters } = await useFetch("/api/get_parameters");
-var { data: filters } = await useFetch("/api/get_filters");
-var { data: tasksRes } = await useFetch("/api/get_task_by_project", {
-  method: "POST",
-  body: { project_id: projectid },
-  headers: { "cache-control": "no-cache" },
-});
-const { data: projectMemberRes } = await useFetch("/api/get_grouped_members", {
-  method: "POST",
-  body: { project_id: projectid },
-  headers: { "cache-control": "no-cache" },
-});
+// var { data: filters } = await useFetch("/api/get_filters");
+// var { data: tasks } = await useFetch("/api/get_task_by_project", {
+//   method: "POST",
+//   body: { project_id: projectid },
+//   headers: { "cache-control": "no-cache" },
+// });
+
+// const { data: projectMemberRes } = await useFetch("/api/get_grouped_members", {
+//   method: "POST",
+//   body: { project_id: projectid },
+//   headers: { "cache-control": "no-cache" },
+// });
 var { data: projectAnnouncementRes } = await useFetch("/api/get_announcement", {
   method: "POST",
   body: { project_id: projectid },
   headers: { "cache-control": "no-cache" },
 });
+
+var tasks = selectedProject.task_list;
+var filters = dstore.getFilters;
 
 const getSortOptions = (listName) => {
   return parameters.value.response.filter(
@@ -331,9 +348,8 @@ const getSortOptions = (listName) => {
 console.log("filters", filters);
 
 const getFilter = (listName) => {
-  const thisFilter = filters.value.response.filter(
-    (item) => item.board_name == listName
-  )[0]?.filter;
+  const thisFilter = filters.filter((item) => item.board_name == listName)[0]
+    ?.filter;
   console.log("sortoption", thisFilter);
   return { thisFilter };
 };
@@ -343,7 +359,8 @@ const taskOptions = {
   status: getSortOptions("task_status"),
 };
 
-const groupedUsers = ref(projectMemberRes.value?.response[0].project_members);
+const groupedUsers = ref(selectedProject?.grouped_members);
+// const groupedUsers = ref(projectMemberRes.value?.response[0].project_members);
 const myTaskSortOptions = getSortOptions("sort_option");
 const mainTaskSortOptions = getSortOptions("main_task_sort_option");
 const taskDialog = ref(false);
@@ -362,7 +379,7 @@ const myTaskShowCompleted = ref(getFilter("my_task").thisFilter.show_completed);
 const taskShowCompleted = ref(
   getFilter("main_task").thisFilter?.show_completed
 );
-const projectMember = projectMemberRes.value.response;
+// const projectMember = groupedUsers.value;
 const isOpenAnnouncementModal = ref(false);
 const announcementDialog = ref(false);
 const selectedAnnouncement = ref();
@@ -371,14 +388,15 @@ const announcementTitle = ref(null);
 const announcementDesc = ref(null);
 const announcementReceivers = ref();
 var announcementList = ref(projectAnnouncementRes.value.response);
-dstore.setManagementBoard(groupedUsers.value);
+dstore.setManagementBoardByProject(projectid);
 
-console.log("mytask", tasksRes.value.response, myTaskList);
+console.log("task", tasks);
+console.log("mytask", myTaskList.value);
 console.log("param", parameters);
 console.log("filters", filters);
-console.log("task", tasksRes);
 console.log("current projectid", projectid);
 console.log("isAdmin", dstore.getSelectedProject, isAdmin);
+console.log("groupedUsers", groupedUsers.value);
 
 // const groupMember = projectMember.reduce((result, item) => {
 //   const department = item.user_department;
@@ -402,20 +420,19 @@ console.log("isAdmin", dstore.getSelectedProject, isAdmin);
 // groupedUsers.value = [...formattedData];
 
 // console.log("groupmember", groupMember, formattedData);
-console.log("groupedUsers", groupedUsers);
-console.log("projectmember", projectMember);
+// console.log("projectmember", projectMember);
 
-if (Array.isArray(projectMember)) {
-  userOptions = projectMember.map((user) => ({
-    label: user.username,
-    value: user.user_id,
-  }));
-} else {
-  userOptions = {
-    label: projectMember.usernme,
-    value: projectMember.user_id,
-  };
-}
+// if (Array.isArray(projectMember)) {
+//   userOptions = projectMember.map((user) => ({
+//     label: user.username,
+//     value: user.user_id,
+//   }));
+// } else {
+//   userOptions = {
+//     label: projectMember.usernme,
+//     value: projectMember.user_id,
+//   };
+// }
 
 console.log("useroption", userOptions);
 
@@ -434,7 +451,7 @@ const toggleMyTaskShowCompleted = () => {
 };
 
 const getDefaultDueDateRange = (isClearClick) => {
-  let temp_list = tasksRes.value.response;
+  let temp_list = tasks;
   let dateRange = new Array(2).fill(null);
 
   console.log("initial daterange", dateRange);
@@ -494,7 +511,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
   // filter show completed
   filteredList = filter.show_completed
     ? filteredList
-    : filteredList.filter((item) => item.status != "Completed");
+    : filteredList.filter((item) => item.status_name != "Completed");
 
   // sort list
   filteredList =
@@ -579,7 +596,7 @@ const sortList = (filteredList, listName, sortOptionName) => {
 
 const getMainTaskList = () => {
   const filteredList = sortList(
-    tasksRes.value.response,
+    tasks,
     "main_task",
     "main_task_sort_option"
   );
@@ -591,7 +608,7 @@ const getMainTaskList = () => {
 getMainTaskList();
 
 const getMyTaskList = () => {
-  var filteredList = tasksRes.value.response.filter((task) =>
+  var filteredList = tasks.filter((task) =>
     task.owner_ids?.includes(userId)
   );
 
@@ -644,7 +661,10 @@ const updateFilter = async (filterName, filterValue, boardName) => {
     body: updatedFilter,
     headers: { "cache-control": "no-cache" },
   });
-  filters = updateFilterRes;
+  if (updateFilterRes.value?.success) {
+    filters = updateFilterRes.value.response;
+  }
+
   switch (boardName) {
     case "my_task":
       myTaskList.value = getMyTaskList().filteredList;
@@ -677,7 +697,7 @@ const updateTask = async () => {
   console.log("upserttask", updateTaskRes);
 
   if (updateTaskRes.value.success) {
-    tasksRes = updateTaskRes;
+    tasks = updateTaskRes.value.response;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
     sendNotification(
@@ -748,7 +768,7 @@ const insertTask = async () => {
   console.log("insertaskres", insertTaskRes);
 
   if (insertTaskRes.value.success) {
-    tasksRes = insertTaskRes;
+    tasks = insertTaskRes.value.response;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
     sendNotification(
@@ -779,7 +799,7 @@ const deleteTask = async () => {
 
   console.log("dlt task", deleteTask.value, selectedTask.value);
   if (deleteTask.value.success) {
-    tasksRes = deleteTask;
+    tasks = deleteTask.value.response;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
     sendNotification(
@@ -815,18 +835,18 @@ const deleteAnnouncement = async () => {
       method: "POST",
       body: {
         project_id: projectid,
-        announcement_id: selectedAnnouncement.value.id
+        announcement_id: selectedAnnouncement.value.id,
       },
       headers: { "cache-control": "no-cache" },
     }
   );
 
   console.log(deleteAnnouncementRes.value);
-  if(deleteAnnouncementRes.value?.success){
+  if (deleteAnnouncementRes.value?.success) {
     announcementList.value = deleteAnnouncementRes.value?.response;
   }
-  console.log('updated ann list', announcementList.value)
-}
+  console.log("updated ann list", announcementList.value);
+};
 
 async function addAnnouncement() {
   isOpenAnnouncementModal.value = false;
@@ -857,7 +877,11 @@ async function addAnnouncement() {
 
     projectAnnouncementRes = addAnnouncementRes;
     announcementList.value = projectAnnouncementRes.value.response;
-    console.log("announcementlist", announcementList.value, addAnnouncementRes.value);
+    console.log(
+      "announcementlist",
+      announcementList.value,
+      addAnnouncementRes.value
+    );
   }
 }
 
@@ -891,13 +915,12 @@ definePageMeta({
 </script>
 
 <style lang="css">
-
-.p-card .p-card-content{
-  padding:0;
+.p-card .p-card-content {
+  padding: 0;
 }
 
-.p-card .p-card-body{
-  padding-top:0;
+.p-card .p-card-body {
+  padding-top: 0;
 }
 .show-completed-button {
   font-size: 0.75rem;

@@ -66,33 +66,35 @@ export async function refreshDatastore(pageName, selectedProject) {
   dstore.clearData();
 
   if (userData) {
-    dstore.createUser({
-      id: userData[0].user_id,
-      name: userData[0].user_name,
-      email: userData[0].email,
-      contact_number: userData[0].contact_number,
-      avatar_url: "",
-      start_working_hour: userData[0].start_working_hour,
-      end_working_hour: userData[0].end_working_hour,
-    });
-    dstore.createProject({
-      id: "-1",
-      name: "Overview",
-      role: "",
-      description: "Overview",
-      creator_id: "system",
-      is_show_project_in_overview: true,
-    });
-    userData.forEach((data) => {
-      console.log(data);
-      dstore.createProject({
-        id: data.project_id,
-        name: data.project_name,
-        role: data.user_role,
-        description: data.project_desc,
-        creator_id: data.project_creator_id,
-        is_show_project_in_overview: data.is_show_in_overview,
-      });
+    dstore.createUser(userData.user_info );
+    dstore.initializeProjectList(userData.user_projects);
+    // dstore.createUser({
+    //   id: userData[0].user_id,
+    //   name: userData[0].user_name,
+    //   email: userData[0].email,
+    //   contact_number: userData[0].contact_number,
+    //   avatar_url: "",
+    //   start_working_hour: userData[0].start_working_hour,
+    //   end_working_hour: userData[0].end_working_hour,
+    // });
+    // dstore.createProject({
+    //   id: "-1",
+    //   name: "Overview",
+    //   role: "",
+    //   description: "Overview",
+    //   creator_id: "system",
+    //   is_show_project_in_overview: true,
+    // });
+    // userData.forEach((data) => {
+    //   console.log(data);
+    //   dstore.createProject({
+    //     id: data.project_id,
+    //     name: data.project_name,
+    //     role: data.user_role,
+    //     description: data.project_desc,
+    //     creator_id: data.project_creator_id,
+    //     is_show_project_in_overview: data.is_show_in_overview,
+    //   });
       // dstore.createAnnouncement({
       //   id: data.announcement_id,
       //   name: data.announcement_name,
@@ -102,7 +104,7 @@ export async function refreshDatastore(pageName, selectedProject) {
       //   description: data.announcement_desc,
       //   receiver_id: data.announcement_receiver_ids,
       // });
-    });
+    // });
 
     useCurrentProject().setCurrentProject(selectedProject);
     dstore.setCurrentPage(pageName);
