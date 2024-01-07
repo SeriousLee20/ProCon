@@ -43,7 +43,7 @@
 
                 <!-- TODO: add avatar for department assigned -->
               </div>
-              <div >
+              <div>
                 <Pavatargroup>
                   <div v-for="dpt in item.dept_abbr">
                     <Pavatar :label="dpt" size="small" shape="circle" style="font-size:x-small; background-color: var(--primary-500); border-color:var(--primary-500); color:white;" />

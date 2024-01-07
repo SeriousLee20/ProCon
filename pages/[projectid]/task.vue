@@ -58,7 +58,7 @@
             class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-1"
           >
             <div class="flex align-items-center">
-              <div class="text-sm text-primary-500">Due Date:</div>
+              <div class="text-sm text-primary-500 pl-2">Due Date:</div>
               <Pcalendar
                 :disabled="disableDateFilter"
                 :pt="{
