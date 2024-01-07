@@ -2,7 +2,7 @@
   <Ptoast />
   <Pconfirmpopup />
   <div id="member-table" class="m-2">
-    <Pcard class="border-1 border-gray-200">
+    <Pcard class="border-1 border-gray-200 h-25rem">
       <template #title>
         <div class="flex justify-content-between">
           <div class="flex flex-column">
@@ -44,7 +44,7 @@
             </div>
             <div>
               <Pbutton
-              class="font-bold"
+                class="font-bold"
                 type="button"
                 icon="pi pi-question-circle"
                 severity="warning"
@@ -87,6 +87,56 @@
                 </Pcarousel>
               </Poverlay-panel>
             </div>
+            <div>
+              <Pbutton
+                v-if="isCreator"
+                type="button"
+                icon="pi pi-trash"
+                @click="deleteProject"
+                severity="danger"
+                text
+                v-tooltip.bottom="{
+                  value: 'Dispose Project',
+                  pt: { text: 'bg-red-500 text-xs font-medium text-center' },
+                }"
+              />
+            </div>
+            <Pdialog
+              v-model:visible="deleteProjectDialog"
+              :style="{ width: '28.5rem' }"
+              header="Confirm Dispose Project"
+              :modal="true"
+              class="p-fluid"
+            >
+              <div>
+                <div class="text-md mb-3">
+                  Disposing project will remove all information of this project
+                  from the system.
+                </div>
+                <div class="text-md font-bold text-red-500">
+                  You cannot undo this action.
+                </div>
+              </div>
+              <template #footer>
+                <div class="w-full flex justify-content-end">
+                  <div class="w-8">
+                    <Pbutton
+                      label="Cancel"
+                      icon="pi pi-times"
+                      text
+                      @click="deleteProjectDialog = false"
+                    />
+                    <Pbutton
+                      label="Confirm"
+                      icon="pi pi-check"
+                      severity="danger"
+                      text
+                      @click="confirmDeleteProject"
+                    />
+                  </div>
+                </div>
+              </template>
+            </Pdialog>
           </div>
         </div>
       </template>
@@ -417,7 +467,7 @@
       </template>
     </Pcard>
 
-    <Pcard class="border-1 border-gray-200 mt-3">
+    <Pcard class="border-1 border-gray-200 mt-3 h-21rem">
       <template #title>
         <div class="flex">
           <div>Resource Links</div>
@@ -429,6 +479,7 @@
           :value="resources"
           dataKey="department_id"
           size="small"
+          scrollHeight="23rem"
           editMode="row"
           @row-edit-save="saveResourceUpdate"
           :pt="{
@@ -518,6 +569,7 @@ const editProjInfoDialog = ref(false);
 const departmentDialog = ref(false);
 const positionDialog = ref(false);
 const addMemberDialog = ref(false);
+const deleteProjectDialog = ref(false);
 const editingResources = ref([]);
 const disableRole = ref(false);
 const boardMenu = ref();
@@ -525,6 +577,7 @@ const newDepartment = ref();
 const newPosition = ref();
 const newMember = ref();
 const newResource = ref();
+const isCreator = ref(selectedProject.value?.creator_id == dstore.getUserId);
 const editBoardMenu = ref([
   {
     label: "Add Member",
@@ -601,6 +654,39 @@ const sendNotification = async (action, title, content, target) => {
     // emit("refresh-notification", announcementNotificationRes.value.response);
     $emit("refresh-notification", notificationRes.value.response);
     return true;
+  }
+};
+
+const deleteProject = (event) => {
+  confirm.require({
+    target: event.currentTarget,
+    message: "Delete this project?",
+    icon: "pi pi-info-circle",
+    acceptClass: "p-button-danger",
+    accept: async () => {
+      deleteProjectDialog.value = true;
+    },
+    reject: () => {},
+  });
+};
+
+const confirmDeleteProject = async () => {
+  const { data: deleteProjectRes } = await useFetch("/api/delete_project", {
+    method: "POST",
+    body: {
+      project_id: projectid,
+    },
+    headers: { "cache-control": "no-cache" },
+  });
+  console.log("deleteproject", deleteProjectRes);
+
+  if (deleteProjectRes.value?.success) {
+    board.value = null;
+    console.log("deletedpt", board.value);
+    $emit("switch-page", {
+      routeName: `/overview`,
+      pageName: "Overview",
+    });
   }
 };
 
@@ -698,7 +784,7 @@ const saveMemberDetails = async () => {
       ? udpatedMember.user_department
       : "",
     position: udpatedMember.user_position ? udpatedMember.user_position : "",
-    department_id: udpatedMember.department_id
+    department_id: udpatedMember.department_id,
   };
   const { data: mapMemberRes } = await useFetch(
     "/api/update_project_user_map",
@@ -897,13 +983,17 @@ const addDepartment = async () => {
   let existedDepartment = [];
   let addedDepartment = [];
   if (newDepartment.value?.length > 0) {
-    addedDepartment = newDepartment.value.filter(newDep => {
-      return !departments.value.some(oldDep => oldDep.user_department == newDep)
+    addedDepartment = newDepartment.value.filter((newDep) => {
+      return !departments.value.some(
+        (oldDep) => oldDep.user_department == newDep
+      );
     });
 
-    existedDepartment = newDepartment.value.filter(newDep => {
-      return departments.value.some(oldDep => oldDep.user_department == newDep)
-    })
+    existedDepartment = newDepartment.value.filter((newDep) => {
+      return departments.value.some(
+        (oldDep) => oldDep.user_department == newDep
+      );
+    });
 
     if (existedDepartment.length > 0) {
       toast.add({
@@ -914,7 +1004,6 @@ const addDepartment = async () => {
       });
     }
     if (addedDepartment.length > 0) {
-
       const { data: insertDepartmentRes } = await useFetch(
         "/api/insert_department",
         {
@@ -1045,14 +1134,13 @@ const addPosition = async () => {
 
   console.log(newPosition.value);
   if (newPosition.value?.length > 0) {
-
-    addedPosition = newPosition.value.filter(newPos => {
-      return !positions.value.some(oldPos => oldPos.user_position == newPos)
+    addedPosition = newPosition.value.filter((newPos) => {
+      return !positions.value.some((oldPos) => oldPos.user_position == newPos);
     });
 
-    existedPosition = newPosition.value.filter(newPos => {
-      return positions.value.some(oldPos => oldPos.user_position == newPos)
-    })
+    existedPosition = newPosition.value.filter((newPos) => {
+      return positions.value.some((oldPos) => oldPos.user_position == newPos);
+    });
 
     if (existedPosition.length > 0) {
       toast.add({
@@ -1063,10 +1151,10 @@ const addPosition = async () => {
       });
     }
     if (addedPosition.length > 0) {
-      addedPosition = addedPosition.map(pos =>({
-        user_position: pos
-      }))
-      positions.value.push(...addedPosition)
+      addedPosition = addedPosition.map((pos) => ({
+        user_position: pos,
+      }));
+      positions.value.push(...addedPosition);
       const { data: insertPositionRes } = await useFetch(
         "/api/insert_positions",
         {
@@ -1282,6 +1370,7 @@ const steps = [
 
 dstore.setSelectedProject(projectid);
 dstore.setCurrentPage("Management");
+$emit('refresh-navbar');
 definePageMeta({
   layout: "custom",
   middleware: ["auth", "initiate"],
