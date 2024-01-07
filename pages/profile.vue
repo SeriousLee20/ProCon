@@ -2,35 +2,28 @@
   <Ptoast />
   <div>
     <div class="flex align-items-center justify-content-center mt-8 mb-2">
-      <Avatar />
+      <Avatar :hasProfile="user.has_profile_photo" :userId="user.id" />
     </div>
 
     <div class="flex justify-content-center">
-      <Pfileupload
-        mode="basic"
-        name="profile[]"
-        url="/api/upload"
-        accept="image/*"
-        :maxFileSize="3000000"
-        @upload="uploadProfilePhoto"
-        :auto="true"
-        chooseLabel="Browse"
-        style="max-height: 1rem"
-        :pt="{chooseButton: {class:'text-xs bg-white border-none text-primary-700 hover:text-primary-400'}}"
-      />
+      <Pbutton label="Upload Profile Photo" icon="pi pi-external-link" @click="visible = true"
+        class="'text-xs bg-white border-none text-primary-700 hover:text-primary-400'" />
+
+      <Pdialog v-model:visible="visible" modal header="Profile Photo Upload" :style="{ width: '50rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <Pfileupload name="demo[]" @upload="onAdvancedUpload($event)" accept="image/*" :maxFileSize="1000000">
+          <template #empty>
+            <p>Drag and drop files to here to upload.</p>
+          </template>
+        </Pfileupload>
+      </Pdialog>
     </div>
   </div>
-  <div
-    class="flex flex-column gap-5 align-items-center justify-content-center mt-3"
-    style="font-family: sans-serif"
-  >
+  <div class="flex flex-column gap-5 align-items-center justify-content-center mt-3" style="font-family: sans-serif">
     <div class="flex mb-2">
       <div class="text-gray-300">User ID:</div>
       <div class="text-sm px-1 text-gray-300">{{ userId }}</div>
-      <div
-        class="pi pi-copy text-gray-500 cursor-pointer"
-        @click="copy(userId)"
-      ></div>
+      <div class="pi pi-copy text-gray-500 cursor-pointer" @click="copy(userId)"></div>
       <div v-if="copied" class="text-primary text-sm pl-1">Copied!</div>
     </div>
     <div>
@@ -42,12 +35,7 @@
 
     <div>
       <span class="p-float-label">
-        <Pinputmask
-          id="phone"
-          v-model="phone"
-          placeholder="+60 10-12345678"
-          mask="+99 99-99999999?9999"
-        />
+        <Pinputmask id="phone" v-model="phone" placeholder="+60 10-12345678" mask="+99 99-99999999?9999" />
         <label for="phone">Contact Number</label>
       </span>
     </div>
@@ -73,7 +61,7 @@
       </span>
     </div>
     <div>
-      <Pbutton :loading="loading" @click="updateProfile" label="Save" text/>
+      <Pbutton :loading="loading" @click="updateProfile" label="Save" text />
     </div>
   </div>
 </template>
@@ -89,6 +77,13 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsdXJrcWN5eGhyYnh4dG5yY2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY1NTcyNTEsImV4cCI6MjAwMjEzMzI1MX0.AZESK8885YEqTl197Mkm3cn-UGRcQRnCjguiXeQi6Pc"
 );
 
+const supabase2 = createClient(
+  "https://hvzzpfhyghxvhtfvtivo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2enpwZmh5Z2h4dmh0ZnZ0aXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDMzMjI2MTUsImV4cCI6MjAxODg5ODYxNX0.ndFqLUSq - Urz2oaEsnAZlVdSCQIJUs3U710O1NANT7k"
+);
+
+
+const visible = ref(false);
 const toast = useToast();
 const dstore = useDataStore();
 const loading = ref(false);
@@ -102,6 +97,18 @@ var endtime = ref(new Date(user.end_working_hour));
 const { text, copy, copied, isSupported } = useClipboard();
 
 console.log("profile ori user", user);
+
+
+const onAdvancedUpload = async (event) => {
+  console.log(event.files[0]);
+
+  const { } = await supabase
+    .rpc('update_profile_photo_status', {
+      userId
+    })
+
+  dstore.setHasProfilePhoto(true);
+};
 
 const updateProfile = async () => {
   loading.value = true;
