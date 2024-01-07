@@ -1284,6 +1284,12 @@ export interface Database {
           chat_target: Json
         }[]
       }
+      update_profile_photo_status: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: undefined
+      }
       update_project: {
         Args: {
           n_user_id: string
