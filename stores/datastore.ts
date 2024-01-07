@@ -134,6 +134,7 @@ export interface User {
   start_working_hour: string;
   end_working_hour: string;
   avatar_url: string;
+  has_profile_photo: boolean;
 }
 
 interface Project {
