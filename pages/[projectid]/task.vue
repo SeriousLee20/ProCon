@@ -98,7 +98,7 @@
             </div>
             <div class="flex gap-1">
               <ShowUnscheduled
-                :showCompleted="taskShowUnscheduled"
+                :showUnscheduled="taskShowUnscheduled"
                 :handler="toggleTaskShowUnscheduled"
               />
               <Showcompleted

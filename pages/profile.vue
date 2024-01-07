@@ -7,7 +7,7 @@
 
     <div class="flex justify-content-center">
       <Pbutton label="Upload Profile Photo" icon="pi pi-external-link" @click="visible = true"
-        class="'text-xs bg-white border-none text-primary-700 hover:text-primary-400'" />
+        class="text-xs bg-white border-none text-primary-600 hover:text-primary-400" :pt="{icon:{class:'text-xs'}}" />
 
       <Pdialog v-model:visible="visible" modal header="Profile Photo Upload" :style="{ width: '50rem' }"
         :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">

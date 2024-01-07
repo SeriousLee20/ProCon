@@ -1,7 +1,7 @@
 <template>
   <Pbutton
     class="no-shadow font-normal text-xs"
-    :icon="setShowUnscheduledIcon(showCompleted)"
+    :icon="setShowUnscheduledIcon(showUnscheduled)"
     @click="handler"
     label="Unscheduled"
     size="medium"
@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-defineProps(["showCompleted", "handler"]);
+defineProps(["showUnscheduled", "handler"]);
 
 const setShowUnscheduledIcon = (show) => {
   return show ? "pi pi-eye" : "pi pi-eye-slash";
