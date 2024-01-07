@@ -594,26 +594,20 @@ const sortList = (filteredList, listName, sortOptionName) => {
 };
 
 const getMainTaskList = () => {
-    const filteredList = sortList(
-      tasks,
-      "main_task",
-      "main_task_sort_option"
-    );
-    console.log("daterange", filterTaskDueDateRange.value);
-    console.log(filteredList);
+  const filteredList = sortList(tasks, "main_task", "main_task_sort_option");
+  console.log("daterange", filterTaskDueDateRange.value);
+  console.log(filteredList);
 
-    return { filteredList };
+  return { filteredList };
 };
 getMainTaskList();
 
 const getMyTaskList = () => {
-    var filteredList = tasks?.filter((task) =>
-      task.owner_ids?.includes(userId)
-    );
+  var filteredList = tasks?.filter((task) => task.owner_ids?.includes(userId));
 
-    filteredList = sortList(filteredList, "my_task", "sort_option");
-    console.log("sort", filteredList);
-    return { filteredList };
+  filteredList = sortList(filteredList, "my_task", "sort_option");
+  console.log("sort", filteredList);
+  return { filteredList };
 };
 myTaskList.value = getMyTaskList().filteredList;
 
@@ -662,6 +656,7 @@ const updateFilter = async (filterName, filterValue, boardName) => {
   });
   if (updateFilterRes.value?.success) {
     filters = updateFilterRes.value.response;
+    dstore.setFilters(filters);
   }
 
   switch (boardName) {
@@ -699,6 +694,12 @@ const updateTask = async () => {
     tasks = updateTaskRes.value.response;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
+    let target = selectedTask.value.owner_ids
+      ? selectedTask.value.owner_ids.filter((id) => {
+          return id != userId;
+        })
+      : [];
+
     sendNotification(
       "update_task",
       `Task Updates`,
@@ -707,7 +708,7 @@ const updateTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [],
+      target,
       true
     );
   }
@@ -770,6 +771,12 @@ const insertTask = async () => {
     tasks = insertTaskRes.value.response;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
+
+    let target = selectedTask.value.owner_ids
+      ? selectedTask.value.owner_ids.filter((id) => {
+          return id != userId;
+        })
+      : [];
     sendNotification(
       "insert_task",
       `${dstore.selectedProject.name}: New Task`,
@@ -778,7 +785,7 @@ const insertTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [],
+      target,
       true
     );
   }
@@ -801,6 +808,12 @@ const deleteTask = async () => {
     tasks = deleteTask.value.response;
     myTaskList.value = getMyTaskList().filteredList;
     getMainTaskList();
+
+    let target = selectedTask.value.owner_ids
+      ? selectedTask.value.owner_ids.filter((id) => {
+          return id != userId;
+        })
+      : [];
     sendNotification(
       "delete_task",
       `${dstore.selectedProject.name}: Deleted Task`,
@@ -809,7 +822,7 @@ const deleteTask = async () => {
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : [],
+      target,
       true
     );
   }
@@ -866,11 +879,16 @@ async function addAnnouncement() {
   );
 
   if (addAnnouncementRes.value.success) {
+    let target = announcementReceivers.value
+      ? announcementReceivers.value.filter((id) => {
+          return id != userId;
+        })
+      : [];
     sendNotification(
       "add_announcement",
       `${dstore.selectedProject.name}: Announcement ${announcementTitle.value}`,
       `Announcement: ${announcementDesc.value ? announcementDesc.value : ""}`,
-      announcementReceivers.value,
+      target,
       true
     );
 

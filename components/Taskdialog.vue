@@ -15,6 +15,7 @@
         :disabled="!props.isAdmin"
         required
         aria-labelledby="invalid-task-name"
+        @update:model-value="enableSave"
       />
       <small
         v-if="!props.selectedTask.task_name"
@@ -29,6 +30,7 @@
         id="task-desc"
         v-model="props.selectedTask.task_desc"
         class="h-15rem"
+        @text-change="enableSave"
       ></Peditor>
     </div>
 
@@ -46,6 +48,7 @@
           :disabled="!props.isAdmin"
           showButtonBar
           @hide="checkValidDates"
+          @update:model-value="enableSave"
         ></Pcalendar>
       </div>
       <div class="field">
@@ -65,6 +68,7 @@
           :disabled="!props.isAdmin || disableDueDate"
           aria-labelledby="invalid-due-date"
           @hide="checkValidDates($event)"
+          @update:model-value="enableSave"
         ></Pcalendar>
         <small
           v-if="invalidDueDate"
@@ -84,7 +88,8 @@
           :selectOtherMonths="true"
           :disabled="!props.isAdmin || disableUrgentDate"
           showButtonBar
-          @update:model-value="checkValidDates"
+          @hide="checkValidDates"
+          @update:model-value="enableSave"
         ></Pcalendar>
         <small
           v-if="invalidUrgentDate"
@@ -102,6 +107,7 @@
           optionLabel="status_name"
           optionValue="status_code"
           class="w-12rem"
+          @update:model-value="enableSave"
         ></Pdropdown>
       </div>
       <div class="field">
@@ -114,6 +120,7 @@
           optionValue="id"
           class="w-12rem"
           :disabled="!props.isAdmin"
+          @update:model-value="enableSave"
         ></Pdropdown>
       </div>
       <div class="field" v-if="props.selectedTask.importance == 1">
@@ -122,6 +129,7 @@
           v-model="props.selectedTask.importance_rate"
           :stars="4"
           :disabled="!props.isAdmin"
+          @update:model-value="enableSave"
         >
           <template #onicon>
             <i class="pi pi-exclamation-triangle pt-2" style="color: red"></i>
@@ -148,6 +156,7 @@
         placeholder="Assign Task to"
         class="w-full"
         :disabled="!props.isAdmin"
+        @update:model-value="enableSave"
       >
         <template #optiongroup="slotProps">
           <div class="flex align-items-center">
@@ -172,6 +181,7 @@
 
         <div class="w-full text-right pt-3">
           <Pbutton
+            :disabled="!enableSaveButton"
             label="Save"
             icon="pi pi-check"
             severity="success"
@@ -229,6 +239,7 @@ const invalidDueDateMessage = ref();
 const invalidUrgentDateMessage = ref();
 const disableDueDate = ref(false);
 const disableUrgentDate = ref(false);
+const enableSaveButton = ref(false);
 
 console.log("dialog", isEditTask, props.taskDialog);
 
@@ -243,6 +254,14 @@ const setSecondToZero = (timestamp) => {
   return new Date(timestamp.setSeconds(0, 0));
 };
 
+const enableSave = () => {
+  enableSaveButton.value =
+    !invalidDueDate.value &&
+    !invalidStartDate.value &&
+    !invalidUrgentDate.value &&
+    props.selectedTask.task_name;
+};
+
 const checkValidDates = () => {
   console.log("check dates", props.selectedTask);
   if (props.selectedTask.due_date_time && props.selectedTask.start_date_time) {
@@ -251,10 +270,13 @@ const checkValidDates = () => {
     let ud = props.selectedTask.urgent_date;
 
     console.log(sdt, edt, ud);
-    invalidStartDate.value = ud && ud < new Date(sdt.toDateString()) || sdt >= edt;
+    invalidStartDate.value =
+      (ud && ud < new Date(sdt.toDateString())) || sdt >= edt;
     invalidDueDate.value =
       sdt >= edt || (ud && ud > new Date(edt.toDateString()));
-    invalidUrgentDate.value = ud && ud < new Date(sdt.toDateString()) || ud && ud > new Date(edt.toDateString());
+    invalidUrgentDate.value =
+      (ud && ud < new Date(sdt.toDateString())) ||
+      (ud && ud > new Date(edt.toDateString()));
     invalidDueDateMessage.value =
       sdt >= edt ? "Due Datetime must after Start Datetime" : null;
     invalidUrgentDateMessage.value =
@@ -273,6 +295,13 @@ const checkValidDates = () => {
   props.selectedTask.due_date_time = disableDueDate.value
     ? null
     : props.selectedTask.due_date_time;
+
+  enableSaveButton.value =
+    !invalidDueDate.value &&
+    !invalidStartDate.value &&
+    !invalidUrgentDate.value &&
+    props.selectedTask.task_name;
+
   console.log(
     invalidStartDate.value,
     invalidDueDate.value,
@@ -288,6 +317,7 @@ const emit = defineEmits([
 ]);
 
 const closeTaskDialog = () => {
+  enableSaveButton.value = false;
   emit("close-task-dialog");
 };
 
@@ -305,6 +335,7 @@ const saveTask = () => {
       emit("insert-task");
       console.log("insert", props.selectedTask);
     }
+    enableSaveButton.value = false;
   }
 };
 

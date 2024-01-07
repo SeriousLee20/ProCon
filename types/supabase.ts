@@ -742,9 +742,13 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          role: string
+          description: string
+          creator_id: string
           telegram_chat_id: string
           grouped_members: Json
           task_list: Json
+          user_id: string
         }[]
       }
       get_all_project: {
@@ -1369,9 +1373,13 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          role: string
+          description: string
+          creator_id: string
           telegram_chat_id: string
           grouped_members: Json
           task_list: Json
+          user_id: string
         }[]
       }
       update_user: {

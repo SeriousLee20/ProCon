@@ -67,9 +67,9 @@ const { data: parameters } = await useFetch("/api/get_parameters");
 var { data: projectMemberAndTaskRes } = await useFetch(
   "/api/get_management_boards"
 );
-const filters = dstore.getFilters;
+var filters = dstore.getFilters;
 const projectMember = projectMemberAndTaskRes.value.response;
-$emit('refresh-project-list');
+$emit("refresh-project-list");
 // TODO: new api, return project with sorted tasklist
 console.log("ov param", parameters.value.response);
 console.log(
@@ -85,9 +85,8 @@ const getSortOptions = (listName) => {
 };
 
 const getFilter = (listName) => {
-  const thisFilter = filters.value.response.filter(
-    (item) => item.board_name == listName
-  )[0]?.filter;
+  const thisFilter = filters.filter((item) => item.board_name == listName)[0]
+    ?.filter;
   console.log("sortoption", thisFilter);
   return { thisFilter };
 };
@@ -199,7 +198,11 @@ const updateFilter = async (filterName, filterValue, boardName) => {
     body: updatedFilter,
     headers: { "cache-control": "no-cache" },
   });
-  filters = updateFilterRes;
+
+  if (updateFilterRes.value?.success) {
+    filters = updateFilterRes.value?.response;
+    dstore.setFilters(filters);
+  }
 
   overviewTaskLists.value = sortTasks().taskList;
 
@@ -227,7 +230,9 @@ const toggleTaskDialog = (props, isToEditTask) => {
         due_date: props.due_date ? new Date(props.due_date) : null,
         urgent_date: props.urgent_date ? new Date(props.urgent_date) : null,
         start_date: props.start_date ? new Date(props.start_date) : null,
-        start_date_time: props.start_date_time ? new Date(props.start_date_time) : null,
+        start_date_time: props.start_date_time
+          ? new Date(props.start_date_time)
+          : null,
       };
 
       selectedTask.value = { ...props };
@@ -261,7 +266,7 @@ const formatNotification = (content) => {
   if (content) return (content = content.replace(regex, ""));
 };
 
-const sendNotification = async (action, title, content, target) => {
+const sendNotification = async (action, title, content, target, telegramId) => {
   console.log(action);
 
   const { data: notificationRes } = await useFetch("/api/insert_notification", {
@@ -271,6 +276,7 @@ const sendNotification = async (action, title, content, target) => {
       content: content,
       target: target,
       project_id: selectedTask.value.project_id,
+      telegram_chat_id: telegramId,
     },
     headers: { "cache-control": "no-cache" },
   });
@@ -301,18 +307,24 @@ const updateTask = async () => {
   if (updateTaskRes.value.success) {
     // TODO: replace old list with new list
     projectMemberAndTaskRes = updateTaskRes;
-
+    let projectInfo = dstore.getProject(updatedTask.project_id);
     console.log("update task list", projectMemberAndTaskRes);
     overviewTaskLists.value = sortTasks().taskList;
+    let target = selectedTask.value.owner_ids
+      ? selectedTask.value.owner_ids.filter((id) => {
+          return id != userId;
+        })
+      : [];
     sendNotification(
       "update_task",
-      `${dstore.getProject(selectedTask.project_id).name}: Task Updates`,
+      `${projectInfo?.name}: Task Updates`,
       "Task Updates: " +
         selectedTask.value.task_name +
         (selectedTask.value.task_desc
           ? " - " + formatNotification(selectedTask.value.task_desc)
           : ""),
-      selectedTask.value.owner_ids ? selectedTask.value.owner_ids : []
+      target,
+      projectInfo?.telegram_chat_id
     );
   }
 
@@ -332,13 +344,30 @@ const deleteTask = async () => {
   });
 
   console.log("dlt task", deleteTaskRes.value, selectedTask.value);
-  if (deleteTaskRes.value.success) {
+  if (deleteTaskRes.value?.success) {
     projectMemberAndTaskRes = deleteTaskRes;
     console.log(
       "after dlt update task list",
       projectMemberAndTaskRes.value.response
     );
     overviewTaskLists.value = sortTasks().taskList;
+    let projectInfo = dstore.getProject(selectedTask.value.project_id);
+    let target = selectedTask.value.owner_ids
+      ? selectedTask.value.owner_ids.filter((id) => {
+          return id != userId;
+        })
+      : [];
+    sendNotification(
+      "delete_task",
+      `${projectInfo.name}: Deleted Task`,
+      "Deleted task: " +
+        selectedTask.value.task_name +
+        (selectedTask.value.task_desc
+          ? " - " + formatNotification(selectedTask.value.task_desc)
+          : ""),
+      target,
+      projectInfo.telegram_chat_id
+    );
   }
 };
 // const groupMember = projectMember.reduce((result, item) => {
