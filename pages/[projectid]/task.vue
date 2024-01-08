@@ -6,6 +6,17 @@
     class="p-fluid"
     style="width: 80%"
   >
+    <template #header>
+      <div>
+        <div class="text-lg font-bold mb-2">Add Announcement</div>
+        <div v-if="!announcementTitle ||
+            !announcementDesc ||
+            !announcementReceivers ||
+            announcementReceivers?.length == 0" class="text-sm text-red-500">
+          Please provide complete information for this announcement.
+        </div>
+      </div>
+    </template>
     <div class="field">
       <label for="title">Title</label>
       <Pinputtext id="title" v-model="announcementTitle" type="text" required />
@@ -18,6 +29,7 @@
         v-model="announcementDesc"
         type="text"
         required
+        autoResize
       />
     </div>
 
@@ -44,7 +56,16 @@
 
     <template #footer>
       <div class="flex gap-2 align-items-center w-full justify-content-endw">
-        <Pbutton @click="addAnnouncement">Add</Pbutton>
+        <Pbutton
+          :disabled="
+            !announcementTitle ||
+            !announcementDesc ||
+            !announcementReceivers ||
+            announcementReceivers?.length == 0
+          "
+          @click="addAnnouncement"
+          >Add</Pbutton
+        >
         <Pbutton @click="closeAnnouncementModal()">Close</Pbutton>
       </div>
     </template>
@@ -55,7 +76,7 @@
       <div class="col-8">
         <div class="flex justify-content-center">
           <div
-            class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-1"
+            class="flex gap-5 w-full flex justify-content-between border-1 border-round-sm border-primary-100 mb-0"
           >
             <div class="flex gap-1">
               <div class="flex align-items-center">
@@ -117,14 +138,15 @@
           </div> -->
         </div>
         <div class="flex">
-          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 border-1 bg-primary-100 border-primary-100  h-21rem flex-auto">
             <template #content>
               <Tasklist
-                class="h-17rem overflow-scroll"
+                class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q4"
+                :listName="'main_task'"
                 :pt="{
                   content: {
-                    class: 'bg-primary-100 align-self-center',
+                    class: ' bg-primary-100 align-self-center',
                     style: 'align-items-center',
                   },
                   column: { class: 'border-none' },
@@ -139,11 +161,12 @@
           >
             <div class="-rotate-90 text-red-500 font-bold">IMPORTANT</div>
           </div>
-          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 bg-primary-100 border-1 border-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
-                class="h-17rem overflow-scroll"
+                class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q1"
+                :listName="'main_task'"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
@@ -173,11 +196,12 @@
           </div>
         </div>
         <div class="flex">
-          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 bg-primary-100 border-1 border-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
-                class="h-17rem overflow-scroll"
+                class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q3"
+                :listName="'main_task'"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
@@ -193,11 +217,12 @@
               NOT IMPORTANT
             </div>
           </div>
-          <Pcard class="col-5 bg-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 bg-primary-100 border-1 border-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
-                class="h-17rem overflow-scroll"
+                class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q2"
+                :listName="'main_task'"
                 :pt="{ content: { class: 'bg-primary-100' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
@@ -209,7 +234,6 @@
       <div class="col-4">
         <!-- right panel -->
         <div>
-          <!-- TODO:edit card styling -->
           <Pcard
             class="border-round border-primary-500 border-2 bg-white w-full mb-2 h-24rem"
           >
@@ -240,8 +264,9 @@
             </template>
             <template #content>
               <Tasklist
-                class="h-15rem overflow-scroll"
+                class="h-19rem overflow-scroll -mt-3"
                 :taskList="myTaskList"
+                :listName="'my_task'"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
 
@@ -268,7 +293,7 @@
             :pt="{ title: { style: 'margin:0' } }"
           >
             <template #title>
-              <div class="grid justify-content-evenly">
+              <div class="grid justify-content-evenly -mt-3">
                 <div class="col-4 col-offset-4 text-center">
                   <h5>Announcements</h5>
                 </div>
@@ -285,7 +310,7 @@
             </template>
             <template #content>
               <Announcementlist
-                class="h-13rem overflow-scroll"
+                class="h-17rem overflow-scroll -mt-3"
                 :announcement-list="announcementList"
                 :pt="{
                   column: { class: 'border-none' },
@@ -321,7 +346,7 @@ dstore.setCurrentPage("Task");
 
 const { $emit } = useNuxtApp();
 const toast = useToast();
-$emit('refresh-navbar')
+$emit("refresh-navbar");
 let announcements = [];
 // let filteredAnnouncements = [];
 let userOptions = [];
@@ -869,7 +894,7 @@ const insertComment = async (event) => {
     }
   );
 
-  console.log('cmt', insertCommentRes.value)
+  console.log("cmt", insertCommentRes.value);
   if (insertCommentRes.value?.success) {
     tasks.value = insertCommentRes.value.response;
     getMainTaskList();
@@ -981,6 +1006,9 @@ function closeAnnouncementModal() {
 
 function openAnnouncementModal() {
   isOpenAnnouncementModal.value = true;
+  announcementTitle.value = null;
+  announcementDesc.value = null;
+  announcementReceivers.value = null;
 }
 
 defineExpose({

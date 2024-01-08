@@ -3,19 +3,22 @@
     <template #list="slotProps">
       <div
         v-for="(item, index) in slotProps.items"
-        class="w-full flex align-items-center justify-content-between hover:bg-primary-200 border-round border-none mb-2 px-3 pb-3 cursor-pointer"
+        class="w-full col-12 hover:shadow-2 shadow-1 mb-3 p-2 pb-3 cursor-pointer border-1 border-round border-primary-400 border-top-none border-left-none"
         @click="openAnnouncementDialog(item)"
       >
-        <div class="flex gap-2 align-content-center">
-          <p class="footnote-2">
+        <div class="flex align-items-center justify-content-between mb-2">
+          <div class="text-sm font-semibold">
             {{ item.name ?? "" }}
-          </p>
-
+          </div>
+          <div class="text-xs font-light">
+            {{ formatDate(item.creation_timestamp) ?? "" }}
+          </div>
         </div>
-
-        <p class="footnote">
-          {{ formatDate(item.creation_timestamp) ?? "" }}
-        </p>
+        <div
+          class="text-xs font-normal max-h-1rem text-overflow-ellipse overflow-hidden"
+        >
+          {{ item.description }}
+        </div>
       </div>
     </template>
   </Pdataview>
