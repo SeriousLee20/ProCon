@@ -1101,6 +1101,7 @@ const addDepartment = async () => {
 
       if (insertDepartmentRes.value.success) {
         departments.value = insertDepartmentRes.value.response[0].departments;
+        resources.value = departments.value;
         toast.add({
           severity: "success",
           summary: "Success",

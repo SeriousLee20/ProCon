@@ -58,7 +58,7 @@
           icon="pi pi-home"
           @click="switchPage('/overview', 'Overview')"
           text
-          v-tooltip.top="{
+          v-tooltip.bottom="{
             value: 'Overview',
             pt: {
               text: 'bg-primary-500 text-xs font-medium text-center',
@@ -72,7 +72,7 @@
           icon="pi pi-chart-bar"
           @click="switchPage('ganttchart', 'Gantt Chart')"
           text
-          v-tooltip.top="{
+          v-tooltip.bottom="{
             value: 'Gantt Chart',
             pt: {
               text: 'bg-primary-500 text-xs font-medium text-center',
@@ -87,7 +87,7 @@
           icon="pi pi-sitemap"
           @click="switchPage(`management`, 'Management')"
           text
-          v-tooltip.top="{
+          v-tooltip.bottom="{
             value: 'Management Board',
             pt: {
               text: 'bg-primary-500 text-xs font-medium text-center',
@@ -101,7 +101,12 @@
           icon="pi pi-directions-alt"
           @click="switchPage(`task`, 'Task')"
           text
-          v-tooltip.bottom="`Back to Task`"
+          v-tooltip.bottom="{
+            value: 'Back to Task',
+            pt: {
+              text: 'bg-primary-500 text-xs font-medium text-center',
+            },
+          }"
         />
       </div>
     </div>
