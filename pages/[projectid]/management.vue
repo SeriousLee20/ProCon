@@ -210,7 +210,7 @@
             sortable
           ></Pcolumn>
           <Pcolumn
-            field="position"
+            field="user_position"
             header="Position"
             width="10%"
             sortable
@@ -227,7 +227,7 @@
             width="10%"
             :pt="{ column: { style: 'width:10rem' } }"
           ></Pcolumn>
-          <Pcolumn width="10%" header="Edit/Delete Member">
+          <Pcolumn v-if="isAdmin" width="10%" header="Edit/Delete Member">
             <template #body="slotProps">
               <Pbutton
                 icon="pi pi-pencil"
@@ -575,6 +575,7 @@
             </template>
           </Pcolumn>
           <Pcolumn
+          v-if="isAdmin"
             :rowEditor="true"
             style="width: 10%; min-width: 8rem"
             bodyStyle="text-align:center"
@@ -1068,13 +1069,13 @@ const addDepartment = async () => {
   let addedDepartment = [];
   if (newDepartment.value?.length > 0) {
     addedDepartment = newDepartment.value.filter((newDep) => {
-      return !departments.value.some(
+      return !departments.value?.some(
         (oldDep) => oldDep.user_department == newDep
       );
     });
 
-    existedDepartment = newDepartment.value.filter((newDep) => {
-      return departments.value.some(
+    existedDepartment = newDepartment.value?.filter((newDep) => {
+      return departments.value?.some(
         (oldDep) => oldDep.user_department == newDep
       );
     });
@@ -1106,6 +1107,7 @@ const addDepartment = async () => {
           detail: `Added ${addedDepartment.join(", ")} to the project.`,
           life: 5000,
         });
+        newDepartment.value = null;
       }
     }
 
@@ -1128,7 +1130,7 @@ const deleteDepartment = (event, department) => {
     accept: async () => {
       console.log(
         "dept index",
-        departments.value.findIndex(
+        departments.value?.findIndex(
           (dept) => dept.user_department == department.user_department
         )
       );
@@ -1152,8 +1154,8 @@ const deleteDepartment = (event, department) => {
         board.value = deleteDepartmentRes.value.response;
         console.log("deletedpt", board.value);
 
-        departments.value.splice(
-          departments.value.findIndex(
+        departments.value?.splice(
+          departments.value?.findIndex(
             (dept) => dept.department_id == department.department_id
           ),
           1
@@ -1219,11 +1221,11 @@ const addPosition = async () => {
   console.log(newPosition.value);
   if (newPosition.value?.length > 0) {
     addedPosition = newPosition.value.filter((newPos) => {
-      return !positions.value.some((oldPos) => oldPos.user_position == newPos);
+      return !positions.value?.some((oldPos) => oldPos.user_position == newPos);
     });
 
     existedPosition = newPosition.value.filter((newPos) => {
-      return positions.value.some((oldPos) => oldPos.user_position == newPos);
+      return positions.value?.some((oldPos) => oldPos.user_position == newPos);
     });
 
     if (existedPosition.length > 0) {
@@ -1238,7 +1240,9 @@ const addPosition = async () => {
       addedPosition = addedPosition.map((pos) => ({
         user_position: pos,
       }));
-      positions.value.push(...addedPosition);
+
+      positions.value = positions.value? positions.value.push(...addedPosition) : [...addedPosition];
+      console.log('positions', positions.value)
       const { data: insertPositionRes } = await useFetch(
         "/api/insert_positions",
         {
@@ -1256,6 +1260,7 @@ const addPosition = async () => {
           detail: `Added ${addedPosition.join(", ")} to the project.`,
           life: 5000,
         });
+        newPosition.value = null;
       }
     }
 
@@ -1278,11 +1283,11 @@ const deletePosition = (event, position) => {
     accept: async () => {
       console.log(
         "pos index",
-        positions.value.findIndex(
+        positions.value?.findIndex(
           (pos) => pos.user_position == position.user_position
         )
       );
-      positions.value.splice(
+      positions.value?.splice(
         positions.value.findIndex(
           (pos) => pos.user_position == position.user_position
         ),

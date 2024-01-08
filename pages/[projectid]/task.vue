@@ -864,12 +864,12 @@ const insertComment = async (event) => {
         sender_id: userId,
         content: event.comment,
         project_id: projectid,
-        page: 'task'
       },
       headers: { "cache-control": "no-cache" },
     }
   );
 
+  console.log('cmt', insertCommentRes.value)
   if (insertCommentRes.value?.success) {
     tasks.value = insertCommentRes.value.response;
     getMainTaskList();

@@ -1063,7 +1063,7 @@ const insert_chatlog = async () => {
       body: {
         chatroom_id: chatroom.chatroom_id,
         project_id: selectedProject.value,
-        receiver_id: chatroom.chat_target ? chatroom.chat_target[0].id : null,
+        receiver_id: chatroom.chat_target ? chatroom.chat_target[0].user_id : null,
         text_content: chatInput.value,
       },
       headers: { "cache-control": "no-cache" },
