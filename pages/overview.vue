@@ -417,10 +417,11 @@ const insertComment = async (event) => {
     selectedTask.value = updateSelectedTask[0];
 
     let projectInfo = dstore.getProject(selectedTask.value.project_id);
+    console.log('cmt', selectedTask.value, projectInfo)
     sendNotification(
       "Task Comment",
       `${projectInfo.name}: Task Comment`,
-      `Task Comment for ${selectedTask.value.task_name}: ${event.content}`,
+      `Task Comment for ${selectedTask.value.task_name}: ${event.comment}`,
       selectedTask.value.owner_ids,
       projectInfo.telegram_chat_id
     );

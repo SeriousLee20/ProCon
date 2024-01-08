@@ -949,12 +949,12 @@ const addMember = async () => {
   console.log(
     "newmember",
     newMember.value,
-    newMember.value.length,
+    newMember.value?.length,
     getUserRes.value
   );
 
   if (newMember && newMember.value.length > 0) {
-    newMember.value.forEach(async (newMb) => {
+    newMember.value?.forEach(async (newMb) => {
       console.log("curr member", newMb);
 
       const validateUser = getUserRes.value.response.find(
