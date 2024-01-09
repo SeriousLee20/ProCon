@@ -1045,7 +1045,7 @@ const toggleChatroom = () => {
 
 function appendChatInput(emoji) {
   console.log(emoji);
-  chatInput.value += emoji.i;
+  chatInput.value = chatInput.value ? chatInput.value += emoji.i : emoji.i;
   /*
     // result
     {

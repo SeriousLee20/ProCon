@@ -221,7 +221,7 @@
           />
 
           <Pbutton
-            v-if="props.isEditTask"
+            v-if="props.isEditTask && props.isAdmin"
             label="Delete"
             icon="pi pi-trash"
             severity="danger"
