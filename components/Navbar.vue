@@ -125,13 +125,13 @@
         <Poverlay-panel
           ref="chatPanel"
           appendTo="body"
-          style="width: 24rem; height: 20rem"
+          style="width: 24rem; height: 26rem"
         >
           <Pdataview
             v-if="chatPanelState == 'home'"
             :value="chatlist"
             optionValue="chatroom_id"
-            class="h-17rem overflow-scroll"
+            class="h-22rem overflow-scroll"
             :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
           >
             <template #header>
@@ -198,7 +198,7 @@
               </div>
             </template>
           </Pdataview>
-          <div v-if="chatPanelState == 'create_group'">
+          <div v-if="chatPanelState == 'start_create_group'">
             <div class="flex justify-content-between align-items-center">
               <Pbutton
                 class="text-primary text-sm cursor-pointer hover:bg-white"
@@ -672,12 +672,12 @@
         <Poverlay-panel
           ref="notificationPanel"
           appendTo="body"
-          style="width: 24rem; height: 20rem"
+          style="width: 24rem; height: 25rem"
         >
           <Pdataview
             :value="notificationList"
             optionValue="notification_id"
-            class="h-17rem overflow-scroll"
+            class="h-22rem overflow-scroll"
             :pt="{ header: { class: 'p-0 pl-1 pb-2' } }"
           >
             <template #header>
@@ -885,7 +885,7 @@ const openCreateGroupPanel = () => {
   selectedGroupMember.value = [user.value.id];
   // selectedGroupMember.value.push(user.id)
   // selectedGroupMember.value.push(user.id)
-  chatPanelState.value = "create_group";
+  chatPanelState.value = "start_create_group";
   chatroomState.value = "home";
   groupedUsers.value = dstore.getManagementBoard;
   console.log(
@@ -902,7 +902,7 @@ const cancelCreateGroup = () => {
 };
 
 const backToSelectGroupMember = () => {
-  chatPanelState.value = "create_group";
+  chatPanelState.value = "start_create_group";
 };
 
 const doneSelectGroupMember = () => {
@@ -912,7 +912,7 @@ const doneSelectGroupMember = () => {
 
 const createChatGroup = async () => {
   console.log("groupinfo", chatGroupName.value, chatGroupDescription);
-  const { data: createGroupRes } = await useFetch("/api/create_group", {
+  const { data: createGroupRes, trace } = await useFetch("/api/create_group", {
     method: "POST",
     body: {
       group_name: chatGroupName.value,
@@ -923,7 +923,9 @@ const createChatGroup = async () => {
     headers: { "cache-control": "no-cache" },
   });
 
+  console.log('cg', trace, createGroupRes);
   if (createGroupRes.value.success) {
+    console.trace('creategroup')
     chatlist.value = createGroupRes.value.response;
     chatPanelState.value = "home";
     let target = selectedGroupMember.value.splice(
@@ -936,6 +938,9 @@ const createChatGroup = async () => {
       target,
       false
     );
+
+    chatGroupName.value = null;
+    selectedGroupMember.value = null;
   }
 };
 

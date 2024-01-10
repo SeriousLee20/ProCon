@@ -7,7 +7,7 @@
       <template #list="slotProps">
         <div
           v-for="(item, index) in slotProps.items"
-          class="col-12 hover:shadow-2 shadow-1 mb-3 p-2 cursor-pointer border-1 border-round border-primary-400 border-top-none border-left-none"
+          class="col-12 bg-primary-reverse hover:shadow-3 shadow-1 mb-3 p-2 cursor-pointer border-1 border-round border-primary-400 border-top-none border-left-none"
           :class="{'border-primary-400': isMainTaskList}"
           @click="openTaskDialog(item)"
         >

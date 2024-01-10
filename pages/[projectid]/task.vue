@@ -138,7 +138,7 @@
           </div> -->
         </div>
         <div class="flex">
-          <Pcard class="col-5 border-1 bg-primary-100 border-primary-100  h-21rem flex-auto">
+          <Pcard class="col-5 border-1 bg-primary-400 border-primary-100  h-21rem flex-auto">
             <template #content>
               <Tasklist
                 class="h-19rem pt-2 overflow-scroll"
@@ -146,7 +146,7 @@
                 :listName="'main_task'"
                 :pt="{
                   content: {
-                    class: ' bg-primary-100 align-self-center',
+                    class: ' bg-primary-400 align-self-center',
                     style: 'align-items-center',
                   },
                   column: { class: 'border-none' },
@@ -159,15 +159,15 @@
           <div
             class="col-1 bg-secondary h-21rem w-2rem flex align-items-center justify-content-center"
           >
-            <div class="-rotate-90 text-red-500 font-bold">IMPORTANT</div>
+            <div class="-rotate-90 text-red-400 font-bold">IMPORTANT</div>
           </div>
-          <Pcard class="col-5 bg-primary-100 border-1 border-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 bg-primary-400 border-1 border-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
                 class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q1"
                 :listName="'main_task'"
-                :pt="{ content: { class: 'bg-primary-100' } }"
+                :pt="{ content: { class: 'bg-primary-500' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
@@ -196,13 +196,13 @@
           </div>
         </div>
         <div class="flex">
-          <Pcard class="col-5 bg-primary-100 border-1 border-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 bg-primary-400 border-1 border-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
                 class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q3"
                 :listName="'main_task'"
-                :pt="{ content: { class: 'bg-primary-100' } }"
+                :pt="{ content: { class: 'bg-primary-400' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
@@ -217,13 +217,13 @@
               NOT IMPORTANT
             </div>
           </div>
-          <Pcard class="col-5 bg-primary-100 border-1 border-primary-100 h-21rem flex-auto">
+          <Pcard class="col-5 bg-primary-400 border-1 border-primary-100 h-21rem flex-auto">
             <template #content>
               <Tasklist
                 class="h-19rem pt-2 overflow-scroll"
                 :taskList="mainTaskList.q2"
                 :listName="'main_task'"
-                :pt="{ content: { class: 'bg-primary-100' } }"
+                :pt="{ content: { class: 'bg-primary-400' } }"
                 @open-task-dialog="toggleTaskDialog($event, true)"
               />
             </template>
@@ -515,8 +515,8 @@ const getDefaultDueDateRange = (isClearClick) => {
   }
 
   dateRange = [
-    new Date(Math.min.apply(null, due_date_list)),
-    new Date(Math.max.apply(null, due_date_list)),
+    new Date(new Date(Math.min.apply(null, due_date_list)).setHours(0,0,0,0)),
+    new Date(new Date(Math.max.apply(null, due_date_list)).setHours(0,0,0,0)),
   ];
 
   // toDateString: get date only, ignore time
@@ -535,6 +535,7 @@ const getDefaultDueDateRange = (isClearClick) => {
 };
 
 const sortList = (filteredList, listName, sortOptionName) => {
+  console.log('sortlist', filteredList)
   const today = new Date();
   const filter = getFilter(listName).thisFilter;
   const sortOption = getSortOptions(sortOptionName)?.filter(
@@ -693,7 +694,11 @@ const toggleTaskDialog = (props, isToEditTask) => {
 
 const updateFilter = async (filterName, filterValue, boardName) => {
   let updatedFilter = {};
-  console.log(myTaskSortOption.value);
+  console.log(filterName, filterValue, myTaskSortOption.value);
+  // if(filterName == 'due_date_range'){
+  //   filterValue = filterValue ? [filterValue[0].setHours(0,0,0,0), filterValue[1].setHours(0,0,0,0)] : filterValue
+  // }
+
   updatedFilter["board_name"] = boardName;
   updatedFilter["filter"] = getFilter(boardName).thisFilter;
   updatedFilter.filter[filterName] = filterValue;
@@ -896,10 +901,10 @@ const insertComment = async (event) => {
 
   console.log("cmt", insertCommentRes.value);
   if (insertCommentRes.value?.success) {
-    tasks.value = insertCommentRes.value.response;
+    tasks = insertCommentRes.value.response;
     getMainTaskList();
     getMyTaskList();
-    let updateSelectedTask = tasks.value.filter((task) => {
+    let updateSelectedTask = tasks.filter((task) => {
       return task.task_id == event.task_id;
     });
 
@@ -918,7 +923,7 @@ const insertComment = async (event) => {
     sendNotification(
       "Task Comment",
       `${dstore.selectedProject.name}: Task Comment`,
-      `Task Comment for ${selectedTask.value.task_name}: ${event.content}`,
+      `Task Comment for ${selectedTask.value.task_name}: ${event.comment}`,
       selectedTask.value.owner_ids,
       true
     );
