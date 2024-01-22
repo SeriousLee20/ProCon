@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
+    "@nuxt/image": "^1.1.0",
     "@pinia-plugin-persistedstate/nuxt": "^1.1.1",
     "@types/node": "^18",
     "@types/quill": "^2.0.11",
@@ -24,7 +25,6 @@
     "@nuxtjs/supabase": "^0.3.7",
     "@pinia/nuxt": "^0.4.11",
     "@supabase/supabase-js": "^2.25.0",
-    "@syncfusion/ej2-vue-gantt": "^23.2.7",
     "@syncfusion/ej2-vue-grids": "^23.2.7",
     "@types/lodash": "^4.14.202",
     "@types/lodash-es": "^4.17.12",

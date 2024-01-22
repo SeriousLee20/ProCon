@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event);
   const client = serverSupabaseClient<Database>(event);
   const dstore = useDataStore();
-  const data = dstore.getUser;
+  const data = await readBody(event);
   var success = false;
 
   if (user) {

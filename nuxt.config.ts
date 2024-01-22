@@ -5,15 +5,18 @@ export default defineNuxtConfig({
   plugins: [
     "~/plugins/event-bus.ts",
     { src: "~/plugins/primevue.ts", ssr: false },
+    "~/plugins/ganttastic.client.ts"
   ],
   modules: [
     "@nuxtjs/supabase",
     "@vueuse/nuxt",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
-    "@vee-validate/nuxt",
+    "@nuxt/image"
   ],
-
+  image:{
+    dir:"assets/images/"
+  },
   css: [
     "@/assets/main.css",
     "primevue/resources/themes/mira/theme.css",

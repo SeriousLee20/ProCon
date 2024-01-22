@@ -82,6 +82,7 @@ export interface Database {
       chat_group: {
         Row: {
           created_at: string
+          group_creator: string | null
           group_description: string | null
           group_id: string
           group_name: string
@@ -90,6 +91,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          group_creator?: string | null
           group_description?: string | null
           group_id?: string
           group_name: string
@@ -98,6 +100,7 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          group_creator?: string | null
           group_description?: string | null
           group_id?: string
           group_name?: string
@@ -105,6 +108,13 @@ export interface Database {
           project_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "chat_group_group_creator_fkey"
+            columns: ["group_creator"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "chat_group_project_id_fkey"
             columns: ["project_id"]
@@ -198,6 +208,41 @@ export interface Database {
           }
         ]
       }
+      departments: {
+        Row: {
+          created_at: string
+          department: string | null
+          department_abbr: string | null
+          department_id: string
+          project_id: string | null
+          resource_link: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          department_abbr?: string | null
+          department_id?: string
+          project_id?: string | null
+          resource_link?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          department_abbr?: string | null
+          department_id?: string
+          project_id?: string | null
+          resource_link?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       filters: {
         Row: {
           board_name: string
@@ -243,6 +288,8 @@ export interface Database {
       map_project: {
         Row: {
           department: string | null
+          department_abbr: string | null
+          department_id: string | null
           is_show_in_overview: boolean | null
           position: string | null
           project_id: string
@@ -252,6 +299,8 @@ export interface Database {
         }
         Insert: {
           department?: string | null
+          department_abbr?: string | null
+          department_id?: string | null
           is_show_in_overview?: boolean | null
           position?: string | null
           project_id: string
@@ -261,6 +310,8 @@ export interface Database {
         }
         Update: {
           department?: string | null
+          department_abbr?: string | null
+          department_id?: string | null
           is_show_in_overview?: boolean | null
           position?: string | null
           project_id?: string
@@ -269,6 +320,13 @@ export interface Database {
           user_role?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "map_project_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["department_id"]
+          },
           {
             foreignKeyName: "map_project_project_id_fkey"
             columns: ["project_id"]
@@ -291,7 +349,10 @@ export interface Database {
           created_at: string
           notification_id: string
           project_id: string | null
+          push_notification: boolean[] | null
+          push_telegram_notification: boolean | null
           target: string[] | null
+          telegram_chat_id: string | null
           title: string
         }
         Insert: {
@@ -299,7 +360,10 @@ export interface Database {
           created_at?: string
           notification_id?: string
           project_id?: string | null
+          push_notification?: boolean[] | null
+          push_telegram_notification?: boolean | null
           target?: string[] | null
+          telegram_chat_id?: string | null
           title: string
         }
         Update: {
@@ -307,7 +371,10 @@ export interface Database {
           created_at?: string
           notification_id?: string
           project_id?: string | null
+          push_notification?: boolean[] | null
+          push_telegram_notification?: boolean | null
           target?: string[] | null
+          telegram_chat_id?: string | null
           title?: string
         }
         Relationships: [
@@ -345,29 +412,32 @@ export interface Database {
         Row: {
           creation_timestamp: string
           creator_id: string | null
-          departments: Json[] | null
+          departments: string[] | null
           description: string | null
           id: string
           name: string
           positions: Json[] | null
+          telegram_chat_id: string | null
         }
         Insert: {
           creation_timestamp?: string
           creator_id?: string | null
-          departments?: Json[] | null
+          departments?: string[] | null
           description?: string | null
           id?: string
           name: string
           positions?: Json[] | null
+          telegram_chat_id?: string | null
         }
         Update: {
           creation_timestamp?: string
           creator_id?: string | null
-          departments?: Json[] | null
+          departments?: string[] | null
           description?: string | null
           id?: string
           name?: string
           positions?: Json[] | null
+          telegram_chat_id?: string | null
         }
         Relationships: [
           {
@@ -395,6 +465,7 @@ export interface Database {
           owner_ids: string[] | null
           project_id: string
           start_date: string | null
+          start_date_time: string | null
           status_code: number | null
           urgent_date: string | null
         }
@@ -413,6 +484,7 @@ export interface Database {
           owner_ids?: string[] | null
           project_id: string
           start_date?: string | null
+          start_date_time?: string | null
           status_code?: number | null
           urgent_date?: string | null
         }
@@ -431,6 +503,7 @@ export interface Database {
           owner_ids?: string[] | null
           project_id?: string
           start_date?: string | null
+          start_date_time?: string | null
           status_code?: number | null
           urgent_date?: string | null
         }
@@ -454,6 +527,45 @@ export interface Database {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      task_comments: {
+        Row: {
+          comment_id: string
+          content: string | null
+          created_at: string
+          sender_id: string | null
+          task_id: string | null
+        }
+        Insert: {
+          comment_id?: string
+          content?: string | null
+          created_at?: string
+          sender_id?: string | null
+          task_id?: string | null
+        }
+        Update: {
+          comment_id?: string
+          content?: string | null
+          created_at?: string
+          sender_id?: string | null
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "task"
             referencedColumns: ["id"]
           }
         ]
@@ -491,6 +603,7 @@ export interface Database {
           created_at: string | null
           email: string
           end_working_hour: string | null
+          has_profile_photo: boolean | null
           id: string
           name: string | null
           start_working_hour: string | null
@@ -500,6 +613,7 @@ export interface Database {
           created_at?: string | null
           email?: string
           end_working_hour?: string | null
+          has_profile_photo?: boolean | null
           id?: string
           name?: string | null
           start_working_hour?: string | null
@@ -509,6 +623,7 @@ export interface Database {
           created_at?: string | null
           email?: string
           end_working_hour?: string | null
+          has_profile_photo?: boolean | null
           id?: string
           name?: string | null
           start_working_hour?: string | null
@@ -579,7 +694,39 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
+        }[]
+      }
+      delete_announcement: {
+        Args: {
+          n_user_id: string
+          n_project_id: string
+          n_announcement_id: string
+        }
+        Returns: {
+          creation_timestamp: string
+          creator_id: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          receiver_ids: string[]
+        }[]
+      }
+      delete_department: {
+        Args: {
+          n_department_id: string
+          n_department: string
+          n_project_id: string
+        }
+        Returns: {
+          user_id: string
+          username: string
+          user_role: string
+          user_position: string
+          user_department: string
+          department_id: string
         }[]
       }
       delete_member: {
@@ -588,6 +735,12 @@ export interface Database {
           n_project_id: string
         }
         Returns: Record<string, unknown>
+      }
+      delete_project: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: number
       }
       delete_task: {
         Args: {
@@ -605,8 +758,9 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -617,6 +771,10 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: Json[]
+          comments: Json
+          due: boolean
+          project_id: string
         }[]
       }
       delete_task_from_ov: {
@@ -628,8 +786,13 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          role: string
+          description: string
+          creator_id: string
+          telegram_chat_id: string
           grouped_members: Json
           task_list: Json
+          user_id: string
         }[]
       }
       get_all_project: {
@@ -637,11 +800,12 @@ export interface Database {
         Returns: {
           creation_timestamp: string
           creator_id: string | null
-          departments: Json[] | null
+          departments: string[] | null
           description: string | null
           id: string
           name: string
           positions: Json[] | null
+          telegram_chat_id: string | null
         }[]
       }
       get_announcement: {
@@ -663,7 +827,10 @@ export interface Database {
         Args: {
           n_project_id: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          departments: Json
+          positions: Json[]
+        }[]
       }
       get_chatlist: {
         Args: {
@@ -679,6 +846,7 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
         }[]
       }
@@ -689,11 +857,12 @@ export interface Database {
         Returns: {
           creation_timestamp: string
           creator_id: string | null
-          departments: Json[] | null
+          departments: string[] | null
           description: string | null
           id: string
           name: string
           positions: Json[] | null
+          telegram_chat_id: string | null
         }[]
       }
       get_filters: {
@@ -724,6 +893,33 @@ export interface Database {
           project_creator_id: string
         }[]
       }
+      get_full_data2: {
+        Args: {
+          current_user_id: string
+        }
+        Returns: {
+          user_info: Json
+          filters: Json
+          user_projects: Json
+        }[]
+      }
+      get_gantt_data: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: {
+          department: string
+          rows: Json
+        }[]
+      }
+      get_grouped_members: {
+        Args: {
+          n_project_id: string
+        }
+        Returns: {
+          project_members: Json
+        }[]
+      }
       get_management_board: {
         Args: {
           n_project_id: string
@@ -734,6 +930,7 @@ export interface Database {
           user_role: string
           user_position: string
           user_department: string
+          department_id: string
         }[]
       }
       get_management_boards: {
@@ -743,8 +940,13 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          role: string
+          description: string
+          creator_id: string
+          telegram_chat_id: string
           grouped_members: Json
           task_list: Json
+          user_id: string
         }[]
       }
       get_notification: {
@@ -795,8 +997,9 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -807,6 +1010,10 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: Json[]
+          comments: Json
+          due: boolean
+          project_id: string
         }[]
       }
       get_task_by_user: {
@@ -868,6 +1075,7 @@ export interface Database {
           created_at: string | null
           email: string
           end_working_hour: string | null
+          has_profile_photo: boolean | null
           id: string
           name: string | null
           start_working_hour: string | null
@@ -910,8 +1118,8 @@ export interface Database {
           n_chatroom_id: string
           n_project_id: string
           n_user_id: string
-          n_receiver_id: string
           n_text_content: string
+          n_receiver_id?: string
         }
         Returns: {
           chatroom_id: string
@@ -922,16 +1130,48 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
         }[]
       }
       insert_department: {
         Args: {
-          n_name: Json[]
+          n_name: string[]
           project_id: string
         }
         Returns: Record<string, unknown>
       }
+      insert_department2: {
+        Args: {
+          n_departments: string[]
+          n_project_id: string
+        }
+        Returns: {
+          departments: Json
+          positions: Json[]
+        }[]
+      }
+      insert_dept_resource:
+        | {
+            Args: {
+              n_resource_link: string
+              n_department_id: string
+              n_project_id: string
+            }
+            Returns: {
+              departments: Json
+              positions: Json[]
+            }[]
+          }
+        | {
+            Args: {
+              resource: Json[]
+              n_project_id: string
+            }
+            Returns: {
+              resources: Json
+            }[]
+          }
       insert_notification: {
         Args: {
           n_title: string
@@ -939,6 +1179,7 @@ export interface Database {
           n_target: string[]
           n_project_id: string
           n_user_id: string
+          n_telegram_chat_id?: string
         }
         Returns: {
           notification_id: string
@@ -952,7 +1193,9 @@ export interface Database {
           n_name: Json[]
           project_id: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          positions: Json
+        }[]
       }
       insert_task: {
         Args: {
@@ -962,7 +1205,7 @@ export interface Database {
           n_owner_ids: string[]
           n_status_code: number
           n_due_date_time: string
-          n_due_date: string
+          n_start_date_time: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -981,8 +1224,9 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -993,6 +1237,66 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: Json[]
+          comments: Json
+          due: boolean
+          project_id: string
+        }[]
+      }
+      insert_task_comment: {
+        Args: {
+          n_sender_id: string
+          n_task_id: string
+          n_content: string
+          n_project_id: string
+        }
+        Returns: {
+          task_id: string
+          task_name: string
+          task_desc: string
+          creator_id: string
+          creator_name: string
+          creation_timestamp: string
+          modified_by: string
+          modifier_name: string
+          modified_at: string
+          owner_ids: string[]
+          status_name: string
+          status_code: number
+          start_date_time: string
+          start_date: string
+          due_date_time: string
+          due_date: string
+          urgent_date: string
+          importance: number
+          importance_desc: string
+          importance_rate: number
+          owner_info: Json
+          status_icon: string
+          status_severity: string
+          dept_abbr: Json[]
+          comments: Json
+          due: boolean
+          project_id: string
+        }[]
+      }
+      insert_task_comment_from_ov: {
+        Args: {
+          n_sender_id: string
+          n_task_id: string
+          n_content: string
+          n_project_id: string
+        }
+        Returns: {
+          project_id: string
+          project_name: string
+          role: string
+          description: string
+          creator_id: string
+          telegram_chat_id: string
+          grouped_members: Json
+          task_list: Json
+          user_id: string
         }[]
       }
       map_user_project: {
@@ -1001,7 +1305,14 @@ export interface Database {
           n_project_id: string
           n_role: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          user_id: string
+          username: string
+          user_role: string
+          user_position: string
+          user_department: string
+          department_id: string
+        }[]
       }
       new_project: {
         Args: {
@@ -1026,7 +1337,26 @@ export interface Database {
           group_info: Json
           chatlog: Json
           group_members: Json
+          gp_member_ids: string[]
           chat_target: Json
+        }[]
+      }
+      quit_project: {
+        Args: {
+          n_project_id: string
+          n_user_id: string
+        }
+        Returns: number
+      }
+      update_dpt_resource: {
+        Args: {
+          n_resource_link: string
+          n_department_id: string
+          n_project_id: string
+        }
+        Returns: {
+          departments: Json
+          positions: Json[]
         }[]
       }
       update_filter: {
@@ -1040,15 +1370,63 @@ export interface Database {
           filter: Json
         }[]
       }
+      update_group_info: {
+        Args: {
+          n_group_id: string
+          n_group_name: string
+          n_group_description: string
+          n_project_id: string
+          n_user_ids: string[]
+          n_user_id: string
+        }
+        Returns: {
+          chatroom_id: string
+          group_id: string
+          user_ids: string[]
+          project_id: string
+          last_update_time: string
+          group_info: Json
+          chatlog: Json
+          group_members: Json
+          gp_member_ids: string[]
+          chat_target: Json
+        }[]
+      }
+      update_profile_photo_status: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: undefined
+      }
+      update_project: {
+        Args: {
+          n_user_id: string
+          n_project_id: string
+          n_project_name: string
+          n_project_description: string
+          n_telegram_chat_id: string
+        }
+        Returns: {
+          user_projects: Json
+        }[]
+      }
       update_project_user_map: {
         Args: {
           n_user_id: string
           n_project_id: string
           n_role: string
           n_department: string
+          n_department_id: string
           n_position: string
         }
-        Returns: Record<string, unknown>
+        Returns: {
+          user_id: string
+          username: string
+          user_role: string
+          user_position: string
+          user_department: string
+          department_id: string
+        }[]
       }
       update_task: {
         Args: {
@@ -1057,8 +1435,8 @@ export interface Database {
           n_description: string
           n_owner_ids: string[]
           n_status_code: number
+          n_start_date_time: string
           n_due_date_time: string
-          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -1077,8 +1455,9 @@ export interface Database {
           modifier_name: string
           modified_at: string
           owner_ids: string[]
-          status: string
+          status_name: string
           status_code: number
+          start_date_time: string
           start_date: string
           due_date_time: string
           due_date: string
@@ -1089,6 +1468,10 @@ export interface Database {
           owner_info: Json
           status_icon: string
           status_severity: string
+          dept_abbr: Json[]
+          comments: Json
+          due: boolean
+          project_id: string
         }[]
       }
       update_task_from_ov: {
@@ -1098,8 +1481,8 @@ export interface Database {
           n_description: string
           n_owner_ids: string[]
           n_status_code: number
+          n_start_date_time: string
           n_due_date_time: string
-          n_due_date: string
           n_urgent_date: string
           n_importance: number
           n_importance_rate: number
@@ -1110,8 +1493,13 @@ export interface Database {
         Returns: {
           project_id: string
           project_name: string
+          role: string
+          description: string
+          creator_id: string
+          telegram_chat_id: string
           grouped_members: Json
           task_list: Json
+          user_id: string
         }[]
       }
       update_user: {
@@ -1123,15 +1511,13 @@ export interface Database {
           n_start_working_hour: string
           n_end_working_hour: string
         }
-        Returns: {
-          contact_number: string | null
-          created_at: string | null
-          email: string
-          end_working_hour: string | null
-          id: string
-          name: string | null
-          start_working_hour: string | null
-        }[]
+        Returns: Record<string, unknown>
+      }
+      upload_profile_photo: {
+        Args: {
+          n_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
@@ -1259,7 +1645,7 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "objects_bucketId_fkey"
+            foreignKeyName: "objects_bucket_id_fkey"
             columns: ["bucket_id"]
             isOneToOne: false
             referencedRelation: "buckets"

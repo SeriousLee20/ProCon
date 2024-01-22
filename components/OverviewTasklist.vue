@@ -8,7 +8,7 @@
         <div
           v-for="(item, index) in slotProps.items"
           :key="index"
-          class="col-12 cursor-pointer hover:bg-primary-100 border-round border-none mb-2 shadow-2 px-3 pb-3"
+          class="col-12 cursor-pointer hover:bg-primary-100 border-round shadow-2 px-3 mb-2"
           @click="openTaskDialog(item)"
         >
           <div class="">
@@ -16,36 +16,56 @@
               {{ item.task_name }}
             </p>
 
-            <div class="flex gap-1">
-              <Ptag
-                v-if="item.status_name"
-                :value="item.status_name"
-                rounded
-                :icon="item.status_icon"
-                :severity="item.status_severity"
-                class="max-h-1rem"
-              />
-              <Ptag
-                v-if="item.due_date_time"
-                :value="formatDate(item.due_date_time)"
-                rounded
-                icon="pi pi-stopwatch"
-                class="max-h-1rem"
-              />
-              <Ptag
-                v-if="item.importance_desc"
-                :value="item.importance_desc"
-                rounded
-                icon="pi pi-exclamation-triangle"
-                class="max-h-1rem"
-              />
-              <Ptag
-                v-if="item.importance_rate"
-                :value="item.importance_rate"
-                rounded
-                icon="pi pi-flag"
-                class="max-h-1rem"
-              />
+            <div class="flex justify-content-between">
+              <div class="flex gap-1 align-items-end">
+                <Ptag
+                  v-if="item.status_name"
+                  :value="item.status_name"
+                  rounded
+                  :icon="item.status_icon"
+                  :severity="item.status_severity"
+                  class="max-h-1rem"
+                />
+                <Ptag
+                  v-if="item.due_date_time"
+                  :value="formatDate(item.due_date_time)"
+                  rounded
+                  icon="pi pi-stopwatch"
+                  class="max-h-1rem"
+                  :class="{'bg-red-500': item.due}"
+                />
+
+                <Ptag
+                  v-if="item.importance == 1"
+                  :value="item.importance_rate"
+                  rounded
+                  icon="pi pi-exclamation-triangle"
+                  class="max-h-1rem font-normal"
+                />
+              </div>
+              <div>
+                <Pavatargroup>
+                  <div v-for="dpt in item.dept_abbr">
+                    <Pavatar
+                      :label="dpt.department_abbr"
+                      size="small"
+                      shape="circle"
+                      style="
+                        font-size: x-small;
+                        background-color: var(--primary-500);
+                        border-color: var(--primary-500);
+                        color: white;
+                      "
+                      v-tooltip.top="{
+                        value: dpt.department_name,
+                        pt: {
+                          text: 'bg-primary-500 text-xs font-medium text-center',
+                        },
+                      }"
+                    />
+                  </div>
+                </Pavatargroup>
+              </div>
             </div>
           </div>
         </div>

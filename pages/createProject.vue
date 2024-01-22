@@ -15,7 +15,8 @@
         <template #content>
           <div class="flex flex-column gap-5">
             <div>
-              <span class="p-float-label">
+              <span>
+                <label for="project-name" class="text-sm text-primary-500">Title</label>
                 <Pinputtext
                   id="project-name"
                   class="w-full"
@@ -25,28 +26,28 @@
                   required
                   @blur="validate"
                 />
-                <label for="project-name">Title</label>
               </span>
               <div class="flex justify-content-between">
-                <small>Short & unique is nice!</small>
+                <small class="text-gray-300">Short & unique is nice!</small>
                 <small class="invalid-input" v-if="invalidName"
-                  >Invalid :(</small
+                  >Invalid</small
                 >
               </div>
             </div>
             <div>
-              <span class="p-float-label">
+              <span>
+                <label for="project-desc" class="text-sm text-primary-500">Description</label>
                 <Ptextarea
-                  id="project-desc"
-                  v-model="projectDesc"
-                  type="text"
-                  autoResize
-                  rows="5"
-                  cols="30"
+                id="project-desc"
+                v-model="projectDesc"
+                type="text"
+                autoResize
+                rows="5"
+                cols="30"
+                class="flex flex-column"
                 />
-                <label for="project-desc">Description</label>
+                <small class="text-gray-300">What is this project about?</small>
               </span>
-              <small>What is this project about?</small>
             </div>
           </div>
           <div class="flex justify-content-end align-content-end">
@@ -56,6 +57,8 @@
               icon="pi pi-caret-right"
               aria-label="go-add-department"
               label="Create"
+              class="mt-3"
+              text
               @click="createProject"
             />
           </div>
@@ -130,10 +133,10 @@ const createProject = async () => {
           lifetime: 3000,
         });
 
-        const doneRefresh = await refreshDatastore("", createdProject.id);
-        console.log("donrefresh ds", doneRefresh);
-        if (doneRefresh.doneRefreshDs) {
-          console.log("ds after refresh", dstore.getFullData());
+        // const doneRefresh = await refreshDatastore("", createdProject.id);
+        // console.log("donrefresh ds", doneRefresh);
+        // if (doneRefresh.doneRefreshDs) {
+          // console.log("ds after refresh", dstore.getFullData());
           loading.value = false;
           setCurrentProject(createdProject.id);
           //   navigateTo(`/projectManagement/${createdProject.id}`);
@@ -142,7 +145,8 @@ const createProject = async () => {
             routeName: `${createdProject.id}/management`,
             pageName: "Management",
           });
-        }
+
+        // }
       } else {
         toast.add({
           severity: "danger",

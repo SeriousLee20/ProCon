@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const user_id = user?.id.toString();
 
     const { data: queryResponse, error: queryError } = await client.rpc(
-      "get_full_data",
+      "get_full_data2",
       {
         current_user_id: user_id,
       }

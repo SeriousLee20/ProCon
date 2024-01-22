@@ -8,6 +8,8 @@ export const useDataStore = defineStore("data", {
     announcement: null as Announcement[] | null,
     selectedProject: null as Project | null,
     currentPage: "",
+    managementBoard: null as ProjectMember[] | null,
+    filters: null as Filter[] | null
   }),
   getters: {
     getUserId: (state) => state.user?.id,
@@ -17,11 +19,13 @@ export const useDataStore = defineStore("data", {
     getSelectedProject: (state) => state.selectedProject,
     getAllProjects: (state) => state.projects,
     getCurrentPage: (state) => state.currentPage,
+    getManagementBoard: (state) => state.managementBoard,
+    getFilters: (state) => state.filters
   },
   actions: {
-    createUser(user: User) {
-      this.user = user;
-      // console.log(user);
+    createUser(user: JSON) {
+      this.user = user as any as User;
+      console.log(user);
     },
     logIn() {
       this.isLoggedIn = true;
@@ -29,11 +33,20 @@ export const useDataStore = defineStore("data", {
     logOut() {
       this.isLoggedIn = false;
     },
+    initializeProjectList(projects: JSON){
+      projects ? this.projects = [...projects as any as Project[]] : null;
+    },
     async createProject(project: Project) {
       console.log(project);
       if (!this.projects) this.projects = [];
       this.projects.push(project);
       //   console.log("e", this.projects);
+    },
+    updateProjectList(projects: JSON){
+      projects ? this.projects = [...projects as any as Project[]] : null;
+      this.setSelectedProject(this.selectedProject!.id);
+      console.log(this.projects, this.selectedProject)
+      return this.selectedProject;
     },
     createAnnouncement(announcement: Announcement) {
       console.log(announcement);
@@ -73,11 +86,15 @@ export const useDataStore = defineStore("data", {
         this.projects,
         this.announcement,
         this.selectedProject,
+        this.filters
       ];
     },
     getLatestProject() {
       console.log(this.projects?.pop());
       return this.projects?.pop();
+    },
+    getFilterByBoardName(boardName: string){
+      return this.filters?.filter(filter => { return filter.board_name == boardName})[0].filter;
     },
     setCurrentPage(page: string) {
       this.currentPage = page;
@@ -85,7 +102,29 @@ export const useDataStore = defineStore("data", {
     setSelectedProject(id: string) {
       const project = this.getProject(id);
       this.selectedProject = project ? project : null;
-      console.log("ds set selected project", id);
+      console.log("ds set selected project", id, this.selectedProject);
+    },
+    setManagementBoard(managementBoard: ProjectMember[]){
+      this.managementBoard = managementBoard;
+    },
+    setManagementBoardByProject(projectId: string){
+      let managementBoard = this.projects?.filter(project => {return project.id == projectId})[0].grouped_members;
+      this.managementBoard = managementBoard ? managementBoard : null;
+    },
+    setFilters(filters: JSON){
+      this.filters = filters as any as Filter[];
+    },
+    setHasProfilePhoto(has: keyof User){
+      if(this.user){
+
+        this.user['has_profile_photo'] = has as any as boolean;
+      }
+    },
+    setTaskListByProjectId(taskList: JSON, projectId: string){
+      this.projects = this.projects?.map(project => {
+        project.task_list = project.id == projectId ? taskList : project.task_list
+      }) as any as Project[];
+
     },
     clearData() {
       this.user = null;
@@ -99,7 +138,7 @@ export const useDataStore = defineStore("data", {
   },
 });
 
-interface User {
+export interface User {
   id: string;
   name: string;
   contact_number: string;
@@ -107,6 +146,7 @@ interface User {
   start_working_hour: string;
   end_working_hour: string;
   avatar_url: string;
+  has_profile_photo: boolean;
 }
 
 interface Project {
@@ -115,7 +155,10 @@ interface Project {
   role: string;
   description: string;
   creator_id: string;
-  is_show_project_in_overview: boolean;
+  // is_show_project_in_overview: boolean;
+  telegram_chat_id: string,
+  grouped_members: ProjectMember[],
+  task_list: JSON,
   //   tasks: [{
   //     id: string;
   //     name: string;
@@ -129,6 +172,14 @@ interface Project {
   //     task_urgent_date: string;
   //     task_status: string;
   //   }];
+}
+
+interface ProjectMember {
+  user_id: string,
+  username: string,
+  department: string,
+  position: string,
+  role: string
 }
 
 interface Overview {
@@ -146,4 +197,9 @@ interface Announcement {
   creation_date_time: string;
   description: string;
   receiver_id: string[];
+}
+
+interface Filter {
+  board_name: string;
+  filter: JSON;
 }

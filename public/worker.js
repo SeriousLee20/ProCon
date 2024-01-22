@@ -18,23 +18,35 @@ self.addEventListener(
 
 const handleInserts = async (payload) => {
   console.log(userId);
-  console.log(payload.new.target);
-  if (payload.new.target.includes(userId)) {
-    new Notification(payload.new.title, { body: payload.new.content });
+  console.log(payload.new);
+  let index = payload.new.target?.indexOf(userId);
+
+  console.log(index)
+  if (index > -1) {
+    console.log(payload.new.push_notification[index])
+    if (payload.new.push_notification[index]) {
+       console.log('push')
+      new Notification(payload.new.title, { body: payload.new.content });
+    }
   }
 
-  doPostRequest(payload.new.content);
+  if (payload.new.telegram_chat_id) {
+    console.log('post')
+    doPostRequest(payload.new.content, payload.new.telegram_chat_id);
+  }
 };
 
-async function doPostRequest(content) {
-  const text = "Check Procon Now! For " + content;
-  const chatID = -4016432921;
-  const token = "6703014884:AAFDX_jNeiyLV2chV_T9Y_MLWxwVRIaMe54";
+async function doPostRequest(content, chatID) {
+  const text = `Check ProCon Now! For ${content}`;
+  // const chatID = -4016432921;
+  //const token = "6703014884:AAFDX_jNeiyLV2chV_T9Y_MLWxwVRIaMe54";
+  //new token
+  const token = "6831148241:AAH-5FUmILQ2KWdjVBscrGtrp4KP9_jJX9s";
   let res = await axios.post(
     `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatID}&text=${text}`
   );
   let data = res.data;
-  console.log(data);
+  console.log(res, data);
 }
 
 supabase

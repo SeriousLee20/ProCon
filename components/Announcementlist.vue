@@ -3,21 +3,22 @@
     <template #list="slotProps">
       <div
         v-for="(item, index) in slotProps.items"
-        class="w-full flex align-items-center justify-content-between"
+        class="w-full col-12 hover:shadow-2 shadow-1 mb-3 p-2 pb-3 cursor-pointer border-1 border-round border-primary-400 border-top-none border-left-none"
+        @click="openAnnouncementDialog(item)"
       >
-        <div class="flex gap-2 align-content-center">
-          <p class="footnote-2">
+        <div class="flex align-items-center justify-content-between mb-2">
+          <div class="text-sm font-semibold">
             {{ item.name ?? "" }}
-          </p>
-          <i
-            class="footnote flex pi pi-info-circle text-base text-color-secondary align-items-center"
-            v-tooltip.right="item.description ?? 'No description provided'"
-          ></i>
+          </div>
+          <div class="text-xs font-light">
+            {{ formatDate(item.creation_timestamp) ?? "" }}
+          </div>
         </div>
-
-        <p class="footnote">
-          {{ formatDate(item.creation_timestamp) ?? "" }}
-        </p>
+        <div
+          class="text-xs font-normal max-h-1rem text-overflow-ellipse overflow-hidden"
+        >
+          {{ item.description }}
+        </div>
       </div>
     </template>
   </Pdataview>
@@ -31,6 +32,12 @@ const formatDate = (dateString) => {
     locales: "en-US",
   });
   return formattedDate.value;
+};
+
+const emit = defineEmits(["open-announcement-dialog"]);
+const openAnnouncementDialog = (props) => {
+  console.log("openannouncementdialog");
+  emit("open-announcement-dialog", props);
 };
 </script>
 

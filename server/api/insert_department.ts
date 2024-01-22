@@ -18,10 +18,10 @@ export default defineEventHandler(async (event) => {
 
     if (nData) {
       const { data: queryResponse, error: queryError } = await client.rpc(
-        "insert_department",
+        "insert_department2",
         {
-          project_id: nData.project_id,
-          n_name: nData.departments,
+          n_project_id: nData.project_id,
+          n_departments: nData.departments,
         }
       );
 

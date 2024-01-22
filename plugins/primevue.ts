@@ -35,6 +35,9 @@ import Listbox from "primevue/listbox";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import FileUpload from "primevue/fileupload";
+import Checkbox from "primevue/checkbox";
+import Inplace from "primevue/inplace";
+import Carousel from "primevue/carousel";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(PrimeVue, { ripple: true });
@@ -43,6 +46,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Pdropdown", Dropdown);
   nuxtApp.vueApp.component("Pmenu", Menu);
   nuxtApp.vueApp.component("Pavatar", Avatar);
+  nuxtApp.vueApp.component("Pavatargroup", AvatarGroup);
   nuxtApp.vueApp.component("Pinputtext", InputText);
   nuxtApp.vueApp.component("Pinputmask", InputMask);
   nuxtApp.vueApp.component("Ptoast", Toast);
@@ -68,10 +72,14 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component("Paccordian", Accordion);
   nuxtApp.vueApp.component("Paccordiantab", AccordionTab);
   nuxtApp.vueApp.component("Pfileupload", FileUpload);
+  nuxtApp.vueApp.component("Pcheckbox", Checkbox);
+  nuxtApp.vueApp.component("Pinplace", Inplace);
+  nuxtApp.vueApp.component("Pcarousel", Carousel);
 
-  // if (process.client) {
-  //   Quill.register(Editor, true);
-  // }
+  if(process.client){
+
+    // Quill.register(Editor, true);
+  }
 
   //other components that you need
 
