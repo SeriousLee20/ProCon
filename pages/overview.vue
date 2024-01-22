@@ -41,6 +41,7 @@
       :selectedTask="selectedTask"
       :groupedUsers="groupedUsers"
       :taskOptions="taskOptions"
+      :header="'Edit Task'"
       :isEditTask="isEditTask"
       :isAdmin="isAdmin"
       @update-task="updateTask()"

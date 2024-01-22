@@ -953,7 +953,7 @@ const addMember = async () => {
     getUserRes.value
   );
 
-  if (newMember && newMember.value.length > 0) {
+  if (newMember && newMember.value?.length > 0) {
     newMember.value?.forEach(async (newMb) => {
       console.log("curr member", newMb);
 
@@ -964,7 +964,7 @@ const addMember = async () => {
         userName = validateUser.name;
 
         if (
-          !board.value.find((oldMember) => {
+          !board.value?.find((oldMember) => {
             return oldMember.user_id == newMb;
           })
         ) {
@@ -976,7 +976,7 @@ const addMember = async () => {
             username: userName,
           };
 
-          board.value.push(newMemberData);
+          board.value?.push(newMemberData);
 
           newMemberData["project_id"] = projectid;
           newMemberData["user_id"] = newMb;
@@ -1218,6 +1218,7 @@ const addPosition = async () => {
   let hasNewPosition = false;
   let existedPosition = [];
   let addedPosition = [];
+  let alertNewPosition = [];
 
   console.log(newPosition.value);
   if (newPosition.value?.length > 0) {
@@ -1238,6 +1239,7 @@ const addPosition = async () => {
       });
     }
     if (addedPosition.length > 0) {
+      alertNewPosition = [...addedPosition]
       addedPosition = addedPosition.map((pos) => ({
         user_position: pos,
       }));
@@ -1254,11 +1256,11 @@ const addPosition = async () => {
       );
 
       console.log("insertpositionres", insertPositionRes.value);
-      if (insertPositionRes.value.success) {
+      if (insertPositionRes.value?.success) {
         toast.add({
           severity: "success",
           summary: "Success",
-          detail: `Added ${addedPosition.join(", ")} to the project.`,
+          detail: `Added ${alertNewPosition.join(", ")} to the project.`,
           life: 5000,
         });
         newPosition.value = null;

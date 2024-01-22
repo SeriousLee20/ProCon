@@ -152,7 +152,7 @@
                   column: { class: 'border-none' },
                   emptyMessage: { content: 'No Task' },
                 }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
+                @open-task-dialog="toggleTaskDialog($event, true, 'Edit Task')"
               />
             </template>
           </Pcard>
@@ -168,7 +168,7 @@
                 :taskList="mainTaskList.q1"
                 :listName="'main_task'"
                 :pt="{ content: { class: 'bg-primary-500' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
+                @open-task-dialog="toggleTaskDialog($event, true, 'Edit Task')"
               />
             </template>
           </Pcard>
@@ -185,7 +185,7 @@
           >
             <Pbutton
               icon="pi pi-plus"
-              @click="toggleTaskDialog(null, false)"
+              @click="toggleTaskDialog(null, false, 'Add Task')"
               rounded
             />
           </div>
@@ -203,7 +203,7 @@
                 :taskList="mainTaskList.q3"
                 :listName="'main_task'"
                 :pt="{ content: { class: 'bg-primary-400' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
+                @open-task-dialog="toggleTaskDialog($event, true, 'Edit Task')"
               />
             </template>
           </Pcard>
@@ -224,7 +224,7 @@
                 :taskList="mainTaskList.q2"
                 :listName="'main_task'"
                 :pt="{ content: { class: 'bg-primary-400' } }"
-                @open-task-dialog="toggleTaskDialog($event, true)"
+                @open-task-dialog="toggleTaskDialog($event, true, 'Edit Task')"
               />
             </template>
           </Pcard>
@@ -267,7 +267,7 @@
                 class="h-19rem overflow-scroll -mt-3"
                 :taskList="myTaskList"
                 :listName="'my_task'"
-                @open-task-dialog="toggleTaskDialog($event, true)"
+                @open-task-dialog="toggleTaskDialog($event, true, 'Edit Task')"
               />
 
               <Taskdialog
@@ -276,12 +276,13 @@
                 :selectedTask="selectedTask"
                 :groupedUsers="groupedUsers"
                 :taskOptions="taskOptions"
+                :header="taskDialogHeader"
                 :isEditTask="isEditTask"
                 :isAdmin="isAdmin"
                 :isTaskOwner="isTaskOwner"
                 @update-task="updateTask()"
                 @insert-task="insertTask()"
-                @close-task-dialog="toggleTaskDialog(null, false)"
+                @close-task-dialog="toggleTaskDialog(null, false, NonNullable)"
                 @delete-task="deleteTask"
                 @add-comment="insertComment($event)"
               />
@@ -401,6 +402,7 @@ const myTaskSortOptions = getSortOptions("sort_option");
 const mainTaskSortOptions = getSortOptions("main_task_sort_option");
 const taskDialog = ref(false);
 const isEditTask = ref(false);
+const taskDialogHeader = ref();
 const isTaskOwner = ref(false);
 const selectedTask = ref();
 const filterTaskDueDateRange = ref();
@@ -659,9 +661,10 @@ const getMyTaskList = () => {
 };
 getMyTaskList();
 
-const toggleTaskDialog = (props, isToEditTask) => {
+const toggleTaskDialog = (props, isToEditTask, header) => {
   console.log("edit", props, taskDialog);
   isEditTask.value = isToEditTask;
+  taskDialogHeader.value = header;
 
   console.log(taskDialog.value, isToEditTask);
   if (!taskDialog.value) {

@@ -247,17 +247,14 @@ const props = defineProps({
   selectedTask: {},
   groupedUsers: {},
   taskOptions: {},
+  header:{},
   isEditTask: {},
   isAdmin: {},
   isTaskOwner: {}
 });
 
-// const taskDialogRef = toRef(props, "taskDialog");
-// watch(taskDialogRef, (value) => {
-//   props.taskDialog = value;
-// });
 const isEditTask = props.isEditTask;
-const header = props.isEditTask ? "Edit Task" : "Add Task";
+// const header = props.isEditTask ? "Edit Task" : "Add Task";
 const invalidDueDate = ref(false);
 const invalidStartDate = ref(false);
 const invalidUrgentDate = ref(false);
